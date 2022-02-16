@@ -1,6 +1,7 @@
 import path from 'path'
-import { BrowserWindow, app, session } from 'electron'
+import { BrowserWindow, app, session, Menu } from 'electron'
 import { searchDevtools } from 'electron-search-devtools'
+import { menu } from './menu'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -31,7 +32,7 @@ const createWindow = () => {
     // 開発モードの場合はデベロッパーツールを開く
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   }
-
+  Menu.setApplicationMenu(menu)
   // レンダラープロセスをロード
   mainWindow.loadFile('dist/index.html')
 }
