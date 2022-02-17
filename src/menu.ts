@@ -32,7 +32,9 @@ const template: MenuItemConstructorOptions[] = [
           { label: '名前' },
           { label: '更新日時' },
           { label: '種類' },
-          { label: 'サイズ' }
+          { label: 'サイズ' },
+          { label: '昇順' },
+          { label: '降順' }
         ]
       }
     ]
@@ -62,8 +64,8 @@ const template: MenuItemConstructorOptions[] = [
   {
     label: 'お気に入り',
     submenu: [
-      { role: 'undo', label: '元に戻す' },
-      { role: 'redo', label: 'やり直す' },
+      { role: 'undo', label: 'お気に入りに追加' },
+      { role: 'redo', label: '編集' },
       { type: 'separator' },
       { role: 'cut', label: '切り取り' },
       { role: 'copy', label: 'コピー' },
@@ -73,21 +75,20 @@ const template: MenuItemConstructorOptions[] = [
   {
     label: 'ツール',
     submenu: [
-      { role: 'undo', label: '元に戻す' },
-      { role: 'redo', label: 'やり直す' },
-      { type: 'separator' },
-      { role: 'cut', label: '切り取り' },
-      { role: 'copy', label: 'コピー' },
-      { role: 'paste', label: '貼り付け' }
+      { role: 'undo', label: 'カスタマイズの再読み込み' },
+      { role: 'redo', label: 'レイアウトの読み込み' },
+      { role: 'cut', label: 'レイアウトを保存' },
+      { role: 'copy', label: 'アドオン' },
+      { role: 'paste', label: 'オプション' }
     ]
   },
   {
     label: 'ヘルプ',
     submenu: [
-      { role: 'undo', label: '元に戻す' },
-      { role: 'redo', label: 'やり直す' },
+      { role: 'undo', label: '最新版の確認' },
+      { role: 'redo', label: 'アドオンを入手' },
       { type: 'separator' },
-      { role: 'cut', label: '切り取り' },
+      { role: 'cut', label: 'アイコンを入手' },
       { role: 'copy', label: 'コピー' },
       { role: 'paste', label: '貼り付け' }
     ]
