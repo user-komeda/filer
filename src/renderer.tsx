@@ -10,18 +10,28 @@ import './styles.css'
 import TabContext from '@mui/lab/TabContext'
 import TabMenu from './component/tabMenu'
 import SelectMenu from './component/selectMenu'
+import TextFieldsMenu from './component/textFieldsMenu'
+import PanelMenu from './component/panelMenu'
+import MainContent from './component/mainContent'
 
 const App = (): JSX.Element => {
+  const test = {}
   return (
-    <div>
-      <div>
-        <TabMenu></TabMenu>
+    <>
+      <div style={{ backgroundColor: '#F0F0F0' }}>
+        <div className='test'>
+          <PanelMenu></PanelMenu>
+          <SelectMenu></SelectMenu>
+          <TextFieldsMenu></TextFieldsMenu>
+        </div>
+        <div>
+          <TabMenu></TabMenu>
+        </div>
       </div>
       <div>
-        <SelectMenu></SelectMenu>
+        <MainContent></MainContent>
       </div>
-      <div></div>
-    </div>
+    </>
   )
 }
 

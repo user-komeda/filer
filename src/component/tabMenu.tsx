@@ -9,28 +9,25 @@ const TabMenu = (): JSX.Element => {
   const [tabList, setTabList] = useState<JSX.Element[]>([])
 
   const handleClick = () => {
-    const tab = <Tab label='デスクトップ'></Tab>
+    const tab = <TabUnstyled>デスクトップ</TabUnstyled>
     setTabList(tabList.concat(tab))
   }
   return (
-    <>
-      <div>
-        <button>←</button>
-        <button>→</button>
-        <button>↑</button>
-        <button>開く</button>
-      </div>
+    <div style={{ width: '70%' }}>
       <TabsUnstyled defaultValue={0}>
         <TabsListUnstyled>
           <TabUnstyled>One</TabUnstyled>
-          <TabUnstyled>Two</TabUnstyled>
-          <TabUnstyled>Three</TabUnstyled>
+          {tabList.map(tab => {
+            return <TabUnstyled>デスクトップ</TabUnstyled>
+          })}
+          <button onClick={handleClick}>+</button>
         </TabsListUnstyled>
         <TabPanelUnstyled value={0}>First content</TabPanelUnstyled>
-        <TabPanelUnstyled value={1}>Second content</TabPanelUnstyled>
-        <TabPanelUnstyled value={2}>Third content</TabPanelUnstyled>
+        {tabList.map((tab, i) => {
+          return <TabPanelUnstyled value={i + 1}>{`${i}`}</TabPanelUnstyled>
+        })}
       </TabsUnstyled>
-    </>
+    </div>
   )
 }
 export default TabMenu
