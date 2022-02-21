@@ -13,6 +13,7 @@ import SelectMenu from './component/selectMenu'
 import TextFieldsMenu from './component/textFieldsMenu'
 import PanelMenu from './component/panelMenu'
 import MainContent from './component/mainContent'
+import * as child_process from 'child_process'
 
 const App = (): JSX.Element => {
   const test = {}

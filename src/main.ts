@@ -2,6 +2,9 @@ import path from 'path'
 import { BrowserWindow, app, session, Menu } from 'electron'
 import { searchDevtools } from 'electron-search-devtools'
 import { menu } from './menu'
+import * as child_process from 'child_process'
+import iconv from 'iconv-lite'
+import encoding from 'encoding-japanese'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -35,6 +38,19 @@ const createWindow = () => {
   Menu.setApplicationMenu(menu)
   // レンダラープロセスをロード
   mainWindow.loadFile('dist/index.html')
+
+  child_process.exec('dir', (error, stdout, stderr) => {
+    if (error instanceof Error) {
+      console.error(error)
+      console.log('exec Error *******')
+    } else {
+      for (const output of stdout) {
+        console.log(output)
+        console.log('---------------')
+      }
+      console.log(stdout)
+    }
+  })
 }
 
 app.whenReady().then(async () => {

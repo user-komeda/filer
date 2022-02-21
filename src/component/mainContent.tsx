@@ -1,6 +1,6 @@
 const MainContent = () => {
   return (
-    <table style={{width:'100%'}}>
+    <table style={{ width: '100%' }}>
       <thead>
         <tr>
           <th>名前</th>
@@ -47,7 +47,7 @@ const MainContent = () => {
           <td>20kb</td>
         </tr>
       </tbody>
-    </tables>
+    </table>
   )
 }
 export default MainContent
