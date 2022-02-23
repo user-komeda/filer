@@ -23,8 +23,12 @@ const common: Configuration = {
   },
   // モジュールの解決に利用するファイルの拡張子
   resolve: {
-    extensions: ['.js', '.ts', '.jsx', '.tsx', '.json']
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.json'],
+    fallback: {
+      fs: false
+    }
   },
+
   /**
    * macOS 上でのビルド失敗に対処するワークアラウンド
    * https://github.com/yan-foto/electron-reload/issues/71

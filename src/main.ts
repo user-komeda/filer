@@ -2,9 +2,9 @@ import path from 'path'
 import { BrowserWindow, app, session, Menu } from 'electron'
 import { searchDevtools } from 'electron-search-devtools'
 import { menu } from './menu'
-import * as child_process from 'child_process'
+import { execSync } from 'child_process'
+import jschardet from 'jschardet'
 import iconv from 'iconv-lite'
-import encoding from 'encoding-japanese'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -27,7 +27,9 @@ if (isDev) {
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     webPreferences: {
-      preload: path.resolve(__dirname, 'preload.js')
+      preload: path.resolve(__dirname, 'preload.js'),
+      nodeIntegration: true,
+      contextIsolation: false
     }
   })
 
@@ -39,20 +41,35 @@ const createWindow = () => {
   // レンダラープロセスをロード
   mainWindow.loadFile('dist/index.html')
 
-  child_process.exec('dir', (error, stdout, stderr) => {
-    if (error instanceof Error) {
-      console.error(error)
-      console.log('exec Error *******')
-    } else {
-      for (const output of stdout) {
-        console.log(output)
-        console.log('---------------')
-      }
-      console.log(stdout)
+  const folderList = [
+    '3Dオブジェクト',
+    'ダウンロード',
+    'デスクトップ',
+    'ドキュメント',
+    'ビデオ',
+    'ピクチャ',
+    'ミュージック'
+  ]
+
+  const stdout = execSync('wmic logicaldisk get caption').toString()
+  const volumeName = execSync('wmic logicaldisk get VolumeName')
+  const test = iconv.decode(volumeName, jschardet.detect(volumeName).encoding)
+  const volumeLabelList: Array<string> = []
+  test.split(/\n/).forEach((d, i) => {
+    if (i !== 0) {
+      volumeLabelList.push(d.trim())
     }
   })
-}
 
+  stdout.split(/\r\r\n/).forEach((d, i) => {
+    if (d.match(/\:/)) {
+      folderList.push(`${d.trim()}${volumeLabelList[i - 1]}`)
+    }
+  })
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.send('getFolder', folderList)
+  })
+}
 app.whenReady().then(async () => {
   if (isDev) {
     // 開発モードの場合は React Devtools をロード
