@@ -1,4 +1,6 @@
-const MainContent = () => {
+const MainContent: React.FC<{
+  folderList: Array<string>
+}> = props => {
   return (
     <table style={{ width: '100%' }}>
       <thead>
@@ -10,42 +12,13 @@ const MainContent = () => {
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
+        {props.folderList.map(folder => {
+          return (
+            <tr>
+              <td>{folder}</td>
+            </tr>
+          )
+        })}
       </tbody>
     </table>
   )

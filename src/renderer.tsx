@@ -11,8 +11,9 @@ const electron = window.require('electron')
 
 const App = (): JSX.Element => {
   const test = {}
+  const [folderList, setFolderList] = useState([])
   electron.ipcRenderer.on('getFolder', (err, args) => {
-    console.log(args)
+    setFolderList(folderList.concat(args))
   })
   return (
     <>
@@ -27,7 +28,7 @@ const App = (): JSX.Element => {
         </div>
       </div>
       <div>
-        <MainContent></MainContent>
+        <MainContent folderList={folderList}></MainContent>
       </div>
     </>
   )
