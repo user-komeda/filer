@@ -1,10 +1,11 @@
 import path from 'path'
-import { BrowserWindow, app, session, Menu } from 'electron'
+import { BrowserWindow, app, session, Menu, ipcMain } from 'electron'
 import { searchDevtools } from 'electron-search-devtools'
 import { menu } from './menu'
 import { execSync } from 'child_process'
 import jschardet from 'jschardet'
 import iconv from 'iconv-lite'
+import fs from 'fs'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -42,13 +43,13 @@ const createWindow = () => {
   mainWindow.loadFile('dist/index.html')
 
   const folderList = [
-    '3Dオブジェクト',
-    'ダウンロード',
-    'デスクトップ',
-    'ドキュメント',
-    'ビデオ',
-    'ピクチャ',
-    'ミュージック'
+    '3D Objects',
+    'Downloads',
+    'Desktop',
+    'Documents',
+    'Videos',
+    'Pictures',
+    'Music'
   ]
 
   const stdout = execSync('wmic logicaldisk get caption').toString()
@@ -68,6 +69,17 @@ const createWindow = () => {
   })
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('getFolder', folderList)
+    ipcMain.on('onClick', (event, args) => {
+      console.log(args.path)
+      const files = fs.readdirSync(args.path)
+      folderList.length = 0
+
+      // ②：filesの内容をターミナルに表示
+      files.forEach(function (file) {
+        folderList.push(file)
+      })
+      event.returnValue = folderList
+    })
   })
 }
 app.whenReady().then(async () => {

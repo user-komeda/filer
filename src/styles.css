@@ -6,3 +6,6 @@ body {
 .test {
   display: flex;
 }
+.folder:hover {
+  background-color: aqua;
+}

@@ -8,7 +8,7 @@ import TabUnstyled from '@mui/base/TabUnstyled'
 const TabMenu = (): JSX.Element => {
   const [tabList, setTabList] = useState<JSX.Element[]>([])
 
-  const handleClick = () => {
+  const handleClick = (event: any) => {
     const tab = <TabUnstyled>デスクトップ</TabUnstyled>
     setTabList(tabList.concat(tab))
   }

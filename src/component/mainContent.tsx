@@ -1,6 +1,12 @@
+import { MouseEventHandler } from 'react'
+import { ipcRenderer } from '../@types/ipcRender'
+
 const MainContent: React.FC<{
   folderList: Array<string>
+  handleClick: (e: React.MouseEvent) => void
 }> = props => {
+  let folderList: Array<string> = props.folderList
+
   return (
     <table style={{ width: '100%' }}>
       <thead>
@@ -12,10 +18,12 @@ const MainContent: React.FC<{
         </tr>
       </thead>
       <tbody>
-        {props.folderList.map(folder => {
+        {folderList.map(folder => {
           return (
             <tr>
-              <td>{folder}</td>
+              <td className='folder' onClick={props.handleClick}>
+                {folder}
+              </td>
             </tr>
           )
         })}
