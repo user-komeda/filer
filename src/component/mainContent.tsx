@@ -1,6 +1,14 @@
-const MainContent = () => {
+import { MouseEventHandler } from 'react'
+import { ipcRenderer } from '../@types/ipcRender'
+
+const MainContent: React.FC<{
+  folderList: Array<string>
+  handleClick: (e: React.MouseEvent) => void
+}> = props => {
+  let folderList: Array<string> = props.folderList
+
   return (
-    <table style={{width:'100%'}}>
+    <table style={{ width: '100%' }}>
       <thead>
         <tr>
           <th>名前</th>
@@ -10,44 +18,17 @@ const MainContent = () => {
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
-        <tr>
-          <td>test</td>
-          <td>2021/08/11</td>
-          <td>ファイル</td>
-          <td>20kb</td>
-        </tr>
+        {folderList.map(folder => {
+          return (
+            <tr>
+              <td className='folder' onClick={props.handleClick}>
+                {folder}
+              </td>
+            </tr>
+          )
+        })}
       </tbody>
-    </tables>
+    </table>
   )
 }
 export default MainContent

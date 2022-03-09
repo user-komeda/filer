@@ -1,21 +1,33 @@
-import { Box, Tab, Tabs } from '@mui/material'
-import TabPanel from '@mui/lab/TabPanel'
-import { createGlobalStyle } from 'styled-components'
-import reset from 'styled-reset'
-
-import React, { useState } from 'react'
+import React, { MouseEventHandler, useState } from 'react'
 import ReactDOM from 'react-dom'
 
 import './styles.css'
-import TabContext from '@mui/lab/TabContext'
 import TabMenu from './component/tabMenu'
 import SelectMenu from './component/selectMenu'
 import TextFieldsMenu from './component/textFieldsMenu'
 import PanelMenu from './component/panelMenu'
 import MainContent from './component/mainContent'
+import { ipcRenderer } from './@types/ipcRender'
+import path from 'node:path/win32'
 
 const App = (): JSX.Element => {
-  const test = {}
+  const [path, setPath] = useState('c://Users/user/')
+  const [folderList, setFolderList] = useState([])
+  ipcRenderer.on('getFolder', (err, args) => {
+    console.log('aa')
+    setFolderList(folderList.concat(args))
+  })
+
+  const handleClick = (event: React.MouseEvent): void => {
+    const tmpPath = `${path}${event.currentTarget.textContent}/`
+    setPath(tmpPath)
+    setFolderList(() => {
+      return ipcRenderer.sendSync('onClick', {
+        path: tmpPath
+      })
+    })
+  }
+
   return (
     <>
       <div style={{ backgroundColor: '#F0F0F0' }}>
@@ -29,7 +41,10 @@ const App = (): JSX.Element => {
         </div>
       </div>
       <div>
-        <MainContent></MainContent>
+        <MainContent
+          handleClick={handleClick}
+          folderList={folderList}
+        ></MainContent>
       </div>
     </>
   )
