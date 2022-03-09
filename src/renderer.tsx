@@ -8,11 +8,10 @@ import TextFieldsMenu from './component/textFieldsMenu'
 import PanelMenu from './component/panelMenu'
 import MainContent from './component/mainContent'
 import { ipcRenderer } from './@types/ipcRender'
-
-const electron = window.require('electron')
+import path from 'node:path/win32'
 
 const App = (): JSX.Element => {
-  const test = {}
+  const [path, setPath] = useState('c://Users/user/')
   const [folderList, setFolderList] = useState([])
   ipcRenderer.on('getFolder', (err, args) => {
     console.log('aa')
@@ -20,11 +19,11 @@ const App = (): JSX.Element => {
   })
 
   const handleClick = (event: React.MouseEvent): void => {
-    console.log(`c://Users/user/${event.currentTarget.textContent}/`)
-    const path = `c://Users/user/${event.currentTarget.textContent}/`
+    const tmpPath = `${path}${event.currentTarget.textContent}/`
+    setPath(tmpPath)
     setFolderList(() => {
       return ipcRenderer.sendSync('onClick', {
-        path: path
+        path: tmpPath
       })
     })
   }
