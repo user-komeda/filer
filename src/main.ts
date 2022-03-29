@@ -3,7 +3,7 @@ import { BrowserWindow, app, session, Menu, ipcMain } from 'electron'
 import { searchDevtools } from 'electron-search-devtools'
 import { menu } from './menu'
 import { execSync } from 'child_process'
-import jschardet from 'jschardet'
+import { detect } from 'jschardet'
 import iconv from 'iconv-lite'
 import fs from 'fs'
 
@@ -20,7 +20,7 @@ if (isDev) {
   require('electron-reload')(__dirname, {
     electron: path.resolve(__dirname, execPath),
     forceHardReset: true,
-    hardResetMethod: 'exit'
+    hardResetMethod: 'exit',
   })
 }
 
@@ -30,8 +30,8 @@ const createWindow = () => {
     webPreferences: {
       preload: path.resolve(__dirname, 'preload.js'),
       nodeIntegration: true,
-      contextIsolation: false
-    }
+      contextIsolation: false,
+    },
   })
 
   if (isDev) {
@@ -49,12 +49,12 @@ const createWindow = () => {
     'Documents',
     'Videos',
     'Pictures',
-    'Music'
+    'Music',
   ]
 
   const stdout = execSync('wmic logicaldisk get caption').toString()
   const volumeName = execSync('wmic logicaldisk get VolumeName')
-  const test = iconv.decode(volumeName, jschardet.detect(volumeName).encoding)
+  const test = iconv.decode(volumeName, detect(volumeName).encoding)
   const volumeLabelList: Array<string> = []
   test.split(/\n/).forEach((d, i) => {
     if (i !== 0) {
@@ -63,7 +63,7 @@ const createWindow = () => {
   })
 
   stdout.split(/\r\r\n/).forEach((d, i) => {
-    if (d.match(/\:/)) {
+    if (d.match(/:/)) {
       folderList.push(`${d.trim()}${volumeLabelList[i - 1]}`)
     }
   })
@@ -88,7 +88,7 @@ app.whenReady().then(async () => {
     const devtools = await searchDevtools('REACT')
     if (devtools) {
       await session.defaultSession.loadExtension(devtools, {
-        allowFileAccess: true
+        allowFileAccess: true,
       })
     }
   }

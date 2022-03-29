@@ -1,3 +1,4 @@
+/* eslint-disable valid-jsdoc */
 import * as React from 'react'
 import { useInput } from '@mui/base'
 import { styled } from '@mui/system'
@@ -6,7 +7,7 @@ const blue = {
   100: '#DAECFF',
   200: '#80BFFF',
   400: '#3399FF',
-  600: '#0072E5'
+  600: '#0072E5',
 }
 
 const grey = {
@@ -19,7 +20,7 @@ const grey = {
   600: '#6F7E8C',
   700: '#3E5060',
   800: '#2D3843',
-  900: '#1A2027'
+  900: '#1A2027',
 }
 
 const StyledInputElement = styled('input')(
@@ -45,7 +46,7 @@ const StyledInputElement = styled('input')(
 `
 )
 
-const TextFieldsMenu = React.forwardRef(function CustomInput (
+const TextFieldsMenu = React.forwardRef(function CustomInput(
   props: React.InputHTMLAttributes<HTMLInputElement>,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
@@ -58,8 +59,12 @@ const TextFieldsMenu = React.forwardRef(function CustomInput (
   )
 })
 
-export default function UseInput () {
+/**
+ *
+ * @returns {TextFieldsMenu} TextFieldsMenu
+ */
+export default function UseInput() {
   return (
-    <TextFieldsMenu aria-label='Demo input' placeholder='Type something...' />
+    <TextFieldsMenu aria-label="Demo input" placeholder="Type something..." />
   )
 }

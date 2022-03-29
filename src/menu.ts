@@ -12,7 +12,7 @@ const template: MenuItemConstructorOptions[] = [
       {
         label: '新しいフォルダ',
         click: newFile,
-        accelerator: 'CmdOrCtrl+Shift+G'
+        accelerator: 'CmdOrCtrl+Shift+G',
       },
       {
         label: '表示',
@@ -23,8 +23,8 @@ const template: MenuItemConstructorOptions[] = [
           { label: '小アイコン' },
           { label: '詳細' },
           { label: '並べて表示' },
-          { label: '一覧表示' }
-        ]
+          { label: '一覧表示' },
+        ],
       },
       {
         label: '並べ替え',
@@ -34,10 +34,10 @@ const template: MenuItemConstructorOptions[] = [
           { label: '種類' },
           { label: 'サイズ' },
           { label: '昇順' },
-          { label: '降順' }
-        ]
-      }
-    ]
+          { label: '降順' },
+        ],
+      },
+    ],
   },
   {
     label: '編集',
@@ -47,8 +47,8 @@ const template: MenuItemConstructorOptions[] = [
       { type: 'separator' },
       { role: 'cut', label: '切り取り' },
       { role: 'copy', label: 'コピー' },
-      { role: 'paste', label: '貼り付け' }
-    ]
+      { role: 'paste', label: '貼り付け' },
+    ],
   },
   {
     label: '表示',
@@ -58,8 +58,8 @@ const template: MenuItemConstructorOptions[] = [
       { type: 'separator' },
       { role: 'cut', label: '切り取り' },
       { role: 'copy', label: 'コピー' },
-      { role: 'paste', label: '貼り付け' }
-    ]
+      { role: 'paste', label: '貼り付け' },
+    ],
   },
   {
     label: 'お気に入り',
@@ -69,8 +69,8 @@ const template: MenuItemConstructorOptions[] = [
       { type: 'separator' },
       { role: 'cut', label: '切り取り' },
       { role: 'copy', label: 'コピー' },
-      { role: 'paste', label: '貼り付け' }
-    ]
+      { role: 'paste', label: '貼り付け' },
+    ],
   },
   {
     label: 'ツール',
@@ -79,8 +79,8 @@ const template: MenuItemConstructorOptions[] = [
       { role: 'redo', label: 'レイアウトの読み込み' },
       { role: 'cut', label: 'レイアウトを保存' },
       { role: 'copy', label: 'アドオン' },
-      { role: 'paste', label: 'オプション' }
-    ]
+      { role: 'paste', label: 'オプション' },
+    ],
   },
   {
     label: 'ヘルプ',
@@ -90,9 +90,9 @@ const template: MenuItemConstructorOptions[] = [
       { type: 'separator' },
       { role: 'cut', label: 'アイコンを入手' },
       { role: 'copy', label: 'コピー' },
-      { role: 'paste', label: '貼り付け' }
-    ]
-  }
+      { role: 'paste', label: '貼り付け' },
+    ],
+  },
 ]
 
 if (process.platform === 'darwin') template.unshift({ role: 'appMenu' })

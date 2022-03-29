@@ -12,7 +12,9 @@
     "dev:tsc": "tsc -w -p tsconfig.main.json",
     "dev:webpack": "cross-env NODE_ENV=\"development\" webpack",
     "dev:electron": "wait-on ./dist/index.html && cross-env NODE_ENV=\"development\" electron .",
-    "build": "cross-env NODE_ENV=\"production\" webpack --progress"
+    "build": "cross-env NODE_ENV=\"production\" webpack --progress",
+    "lint": "eslint . --ext .ts,.tsx --config .eslintrc.json --fix",
+    "format": "prettier --write src/**"
   },
   "keywords": [],
   "author": "",
@@ -52,5 +54,28 @@
     "wait-on": "^6.0.1",
     "webpack": "^5.68.0",
     "webpack-cli": "^4.9.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
+    "eslint": "^8.11.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^2.7.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jsdoc": "^38.0.4",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "eslint-plugin-unicorn": "^41.0.0",
+    "husky": "^7.0.4",
+    "jsdoc": "^3.6.10",
+    "lint-staged": "^12.3.5",
+    "prettier": "^2.5.1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "yarn format --write",
+      "yarn lint"
+    ]
   }
 }

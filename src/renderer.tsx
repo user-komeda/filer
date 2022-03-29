@@ -1,5 +1,5 @@
-import React, { MouseEventHandler, useState } from 'react'
-import ReactDOM from 'react-dom'
+import React, { useState } from 'react'
+import { render } from 'react-dom'
 
 import './styles.css'
 import TabMenu from './component/tabMenu'
@@ -8,7 +8,6 @@ import TextFieldsMenu from './component/textFieldsMenu'
 import PanelMenu from './component/panelMenu'
 import MainContent from './component/mainContent'
 import { ipcRenderer } from './@types/ipcRender'
-import path from 'node:path/win32'
 
 const App = (): JSX.Element => {
   const [path, setPath] = useState('c://Users/user/')
@@ -23,7 +22,7 @@ const App = (): JSX.Element => {
     setPath(tmpPath)
     setFolderList(() => {
       return ipcRenderer.sendSync('onClick', {
-        path: tmpPath
+        path: tmpPath,
       })
     })
   }
@@ -31,7 +30,7 @@ const App = (): JSX.Element => {
   return (
     <>
       <div style={{ backgroundColor: '#F0F0F0' }}>
-        <div className='test'>
+        <div className="test">
           <PanelMenu></PanelMenu>
           <SelectMenu></SelectMenu>
           <TextFieldsMenu></TextFieldsMenu>
@@ -50,7 +49,7 @@ const App = (): JSX.Element => {
   )
 }
 
-ReactDOM.render(
+render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
