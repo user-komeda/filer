@@ -1,8 +1,8 @@
-/* eslint-disable valid-jsdoc */
 import * as React from 'react'
 import { useInput } from '@mui/base'
 import { styled } from '@mui/system'
 
+// 色定義
 const blue = {
   100: '#DAECFF',
   200: '#80BFFF',
@@ -10,6 +10,7 @@ const blue = {
   600: '#0072E5',
 }
 
+// 色定義
 const grey = {
   50: '#F3F6F9',
   100: '#E7EBF0',
@@ -23,9 +24,10 @@ const grey = {
   900: '#1A2027',
 }
 
+// css定義
 const StyledInputElement = styled('input')(
   ({ theme }) => `
-  width: 99%;
+  width: 100%;
   font-size: 0.875rem;
   font-family: IBM Plex Sans, sans-serif;
   font-weight: 400;
@@ -46,28 +48,28 @@ const StyledInputElement = styled('input')(
 `
 )
 
-const TextFieldsMenu = React.forwardRef(function CustomInput(
+// view定義
+const TextFilterMenu = React.forwardRef(function CustomInput(
   props: React.InputHTMLAttributes<HTMLInputElement>,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
+  // inputに必要なイベントや属性
   const { getRootProps, getInputProps } = useInput(props, ref)
 
   return (
-    <div {...getRootProps()} style={{ width: '70%' }}>
+    <div {...getRootProps()} style={{ width: '15%' }}>
       <StyledInputElement {...props} {...getInputProps()} />
-      <span style={{ width: '1%', position: 'absolute', right: '17%' }}>×</span>
-      <span style={{ width: '1%', position: 'absolute', right: '16%' }}>▼</span>
     </div>
   )
 })
 
 /**
- * a
+ * TextFilterMenu view
  *
- * @returns {TextFieldsMenu} TextFieldsMenu
+ * @returns {TextFilterMenu} TextFilterMenu
  */
 export default function UseInput() {
   return (
-    <TextFieldsMenu aria-label="Demo input" placeholder="Type something..." />
+    <TextFilterMenu aria-label="Demo input" placeholder="Type something..." />
   )
 }

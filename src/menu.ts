@@ -4,6 +4,7 @@ const newFile = () => {
   console.log('a')
 }
 
+// メニューリストの定義
 const template: MenuItemConstructorOptions[] = [
   {
     label: 'ファイル',

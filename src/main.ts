@@ -52,21 +52,27 @@ const createWindow = () => {
     'Music',
   ]
 
+  // diskのキャプションを取得
   const stdout = execSync('wmic logicaldisk get caption').toString()
+
+  // VolumeName取得
   const volumeName = execSync('wmic logicaldisk get VolumeName')
-  const test = iconv.decode(volumeName, detect(volumeName).encoding)
+  const decodeVolumeName = iconv.decode(volumeName, detect(volumeName).encoding)
   const volumeLabelList: Array<string> = []
-  test.split(/\n/).forEach((d, i) => {
+  decodeVolumeName.split(/\n/).forEach((d, i) => {
     if (i !== 0) {
       volumeLabelList.push(d.trim())
     }
   })
 
+  // キャプションとvolumeName結合
   stdout.split(/\r\r\n/).forEach((d, i) => {
     if (d.match(/:/)) {
       folderList.push(`${d.trim()}${volumeLabelList[i - 1]}`)
     }
   })
+
+  // レンダラープロセスのイベント受信
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('getFolder', folderList)
     ipcMain.on('onClick', (event, args) => {

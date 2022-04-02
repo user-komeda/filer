@@ -42,5 +42,21 @@
     }
   },
   "plugins": ["react", "@typescript-eslint", "unicorn", "jsdoc"],
-  "rules": {}
+  "rules": {
+    "valid-jsdoc": ["off"],
+    "jsdoc/require-jsdoc": [
+      "error",
+      {
+        "publicOnly": true,
+        "require": {
+          "ArrowFunctionExpression": true,
+          "ClassDeclaration": true,
+          "MethodDefinition": true
+        },
+        "checkConstructors": false
+      }
+    ],
+    "jsdoc/require-param-type": 0,
+    "jsdoc/require-returns": 0
+  }
 }

@@ -129,12 +129,13 @@ const renderer: webpack.Configuration = {
   plugins: [
     // CSS を JS へバンドルせず別ファイルとして出力するプラグイン
     new MiniCssExtractPlugin(),
+
     /**
      * バンドルしたJSファイルを <script></scrip> タグとして差し込んだ
      * HTMLファイルを出力するプラグイン
      */
     new HtmlWebpackPlugin({
-      minify: !isDev,
+      minify: false, // true
       inject: 'body',
       filename: 'index.html',
       template: './src/index.html',

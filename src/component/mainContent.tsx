@@ -1,11 +1,15 @@
 import React from 'react'
 
+/**
+ * メインコンテンツ部view
+ *
+ * @param props props
+ */
 const MainContent: React.FC<{
   folderList: Array<string>
   handleClick: (e: React.MouseEvent) => void
 }> = (props) => {
   const folderList: Array<string> = props.folderList
-
   return (
     <table style={{ width: '100%' }}>
       <thead>

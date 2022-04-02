@@ -3,6 +3,7 @@ import * as React from 'react'
 import { useInput } from '@mui/base'
 import { styled } from '@mui/system'
 
+// 色定義
 const blue = {
   100: '#DAECFF',
   200: '#80BFFF',
@@ -10,6 +11,7 @@ const blue = {
   600: '#0072E5',
 }
 
+// 色定義
 const grey = {
   50: '#F3F6F9',
   100: '#E7EBF0',
@@ -23,9 +25,10 @@ const grey = {
   900: '#1A2027',
 }
 
+// cssの定義
 const StyledInputElement = styled('input')(
   ({ theme }) => `
-  width: 100%;
+  width: 99%;
   font-size: 0.875rem;
   font-family: IBM Plex Sans, sans-serif;
   font-weight: 400;
@@ -46,25 +49,41 @@ const StyledInputElement = styled('input')(
 `
 )
 
-const TextFieldsMenu = React.forwardRef(function CustomInput(
-  props: React.InputHTMLAttributes<HTMLInputElement>,
-  ref: React.ForwardedRef<HTMLInputElement>
-) {
-  const { getRootProps, getInputProps } = useInput(props, ref)
+// viewの定義
+const PathTextMenu = React.forwardRef(
+  (
+    props: React.InputHTMLAttributes<HTMLInputElement>,
+    ref: React.ForwardedRef<HTMLInputElement>
+  ): JSX.Element => {
+    // inputに必要な属性やeventの定義
+    const { getRootProps, getInputProps } = useInput(props, ref)
 
-  return (
-    <div {...getRootProps()} style={{ width: '15%' }}>
-      <StyledInputElement {...props} {...getInputProps()} />
-    </div>
-  )
-})
+    return (
+      <div {...getRootProps()} style={{ width: '70%' }}>
+        <StyledInputElement {...props} {...getInputProps()} />
+        <span style={{ width: '1%', position: 'absolute', right: '17%' }}>
+          ×
+        </span>
+        <span style={{ width: '1%', position: 'absolute', right: '16%' }}>
+          ▼
+        </span>
+      </div>
+    )
+  }
+)
 
 /**
- *
- * @returns {TextFieldsMenu} TextFieldsMenu
+ * PathTextMenuView
  */
-export default function UseInput() {
+const _PathTextMenu = () => {
   return (
-    <TextFieldsMenu aria-label="Demo input" placeholder="Type something..." />
+    <PathTextMenu
+      aria-label="Demo input"
+      placeholder="Type something..."
+    ></PathTextMenu>
   )
 }
+
+export default _PathTextMenu
+
+PathTextMenu.displayName = 'PathTextMenu'
