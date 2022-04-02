@@ -1,7 +1,7 @@
 import path from 'path'
 
 /** エディタで補完を効かせるために型定義をインポート */
-import { Configuration } from 'webpack'
+import * as webpack from 'webpack'
 
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
@@ -10,7 +10,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 const isDev = process.env.NODE_ENV === 'development'
 
 // 共通設定
-const common: Configuration = {
+const common: webpack.Configuration = {
   // モード切替
   mode: isDev ? 'development' : 'production',
   node: {
@@ -19,14 +19,14 @@ const common: Configuration = {
      * webpack が変換しないように false を指定する
      */
     __dirname: false,
-    __filename: false
+    __filename: false,
   },
   // モジュールの解決に利用するファイルの拡張子
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.json'],
     fallback: {
-      fs: false
-    }
+      fs: false,
+    },
   },
 
   /**
@@ -45,7 +45,7 @@ const common: Configuration = {
      */
     filename: '[name].js',
     // 画像などのアセット類は 'dist/assets' フォルダへ配置する
-    assetModuleFilename: 'assets/[name][ext]'
+    assetModuleFilename: 'assets/[name][ext]',
   },
   module: {
     rules: [
@@ -56,7 +56,7 @@ const common: Configuration = {
          */
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        loader: 'ts-loader'
+        loader: 'ts-loader',
       },
       {
         // 拡張子 '.css' （正規表現）のファイル
@@ -68,10 +68,10 @@ const common: Configuration = {
           {
             loader: 'css-loader',
             options: {
-              sourceMap: isDev
-            }
-          }
-        ]
+              sourceMap: isDev,
+            },
+          },
+        ],
       },
       {
         // 画像やフォントなどのアセット類
@@ -80,9 +80,9 @@ const common: Configuration = {
          * アセット類も同様に asset/inline は使用しない
          * なお、webpack@5.x では file-loader or url-loader は不要になった
          */
-        type: 'asset/resource'
-      }
-    ]
+        type: 'asset/resource',
+      },
+    ],
   },
   // 開発時には watch モードでファイルの変化を監視する
   watch: isDev,
@@ -95,51 +95,52 @@ const common: Configuration = {
    * electron のデベロッパーコンソールに 'Uncaught EvalError' が
    * 表示されてしまうことに注意
    */
-  devtool: isDev ? 'inline-source-map' : undefined
+  devtool: isDev ? 'inline-source-map' : undefined,
 }
 
 // メインプロセス向け設定
-const main: Configuration = {
+const main: webpack.Configuration = {
   // 共通設定を読み込み
   ...common,
   target: 'electron-main',
   // エントリーファイル（チャンク名は 'main'）
   entry: {
-    main: './src/main.ts'
-  }
+    main: './src/main.ts',
+  },
 }
 
 // プリロード・スクリプト向け設定
-const preload: Configuration = {
+const preload: webpack.Configuration = {
   ...common,
   target: 'electron-preload',
   entry: {
-    preload: './src/preload.ts'
-  }
+    preload: './src/preload.ts',
+  },
 }
 
 // レンダラープロセス向け設定
-const renderer: Configuration = {
+const renderer: webpack.Configuration = {
   ...common,
   // セキュリティ対策として 'electron-renderer' ターゲットは使用しない
   target: 'web',
   entry: {
-    renderer: './src/renderer.tsx'
+    renderer: './src/renderer.tsx',
   },
   plugins: [
     // CSS を JS へバンドルせず別ファイルとして出力するプラグイン
     new MiniCssExtractPlugin(),
+
     /**
      * バンドルしたJSファイルを <script></scrip> タグとして差し込んだ
      * HTMLファイルを出力するプラグイン
      */
     new HtmlWebpackPlugin({
-      minify: !isDev,
+      minify: false, // true
       inject: 'body',
       filename: 'index.html',
-      template: './src/index.html'
-    })
-  ]
+      template: './src/index.html',
+    }),
+  ],
 }
 
 // 開発時にはレンダラープロセスのみを処理する（メインプロセスは tsc で処理）

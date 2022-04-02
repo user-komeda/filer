@@ -1,3 +1,8 @@
+import React from 'react'
+
+/**
+ *ボタン部view
+ */
 const PanelMenu = () => {
   return (
     <div style={{ width: '15%' }}>

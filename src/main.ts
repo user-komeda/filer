@@ -3,7 +3,7 @@ import { BrowserWindow, app, session, Menu, ipcMain } from 'electron'
 import { searchDevtools } from 'electron-search-devtools'
 import { menu } from './menu'
 import { execSync } from 'child_process'
-import jschardet from 'jschardet'
+import { detect } from 'jschardet'
 import iconv from 'iconv-lite'
 import fs from 'fs'
 
@@ -20,7 +20,7 @@ if (isDev) {
   require('electron-reload')(__dirname, {
     electron: path.resolve(__dirname, execPath),
     forceHardReset: true,
-    hardResetMethod: 'exit'
+    hardResetMethod: 'exit',
   })
 }
 
@@ -30,8 +30,8 @@ const createWindow = () => {
     webPreferences: {
       preload: path.resolve(__dirname, 'preload.js'),
       nodeIntegration: true,
-      contextIsolation: false
-    }
+      contextIsolation: false,
+    },
   })
 
   if (isDev) {
@@ -49,24 +49,30 @@ const createWindow = () => {
     'Documents',
     'Videos',
     'Pictures',
-    'Music'
+    'Music',
   ]
 
+  // diskのキャプションを取得
   const stdout = execSync('wmic logicaldisk get caption').toString()
+
+  // VolumeName取得
   const volumeName = execSync('wmic logicaldisk get VolumeName')
-  const test = iconv.decode(volumeName, jschardet.detect(volumeName).encoding)
+  const decodeVolumeName = iconv.decode(volumeName, detect(volumeName).encoding)
   const volumeLabelList: Array<string> = []
-  test.split(/\n/).forEach((d, i) => {
+  decodeVolumeName.split(/\n/).forEach((d, i) => {
     if (i !== 0) {
       volumeLabelList.push(d.trim())
     }
   })
 
+  // キャプションとvolumeName結合
   stdout.split(/\r\r\n/).forEach((d, i) => {
-    if (d.match(/\:/)) {
+    if (d.match(/:/)) {
       folderList.push(`${d.trim()}${volumeLabelList[i - 1]}`)
     }
   })
+
+  // レンダラープロセスのイベント受信
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('getFolder', folderList)
     ipcMain.on('onClick', (event, args) => {
@@ -88,7 +94,7 @@ app.whenReady().then(async () => {
     const devtools = await searchDevtools('REACT')
     if (devtools) {
       await session.defaultSession.loadExtension(devtools, {
-        allowFileAccess: true
+        allowFileAccess: true,
       })
     }
   }

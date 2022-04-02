@@ -4,5 +4,7 @@
     "module": "CommonJS",
     "outDir": "dist"
   },
-  "include": ["src/*.ts", "src/@types/*"]
+  "skipLibCheck": "true",
+  "include": ["src/*.ts", "src/@types/*"],
+  "exclude": ["node_modules"]
 }

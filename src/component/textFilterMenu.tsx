@@ -2,13 +2,15 @@ import * as React from 'react'
 import { useInput } from '@mui/base'
 import { styled } from '@mui/system'
 
+// 色定義
 const blue = {
   100: '#DAECFF',
   200: '#80BFFF',
   400: '#3399FF',
-  600: '#0072E5'
+  600: '#0072E5',
 }
 
+// 色定義
 const grey = {
   50: '#F3F6F9',
   100: '#E7EBF0',
@@ -19,9 +21,10 @@ const grey = {
   600: '#6F7E8C',
   700: '#3E5060',
   800: '#2D3843',
-  900: '#1A2027'
+  900: '#1A2027',
 }
 
+// css定義
 const StyledInputElement = styled('input')(
   ({ theme }) => `
   width: 100%;
@@ -45,10 +48,12 @@ const StyledInputElement = styled('input')(
 `
 )
 
-const TextFieldsMenu = React.forwardRef(function CustomInput (
+// view定義
+const TextFilterMenu = React.forwardRef(function CustomInput(
   props: React.InputHTMLAttributes<HTMLInputElement>,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
+  // inputに必要なイベントや属性
   const { getRootProps, getInputProps } = useInput(props, ref)
 
   return (
@@ -58,8 +63,13 @@ const TextFieldsMenu = React.forwardRef(function CustomInput (
   )
 })
 
-export default function UseInput () {
+/**
+ * TextFilterMenu view
+ *
+ * @returns {TextFilterMenu} TextFilterMenu
+ */
+export default function UseInput() {
   return (
-    <TextFieldsMenu aria-label='Demo input' placeholder='Type something...' />
+    <TextFilterMenu aria-label="Demo input" placeholder="Type something..." />
   )
 }
