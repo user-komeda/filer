@@ -2,7 +2,7 @@ import path from 'path'
 import { BrowserWindow, app, session, Menu, ipcMain } from 'electron'
 import { searchDevtools } from 'electron-search-devtools'
 import { menu } from './menu'
-import { execSync } from 'child_process'
+import { exec, execSync, spawn } from 'child_process'
 import { detect } from 'jschardet'
 import iconv from 'iconv-lite'
 import fs from 'fs'
@@ -10,19 +10,19 @@ import fs from 'fs'
 const isDev = process.env.NODE_ENV === 'development'
 
 // 開発モードの場合はホットリロードする
-if (isDev) {
-  const execPath =
-    process.platform === 'win32'
-      ? '../node_modules/electron/dist/electron.exe'
-      : '../node_modules/.bin/electron'
+// if (isDev) {
+//   const execPath =
+//     process.platform === 'win32'
+//       ? '../node_modules/electron/dist/electron.exe'
+//       : '../node_modules/.bin/electron'
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('electron-reload')(__dirname, {
-    electron: path.resolve(__dirname, execPath),
-    forceHardReset: true,
-    hardResetMethod: 'exit',
-  })
-}
+//   // eslint-disable-next-line @typescript-eslint/no-var-requires
+//   require('electron-reload')(__dirname, {
+//     electron: path.resolve(__dirname, execPath),
+//     forceHardReset: true,
+//     hardResetMethod: 'exit',
+//   })
+// }
 
 // BrowserWindow インスタンスを作成する関数
 const createWindow = () => {
@@ -74,17 +74,39 @@ const createWindow = () => {
 
   // レンダラープロセスのイベント受信
   mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.webContents.send('getFolder', folderList)
+    mainWindow.webContents.send('getInitFolder', folderList)
     ipcMain.on('onClick', (event, args) => {
-      console.log(args.path)
-      const files = fs.readdirSync(args.path)
-      folderList.length = 0
+      const path = args.path
+      const isDirectory = fs.statSync(path).isDirectory()
 
-      // ②：filesの内容をターミナルに表示
-      files.forEach(function (file) {
-        folderList.push(file)
-      })
-      event.returnValue = folderList
+      console.log(path)
+      if (!isDirectory) {
+        const splitPath = path.split('/')
+        const name = splitPath[splitPath.length - 2]
+        const index = name.lastIndexOf('.')
+        const extensionName = name.substring(index)
+        const fileName = execSync(`assoc ${extensionName}`).toString()
+        const fileIndex = fileName.lastIndexOf('=')
+        const test = fileName.substring(fileIndex + 1)
+        const programName = execSync(`ftype ${test}`).toString()
+        const programIndex = programName.lastIndexOf('=')
+        const p = programName.substring(programIndex + 1)
+        const oIndex = p.lastIndexOf('%')
+        const z = p.substring(0, oIndex)
+        exec(z + path.substring(0, path.length - 1))
+
+        event.returnValue = { folderList: folderList, flag: true }
+      } else {
+        const files = fs.readdirSync(path)
+
+        folderList.length = 0
+
+        // ②：filesの内容をターミナルに表示
+        files.forEach(function (file) {
+          folderList.push(file)
+        })
+        event.returnValue = { folderList: folderList, flag: false }
+      }
     })
   })
 }

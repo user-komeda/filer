@@ -15,7 +15,7 @@ import { ipcRenderer } from './@types/ipcRender'
 const App = (): JSX.Element => {
   const [path, setPath] = useState('c://Users/user/')
   const [folderList, setFolderList] = useState([])
-  ipcRenderer.on('getFolder', (err, args) => {
+  ipcRenderer.on('getInitFolder', (err, args) => {
     console.log('aa')
     setFolderList(folderList.concat(args))
   })
@@ -51,11 +51,12 @@ const handleClick = (
   setPath: React.Dispatch<React.SetStateAction<string>>
 ): void => {
   const tmpPath = `${path}${event.currentTarget.textContent}/`
-  setPath(tmpPath)
+  const result = ipcRenderer.sendSync('onClick', { path: tmpPath })
+  if (!result.flag) {
+    setPath(tmpPath)
+  }
   setFolderList(() => {
-    return ipcRenderer.sendSync('onClick', {
-      path: tmpPath,
-    })
+    return result.folderList
   })
 }
 
