@@ -7,6 +7,7 @@ import SelectMenu from './component/pathTextMenu'
 import TextFieldsMenu from './component/textFilterMenu'
 import PanelMenu from './component/panelMenu'
 import MainContent from './component/mainContent'
+import Dialog from './component/dialog'
 import { ipcRenderer } from './@types/ipcRender'
 
 /**
@@ -15,31 +16,48 @@ import { ipcRenderer } from './@types/ipcRender'
 const App = (): JSX.Element => {
   const [path, setPath] = useState('c://Users/user/')
   const [folderList, setFolderList] = useState([])
-  ipcRenderer.on('getFolder', (err, args) => {
-    console.log('aa')
-    setFolderList(folderList.concat(args))
+  const [flag, setFlag] = useState()
+  const [programNameList, setProgramNameList] = useState([])
+
+  ipcRenderer.once('sendDataMain', (err, data) => {
+    setFlag(data.flags)
+    setFolderList(data.folderList)
   })
 
+  ipcRenderer.once('sendDataNormal', (err, data) => {
+    setProgramNameList(data.programNameList)
+    setPath(data.path)
+    setFlag(data.flags)
+  })
+  console.log(flag)
   return (
     <>
-      <div style={{ backgroundColor: '#F0F0F0' }}>
-        <div className="test">
-          <PanelMenu></PanelMenu>
-          <SelectMenu></SelectMenu>
-          <TextFieldsMenu></TextFieldsMenu>
-        </div>
+      {flag ? (
+        <>
+          <div style={{ backgroundColor: '#F0F0F0' }}>
+            <div className="test">
+              <PanelMenu></PanelMenu>
+              <SelectMenu></SelectMenu>
+              <TextFieldsMenu></TextFieldsMenu>
+            </div>
+            <div>
+              <TabMenu></TabMenu>
+            </div>
+          </div>
+          <div>
+            <MainContent
+              handleClick={(event) => {
+                handleClick(event, path, setFolderList, setPath)
+              }}
+              folderList={folderList}
+            ></MainContent>
+          </div>
+        </>
+      ) : (
         <div>
-          <TabMenu></TabMenu>
+          <Dialog programNameList={programNameList} path={path}></Dialog>
         </div>
-      </div>
-      <div>
-        <MainContent
-          handleClick={(event) => {
-            handleClick(event, path, setFolderList, setPath)
-          }}
-          folderList={folderList}
-        ></MainContent>
-      </div>
+      )}
     </>
   )
 }
@@ -51,11 +69,12 @@ const handleClick = (
   setPath: React.Dispatch<React.SetStateAction<string>>
 ): void => {
   const tmpPath = `${path}${event.currentTarget.textContent}/`
-  setPath(tmpPath)
+  const result = ipcRenderer.sendSync('onClick', { path: tmpPath })
+  if (!result.flag) {
+    setPath(tmpPath)
+  }
   setFolderList(() => {
-    return ipcRenderer.sendSync('onClick', {
-      path: tmpPath,
-    })
+    return result.folderList
   })
 }
 
