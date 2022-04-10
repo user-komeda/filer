@@ -75,7 +75,7 @@ const common: webpack.Configuration = {
       },
       {
         // 画像やフォントなどのアセット類
-        test: /\.(ico|png|jpe?g|svg|eot|woff?2?)$/,
+        test: /\.(bmp|ico|png|jpe?g|svg|eot|woff?2?)$/,
         /**
          * アセット類も同様に asset/inline は使用しない
          * なお、webpack@5.x では file-loader or url-loader は不要になった

@@ -2,7 +2,7 @@ import path from 'path'
 import { BrowserWindow, app, session, Menu, ipcMain } from 'electron'
 import { searchDevtools } from 'electron-search-devtools'
 import { menu } from './menu'
-import { exec, execSync, spawn } from 'child_process'
+import { exec, execSync } from 'child_process'
 import { detect } from 'jschardet'
 import iconv from 'iconv-lite'
 import fs from 'fs'
@@ -74,26 +74,23 @@ const createWindow = () => {
 
   // レンダラープロセスのイベント受信
   mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.webContents.send('getInitFolder', folderList)
+    const sendData = {
+      folderList: folderList,
+      flags: true,
+    }
+    mainWindow.webContents.send('sendDataMain', sendData)
     ipcMain.on('onClick', (event, args) => {
       const path = args.path
       const isDirectory = fs.statSync(path).isDirectory()
 
       console.log(path)
       if (!isDirectory) {
-        const splitPath = path.split('/')
-        const name = splitPath[splitPath.length - 2]
-        const index = name.lastIndexOf('.')
-        const extensionName = name.substring(index)
-        const fileName = execSync(`assoc ${extensionName}`).toString()
-        const fileIndex = fileName.lastIndexOf('=')
-        const test = fileName.substring(fileIndex + 1)
-        const programName = execSync(`ftype ${test}`).toString()
-        const programIndex = programName.lastIndexOf('=')
-        const p = programName.substring(programIndex + 1)
-        const oIndex = p.lastIndexOf('%')
-        const z = p.substring(0, oIndex)
-        exec(z + path.substring(0, path.length - 1))
+        const extensionName = getExtensionName(path)
+        try {
+          getExecProgramName(extensionName, path)
+        } catch (error) {
+          openDialog(path)
+        }
 
         event.returnValue = { folderList: folderList, flag: true }
       } else {
@@ -127,3 +124,90 @@ app.whenReady().then(async () => {
 
 // すべてのウィンドウが閉じられたらアプリを終了する
 app.once('window-all-closed', () => app.quit())
+
+/**
+ *
+ * @param path path
+ * @returns {string} extensionName
+ */
+const getExtensionName = (path: string): string => {
+  const splitPath = path.split('/')
+  const name = splitPath[splitPath.length - 2]
+  const index = name.lastIndexOf('.')
+  const extensionName = name.substring(index)
+  return extensionName
+}
+
+/**
+ *
+ * @param extensionName extensionName
+ * @param path path
+ */
+const getExecProgramName = (extensionName: string, path: string) => {
+  const fileName = execSync(`assoc ${extensionName}`).toString()
+  const fileIndex = fileName.lastIndexOf('=')
+  const programName = fileName.substring(fileIndex + 1)
+  const openedProgramName = execSync(`ftype ${programName}`).toString()
+  const openedProgramIndex = openedProgramName.lastIndexOf('=')
+  const execProgramName = openedProgramName.substring(openedProgramIndex + 1)
+  const execProgramIndex = execProgramName.lastIndexOf('%')
+  const execProgram = execProgramName.substring(0, execProgramIndex)
+  exec(execProgram + path.substring(0, path.length - 1))
+}
+
+/**
+ * 関連付けられた拡張子以外のファイルをクリックした場合どのプログラムで開くかダイアログを表示
+ *
+ * @param path path
+ */
+const openDialog = (path: string) => {
+  execSync(
+    'C:\\Users\\user\\Desktop\\learning\\electron\\filer\\getProgramPath.ps1'
+  )
+  const programName = execSync(
+    'C:\\Users\\user\\Desktop\\learning\\electron\\filer\\getProgramName.ps1'
+  ).toString()
+  const programNameList: Array<string> = programName.split('\n')
+  cleatsChildWindow(programNameList, path)
+}
+
+const cleatsChildWindow = (
+  programNameList: Array<string>,
+  clickedPath: string
+) => {
+  const childWindow = new BrowserWindow({
+    webPreferences: {
+      preload: path.resolve(__dirname, 'preload.js'),
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+    width: 450,
+    height: 600,
+  })
+  childWindow.loadFile('dist/index.html')
+  childWindow.webContents.openDevTools({ mode: 'detach' })
+
+  childWindow.webContents.on('did-finish-load', () => {
+    const sendData = {
+      flags: false,
+      programNameList: programNameList,
+      path: clickedPath,
+    }
+    childWindow.webContents.send('sendDataNormal', sendData)
+    ipcMain.on('clickedProgramList', (event, data) => {
+      childWindow.close()
+      const programPath = execSync(
+        'C:\\Users\\user\\Desktop\\learning\\electron\\filer\\getProgramPath.ps1'
+      ).toString()
+      const programPathList = programPath.split('\n')
+      for (const programPath of programPathList) {
+        if (programPath.includes(data.trim())) {
+          exec(
+            programPath + ' ' + clickedPath.substring(0, clickedPath.length - 1)
+          )
+          break
+        }
+      }
+    })
+  })
+}
