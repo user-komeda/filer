@@ -39,7 +39,6 @@ const Dialog: React.FC<{
 const handleClick = (event: React.MouseEvent) => {
   const test = event.currentTarget
 
-  console.log(test.childNodes[1].textContent)
   ipcRenderer.sendSync('clickedProgramList', test.childNodes[1].textContent)
 }
 export default Dialog

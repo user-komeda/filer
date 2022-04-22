@@ -14,7 +14,8 @@ import { ipcRenderer } from './@types/ipcRender'
  * レンダラープロセス
  */
 const App = (): JSX.Element => {
-  const [path, setPath] = useState('c://Users/user/')
+  const [lastPath, setLastPath] = useState('c:/Users/user/')
+  const [nowPath, setNowPath] = useState('')
   const [folderList, setFolderList] = useState([])
   const [flag, setFlag] = useState()
   const [programNameList, setProgramNameList] = useState([])
@@ -26,17 +27,23 @@ const App = (): JSX.Element => {
 
   ipcRenderer.once('sendDataNormal', (err, data) => {
     setProgramNameList(data.programNameList)
-    setPath(data.path)
+    setLastPath(data.path)
     setFlag(data.flags)
   })
-  console.log(flag)
   return (
     <>
       {flag ? (
         <>
           <div style={{ backgroundColor: '#F0F0F0' }}>
             <div className="test">
-              <PanelMenu></PanelMenu>
+              <PanelMenu
+                undoFunction={() => {
+                  undoFunction(nowPath, lastPath, setFolderList, setNowPath)
+                }}
+                redoFunction={() => {
+                  redoFunction(nowPath, lastPath, setFolderList, setNowPath)
+                }}
+              ></PanelMenu>
               <SelectMenu></SelectMenu>
               <TextFieldsMenu></TextFieldsMenu>
             </div>
@@ -47,7 +54,14 @@ const App = (): JSX.Element => {
           <div>
             <MainContent
               handleClick={(event) => {
-                handleClick(event, path, setFolderList, setPath)
+                handleClick(
+                  event,
+                  nowPath,
+                  lastPath,
+                  setFolderList,
+                  setLastPath,
+                  setNowPath
+                )
               }}
               folderList={folderList}
             ></MainContent>
@@ -55,7 +69,7 @@ const App = (): JSX.Element => {
         </>
       ) : (
         <div>
-          <Dialog programNameList={programNameList} path={path}></Dialog>
+          <Dialog programNameList={programNameList} path={nowPath}></Dialog>
         </div>
       )}
     </>
@@ -64,18 +78,67 @@ const App = (): JSX.Element => {
 
 const handleClick = (
   event: React.MouseEvent,
-  path: string,
+  nowPath: string,
+  lastPath: string,
   setFolderList: React.Dispatch<React.SetStateAction<never[]>>,
-  setPath: React.Dispatch<React.SetStateAction<string>>
+  setLastPath: React.Dispatch<React.SetStateAction<string>>,
+  setNowPath: React.Dispatch<React.SetStateAction<string>>
 ): void => {
-  const tmpPath = `${path}${event.currentTarget.textContent}/`
-  const result = ipcRenderer.sendSync('onClick', { path: tmpPath })
-  if (!result.flag) {
-    setPath(tmpPath)
-  }
+  const tmpPath = `${nowPath ? nowPath : lastPath}${
+    event.currentTarget.textContent
+  }`
+
+  const result = ipcRenderer.sendSync('onClick', {
+    path: tmpPath,
+  })
+
+  setLastPath(tmpPath + '/')
+  setNowPath(tmpPath + '/')
   setFolderList(() => {
     return result.folderList
   })
+}
+
+const undoFunction = (
+  nowPath: string,
+  lastPath: string,
+  setFolderList: React.Dispatch<React.SetStateAction<never[]>>,
+  setNowPath: React.Dispatch<React.SetStateAction<string>>
+) => {
+  const tmpPath = nowPath ? nowPath.split('/') : lastPath.split('/')
+  tmpPath.unshift()
+  tmpPath.length = tmpPath.length - 2
+  const path = tmpPath.join('/')
+  const result = ipcRenderer.sendSync('onClick', {
+    path: path,
+  })
+  setNowPath(path + '/')
+
+  setFolderList(() => {
+    return result.folderList
+  })
+}
+const redoFunction = (
+  nowPath: string,
+  lastPath: string,
+  setFolderList: React.Dispatch<React.SetStateAction<never[]>>,
+  setNowPath: React.Dispatch<React.SetStateAction<string>>
+) => {
+  if (nowPath !== '' && nowPath !== lastPath) {
+    const pathArray = nowPath.split('/')
+    const lastPathArray = lastPath.split('/')
+    const test = lastPathArray.filter(
+      (lastPath) => pathArray.indexOf(lastPath) === -1
+    )[0]
+    const a = pathArray.join('/') + test
+    const result = ipcRenderer.sendSync('onClick', {
+      path: a,
+    })
+    setFolderList(() => {
+      return result.folderList
+    })
+    setNowPath(a + '/')
+  }
 }
 
 render(

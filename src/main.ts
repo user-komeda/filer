@@ -83,7 +83,6 @@ const createWindow = () => {
       const path = args.path
       const isDirectory = fs.statSync(path).isDirectory()
 
-      console.log(path)
       if (!isDirectory) {
         const extensionName = getExtensionName(path)
         try {
