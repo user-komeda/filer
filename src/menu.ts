@@ -1,9 +1,5 @@
 import { Menu, MenuItemConstructorOptions } from 'electron'
 
-const newFile = () => {
-  console.log('a')
-}
-
 // メニューリストの定義
 const template: MenuItemConstructorOptions[] = [
   {
@@ -12,7 +8,6 @@ const template: MenuItemConstructorOptions[] = [
       { role: 'close', label: 'ウィンドウを閉じる' },
       {
         label: '新しいフォルダ',
-        click: newFile,
         accelerator: 'CmdOrCtrl+Shift+G',
       },
       {

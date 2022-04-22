@@ -13,7 +13,7 @@
     "dev:webpack": "cross-env NODE_ENV=\"development\" webpack",
     "dev:electron": "wait-on ./dist/index.html && cross-env NODE_ENV=\"development\" electron .",
     "build": "cross-env NODE_ENV=\"production\" webpack --progress",
-    "lint": "eslint . --ext .ts,.tsx --config .eslintrc.json --fix",
+    "lint": "eslint . --ext .ts,.tsx --config .eslintrc.json --fix  --max-warnings=0",
     "format": "prettier --write src/**"
   },
   "keywords": [],
@@ -73,7 +73,6 @@
     "eslint-plugin-unicorn": "^41.0.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^7.0.4",
-    "jsdoc": "^3.6.10",
     "lint-staged": "^12.3.5",
     "prettier": "^2.5.1",
     "ts-loader": "^9.2.8"
