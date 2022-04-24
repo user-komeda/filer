@@ -1,4 +1,3 @@
-/* eslint-disable valid-jsdoc */
 import * as React from 'react'
 import { useInput } from '@mui/base'
 import { styled } from '@mui/system'
@@ -74,12 +73,21 @@ const PathTextMenu = React.forwardRef(
 
 /**
  * PathTextMenuView
+ *
+ * @param props props
  */
-const _PathTextMenu = () => {
+const _PathTextMenu: React.FC<{
+  path: string
+  handleBlur: (event: React.ChangeEvent<HTMLInputElement>) => void
+  handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+}> = (props) => {
   return (
     <PathTextMenu
       aria-label="Demo input"
       placeholder="Type something..."
+      onBlur={props.handleBlur}
+      onChange={props.handleChange}
+      value={props.path}
     ></PathTextMenu>
   )
 }

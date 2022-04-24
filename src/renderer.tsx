@@ -44,7 +44,21 @@ const App = (): JSX.Element => {
                   redoFunction(nowPath, lastPath, setFolderList, setNowPath)
                 }}
               ></PanelMenu>
-              <SelectMenu></SelectMenu>
+              <SelectMenu
+                path={nowPath ? nowPath : lastPath}
+                handleBlur={(event) => {
+                  handleBlur(
+                    event,
+                    nowPath,
+                    setLastPath,
+                    setNowPath,
+                    setFolderList
+                  )
+                }}
+                handleChange={(event) => {
+                  handleChange(event, setLastPath, setNowPath)
+                }}
+              ></SelectMenu>
               <TextFieldsMenu></TextFieldsMenu>
             </div>
             <div>
@@ -139,6 +153,40 @@ const redoFunction = (
     })
     setNowPath(a + '/')
   }
+}
+
+const handleBlur = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  nowPath: string,
+  setLastPath: React.Dispatch<React.SetStateAction<string>>,
+  setNowPath: React.Dispatch<React.SetStateAction<string>>,
+  setFolderList: React.Dispatch<React.SetStateAction<never[]>>
+) => {
+  const path = event.currentTarget.value
+  const pathArray = path.split('/')
+  pathArray.length = pathArray.length - 1
+  const beforePath = pathArray.join('/')
+  const result = ipcRenderer.sendSync('onChange', {
+    path: path,
+  })
+  if (!result.flag) {
+    setNowPath(beforePath + '/')
+    setLastPath(beforePath + '/')
+  } else {
+    setNowPath(path + '/')
+    setLastPath(path + '/')
+    setFolderList(result.folderList)
+  }
+}
+
+const handleChange = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  setLastPath: React.Dispatch<React.SetStateAction<string>>,
+  setNowPath: React.Dispatch<React.SetStateAction<string>>
+) => {
+  const path = event.currentTarget.value
+  setNowPath(path)
+  setLastPath(path)
 }
 
 render(
