@@ -1,5 +1,5 @@
+import { dialog, BrowserWindow, app, session, Menu, ipcMain } from 'electron'
 import path from 'path'
-import { BrowserWindow, app, session, Menu, ipcMain } from 'electron'
 import { searchDevtools } from 'electron-search-devtools'
 import { menu } from './menu'
 import { exec, execSync } from 'child_process'
@@ -103,6 +103,27 @@ const createWindow = () => {
         })
         event.returnValue = { folderList: folderList, flag: false }
       }
+    })
+    ipcMain.on('onChange', (event, args) => {
+      const result = fs.existsSync(args.path)
+      if (!result) {
+        dialog.showErrorBox(
+          'エクスプローラ',
+          `${args.path}は見つかりません。綴りを確認して再度実行してください。`
+        )
+        event.returnValue = { folderList: null, flag: false }
+        return
+      }
+
+      const files = fs.readdirSync(args.path)
+
+      folderList.length = 0
+
+      // ②：filesの内容をターミナルに表示
+      files.forEach(function (file) {
+        folderList.push(file)
+      })
+      event.returnValue = { folderList: folderList, flag: true }
     })
   })
 }
