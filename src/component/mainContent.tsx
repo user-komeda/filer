@@ -1,4 +1,5 @@
 import React from 'react'
+import FileInfo from '../@types/fileInfo'
 
 /**
  * メインコンテンツ部view
@@ -6,10 +7,10 @@ import React from 'react'
  * @param props props
  */
 const MainContent: React.FC<{
-  folderList: Array<string>
+  folderList: Array<string> | Array<FileInfo>
   handleClick: (e: React.MouseEvent) => void
 }> = (props) => {
-  const folderList: Array<string> = props.folderList
+  const folderList: Array<string> | Array<FileInfo> = props.folderList
   return (
     <table style={{ width: '100%' }}>
       <thead>
@@ -22,11 +23,15 @@ const MainContent: React.FC<{
       </thead>
       <tbody>
         {folderList.map((folder, index) => {
+          console.log(folder)
           return (
             <tr key={index}>
               <td className="folder" onClick={props.handleClick}>
-                {folder}
+                {'string' === typeof folder ? folder : folder.fileName}
               </td>
+              <td>{'string' === typeof folder ? '' : folder.updateFileTime}</td>
+              <td>{'string' === typeof folder ? '' : folder.fileType}</td>
+              <td>{'string' === typeof folder ? '' : folder.fileSize}</td>
             </tr>
           )
         })}
