@@ -1,11 +1,11 @@
-import { dialog, BrowserWindow, app, session, Menu, ipcMain } from 'electron'
+import { dialog, BrowserWindow, app, Menu, ipcMain } from 'electron'
 import path from 'path'
-import { searchDevtools } from 'electron-search-devtools'
 import { menu } from './menu'
 import { exec, execSync } from 'child_process'
 import { detect } from 'jschardet'
 import iconv from 'iconv-lite'
 import fs from 'fs'
+import FileInfo from './@types/fileInfo'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -42,14 +42,14 @@ const createWindow = () => {
   // レンダラープロセスをロード
   mainWindow.loadFile('dist/index.html')
 
-  const folderList = [
-    '3D Objects',
-    'Downloads',
-    'Desktop',
-    'Documents',
-    'Videos',
-    'Pictures',
-    'Music',
+  const folderList: Array<FileInfo> = [
+    { fileName: '3D Objects' },
+    { fileName: 'Downloads' },
+    { fileName: 'Desktop' },
+    { fileName: 'Documents' },
+    { fileName: 'Videos' },
+    { fileName: 'Pictures' },
+    { fileName: 'Music' },
   ]
 
   // diskのキャプションを取得
@@ -68,7 +68,7 @@ const createWindow = () => {
   // キャプションとvolumeName結合
   stdout.split(/\r\r\n/).forEach((d, i) => {
     if (d.match(/:/)) {
-      folderList.push(`${d.trim()}${volumeLabelList[i - 1]}`)
+      folderList.push({ fileName: `${d.trim()}${volumeLabelList[i - 1]}` })
     }
   })
 
@@ -84,28 +84,46 @@ const createWindow = () => {
       const isDirectory = fs.statSync(path).isDirectory()
 
       if (!isDirectory) {
+        console.log(folderList)
         const extensionName = getExtensionName(path)
         try {
           getExecProgramName(extensionName, path)
         } catch (error) {
           openDialog(path)
         }
-
+        console.log(folderList)
         event.returnValue = { folderList: folderList, flag: true }
       } else {
         const files = fs.readdirSync(path)
-
         folderList.length = 0
-
         // ②：filesの内容をターミナルに表示
+        const fileType = execSync(
+          `pwsh.exe -command c://Users/user/Desktop/learning/electron/filer/test.ps1 ${path} -NoNewWindow -Wait`
+        )
+        const fileTypeList = iconv.decode(fileType, 'Shift_JIS').split('\n')
         files.forEach(function (file) {
-          folderList.push(file)
+          const fileData = fs.statSync(`${path}/${file}`)
+          const size = fileData.size
+          const mtime = new Date(fileData.mtime).toLocaleDateString()
+
+          const fileInfo: FileInfo = {
+            fileSize: size,
+            fileName: file,
+            updateFileTime: mtime,
+            fileType: '',
+          }
+          folderList.push(fileInfo)
+        })
+
+        folderList.forEach((folder, index) => {
+          folder.fileType = fileTypeList[index]
         })
         event.returnValue = { folderList: folderList, flag: false }
       }
     })
     ipcMain.on('onChange', (event, args) => {
-      const result = fs.existsSync(args.path)
+      const path = args.path
+      const result = fs.existsSync(path)
       if (!result) {
         dialog.showErrorBox(
           'エクスプローラ',
@@ -115,27 +133,50 @@ const createWindow = () => {
         return
       }
 
-      const files = fs.readdirSync(args.path)
+      const files = fs.readdirSync(path)
 
       folderList.length = 0
 
+      const fileType = execSync(
+        `pwsh.exe -command c://Users/user/Desktop/learning/electron/filer/test.ps1 ${path} -NoNewWindow -Wait`
+      )
+      const fileTypeList = iconv.decode(fileType, 'Shift_JIS').split('\n')
+
       // ②：filesの内容をターミナルに表示
       files.forEach(function (file) {
-        folderList.push(file)
+        const fileData = fs.statSync(`${path}/${file}`)
+        const size = fileData.size
+        const mtime = new Date(fileData.mtime).toLocaleDateString()
+
+        // console.log(size, mtime)
+        const fileInfo: FileInfo = {
+          fileSize: size,
+          fileName: file,
+          updateFileTime: mtime,
+          fileType: '',
+        }
+        folderList.push(fileInfo)
       })
+      folderList.forEach((folder, index) => {
+        folder.fileType = fileTypeList[index]
+      })
+
       event.returnValue = { folderList: folderList, flag: true }
     })
   })
 }
 app.whenReady().then(async () => {
   if (isDev) {
-    // 開発モードの場合は React Devtools をロード
-    const devtools = await searchDevtools('REACT')
-    if (devtools) {
-      await session.defaultSession.loadExtension(devtools, {
-        allowFileAccess: true,
-      })
-    }
+    // installExtension(REDUX_DEVTOOLS)
+    //   .then(name => console.log(`Added Extension:  ${name}`))
+    //   .catch(err => console.log('An error occurred: ', err))
+    // // 開発モードの場合は React Devtools をロード
+    // const devtools = await searchDevtools('REACT')
+    // if (devtools) {
+    //   await session.defaultSession.loadExtension(devtools, {
+    //     allowFileAccess: true,
+    //   })
+    // }
   }
 
   // BrowserWindow インスタンスを作成
