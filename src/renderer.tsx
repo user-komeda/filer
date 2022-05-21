@@ -22,6 +22,7 @@ const App = (): JSX.Element => {
     useState<Array<FileInfo> | null>(null)
   const [flag, setFlag] = useState()
   const [programNameList, setProgramNameList] = useState([])
+  const [iconList, setIconList] = useState<Array<string>>([])
 
   ipcRenderer.once('sendDataMain', (err, data) => {
     setFlag(data.flags)
@@ -32,6 +33,7 @@ const App = (): JSX.Element => {
     setProgramNameList(data.programNameList)
     setLastPath(data.path)
     setFlag(data.flags)
+    setIconList(data.iconList)
   })
   return (
     <>
@@ -94,7 +96,11 @@ const App = (): JSX.Element => {
         </>
       ) : (
         <div>
-          <Dialog programNameList={programNameList} path={nowPath}></Dialog>
+          <Dialog
+            programNameList={programNameList}
+            path={nowPath}
+            iconList={iconList}
+          ></Dialog>
         </div>
       )}
     </>

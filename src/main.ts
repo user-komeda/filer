@@ -8,6 +8,7 @@ import fs from 'fs'
 import FileInfo from './@types/fileInfo'
 
 const isDev = process.env.NODE_ENV === 'development'
+const iconFolderPath = 'c://Users/user/Desktop/learning/electron/filer/icon/'
 
 // 開発モードの場合はホットリロードする
 // if (isDev) {
@@ -245,10 +246,12 @@ const cleatsChildWindow = (
   childWindow.webContents.openDevTools({ mode: 'detach' })
 
   childWindow.webContents.on('did-finish-load', () => {
+    const iconList = fs.readdirSync(iconFolderPath)
     const sendData = {
       flags: false,
       programNameList: programNameList,
       path: clickedPath,
+      iconList: iconList,
     }
     childWindow.webContents.send('sendDataNormal', sendData)
     ipcMain.on('clickedProgramList', (event, data) => {
