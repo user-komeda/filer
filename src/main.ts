@@ -51,7 +51,6 @@ const createWindow = () => {
     { fileName: 'Pictures' },
     { fileName: 'Music' },
   ]
-
   // diskのキャプションを取得
   const stdout = execSync('wmic logicaldisk get caption').toString()
 
@@ -84,14 +83,12 @@ const createWindow = () => {
       const isDirectory = fs.statSync(path).isDirectory()
 
       if (!isDirectory) {
-        console.log(folderList)
         const extensionName = getExtensionName(path)
         try {
           getExecProgramName(extensionName, path)
         } catch (error) {
           openDialog(path)
         }
-        console.log(folderList)
         event.returnValue = { folderList: folderList, flag: true }
       } else {
         const files = fs.readdirSync(path)
@@ -136,7 +133,7 @@ const createWindow = () => {
       const files = fs.readdirSync(path)
 
       folderList.length = 0
-
+      console.debug('faire')
       const fileType = execSync(
         `pwsh.exe -command c://Users/user/Desktop/learning/electron/filer/test.ps1 ${path} -NoNewWindow -Wait`
       )
@@ -148,7 +145,6 @@ const createWindow = () => {
         const size = fileData.size
         const mtime = new Date(fileData.mtime).toLocaleDateString()
 
-        // console.log(size, mtime)
         const fileInfo: FileInfo = {
           fileSize: size,
           fileName: file,

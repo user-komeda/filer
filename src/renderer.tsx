@@ -3,12 +3,13 @@ import { render } from 'react-dom'
 
 import './styles.css'
 import TabMenu from './component/tabMenu'
-import SelectMenu from './component/pathTextMenu'
-import TextFieldsMenu from './component/textFilterMenu'
+import PathTextMenu from './component/pathTextMenu'
+import TextFilterMenu from './component/textFilterMenu'
 import PanelMenu from './component/panelMenu'
 import MainContent from './component/mainContent'
 import Dialog from './component/dialog'
 import { ipcRenderer } from './@types/ipcRender'
+import FileInfo from './@types/fileInfo'
 
 /**
  * レンダラープロセス
@@ -16,7 +17,9 @@ import { ipcRenderer } from './@types/ipcRender'
 const App = (): JSX.Element => {
   const [lastPath, setLastPath] = useState('c:/Users/user/')
   const [nowPath, setNowPath] = useState('')
-  const [folderList, setFolderList] = useState([])
+  const [folderList, setFolderList] = useState<Array<FileInfo>>([])
+  const [filteredFolderList, setFilteredFolderList] =
+    useState<Array<FileInfo> | null>(null)
   const [flag, setFlag] = useState()
   const [programNameList, setProgramNameList] = useState([])
 
@@ -44,7 +47,7 @@ const App = (): JSX.Element => {
                   redoFunction(nowPath, lastPath, setFolderList, setNowPath)
                 }}
               ></PanelMenu>
-              <SelectMenu
+              <PathTextMenu
                 path={nowPath ? nowPath : lastPath}
                 handleBlur={(event) => {
                   handleBlur(
@@ -58,8 +61,14 @@ const App = (): JSX.Element => {
                 handleChange={(event) => {
                   handleChange(event, setLastPath, setNowPath)
                 }}
-              ></SelectMenu>
-              <TextFieldsMenu></TextFieldsMenu>
+              ></PathTextMenu>
+              <TextFilterMenu
+                handleBlurFilter={(
+                  event: React.ChangeEvent<HTMLInputElement>
+                ) => {
+                  handleBlurFilter(event, folderList, setFilteredFolderList)
+                }}
+              ></TextFilterMenu>
             </div>
             <div>
               <TabMenu></TabMenu>
@@ -77,7 +86,9 @@ const App = (): JSX.Element => {
                   setNowPath
                 )
               }}
-              folderList={folderList}
+              folderList={
+                filteredFolderList !== null ? filteredFolderList : folderList
+              }
             ></MainContent>
           </div>
         </>
@@ -94,7 +105,7 @@ const handleClick = (
   event: React.MouseEvent,
   nowPath: string,
   lastPath: string,
-  setFolderList: React.Dispatch<React.SetStateAction<never[]>>,
+  setFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>,
   setLastPath: React.Dispatch<React.SetStateAction<string>>,
   setNowPath: React.Dispatch<React.SetStateAction<string>>
 ): void => {
@@ -116,7 +127,7 @@ const handleClick = (
 const undoFunction = (
   nowPath: string,
   lastPath: string,
-  setFolderList: React.Dispatch<React.SetStateAction<never[]>>,
+  setFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>,
   setNowPath: React.Dispatch<React.SetStateAction<string>>
 ) => {
   const tmpPath = nowPath ? nowPath.split('/') : lastPath.split('/')
@@ -135,7 +146,7 @@ const undoFunction = (
 const redoFunction = (
   nowPath: string,
   lastPath: string,
-  setFolderList: React.Dispatch<React.SetStateAction<never[]>>,
+  setFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>,
   setNowPath: React.Dispatch<React.SetStateAction<string>>
 ) => {
   if (nowPath !== '' && nowPath !== lastPath) {
@@ -160,7 +171,7 @@ const handleBlur = (
   nowPath: string,
   setLastPath: React.Dispatch<React.SetStateAction<string>>,
   setNowPath: React.Dispatch<React.SetStateAction<string>>,
-  setFolderList: React.Dispatch<React.SetStateAction<never[]>>
+  setFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>
 ) => {
   const path = event.currentTarget.value
   const pathArray = path.split('/')
@@ -187,6 +198,27 @@ const handleChange = (
   const path = event.currentTarget.value
   setNowPath(path)
   setLastPath(path)
+}
+
+const handleBlurFilter = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  folderList: Array<FileInfo>,
+  setFilteredFolderList: React.Dispatch<
+    React.SetStateAction<Array<FileInfo> | null>
+  >
+) => {
+  const filterText = event.currentTarget.value
+  if (filterText === '') {
+    setFilteredFolderList(null)
+    return
+  }
+  const filteredFolderList = folderList.filter((folder) => {
+    if (folder.fileName !== undefined) {
+      return folder.fileName.includes(filterText)
+    }
+  })
+  console.log(filteredFolderList)
+  setFilteredFolderList(filteredFolderList)
 }
 
 render(
