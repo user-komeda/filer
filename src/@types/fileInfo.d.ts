@@ -1,5 +1,5 @@
 export default interface FileInfo {
-  fileName: string
+  fileName?: string
   fileSize?: number
   updateFileTime?: string
   fileType?: string

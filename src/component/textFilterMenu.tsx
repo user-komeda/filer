@@ -66,10 +66,18 @@ const TextFilterMenu = React.forwardRef(function CustomInput(
 /**
  * TextFilterMenu view
  *
- * @returns {TextFilterMenu} TextFilterMenu
+ * @param props props
  */
-export default function UseInput() {
+const _TextFilterMenu: React.FC<{
+  handleBlurFilter: (event: React.ChangeEvent<HTMLInputElement>) => void
+}> = (props) => {
   return (
-    <TextFilterMenu aria-label="Demo input" placeholder="Type something..." />
+    <TextFilterMenu
+      aria-label="Demo input"
+      placeholder="Type something..."
+      onBlur={props.handleBlurFilter}
+    />
   )
 }
+
+export default _TextFilterMenu
