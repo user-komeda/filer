@@ -1,10 +1,5 @@
 import React from 'react'
-import icon1 from '../../icon/0icon.bmp'
-import icon2 from '../../icon/1icon.bmp'
-import icon3 from '../../icon/2icon.bmp'
-import icon4 from '../../icon/3icon.bmp'
-import icon5 from '../../icon/4icon.bmp'
-import icon6 from '../../icon/5icon.bmp'
+
 import { ipcRenderer } from '../@types/ipcRender'
 
 /**
@@ -14,22 +9,26 @@ import { ipcRenderer } from '../@types/ipcRender'
 const Dialog: React.FC<{
   programNameList: Array<string>
   path: string
+  iconList: Array<string>
 }> = (props) => {
   const programNameList = props.programNameList
-  const iconList = [icon1, icon2, icon3, icon4, icon5, icon6]
+  const iconFolderPath = 'c:/Users/user/Desktop/learning/electron/filer/icon/'
+  const iconList = props.iconList
 
   return (
     <div>
       <ul>
         {programNameList.map((programName, key) => {
-          return (
-            <li key={key}>
-              <div onClick={handleClick}>
-                <img src={iconList[key]} />
-                <span>{programName}</span>
-              </div>
-            </li>
-          )
+          if (programName) {
+            return (
+              <li key={key}>
+                <div onClick={handleClick}>
+                  <img src={`${iconFolderPath}${iconList[key]}`} />
+                  <span>{programName}</span>
+                </div>
+              </li>
+            )
+          }
         })}
       </ul>
     </div>
