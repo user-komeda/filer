@@ -9,17 +9,27 @@ import FileInfo from '../@types/fileInfo'
 const MainContent: React.FC<{
   folderList: null | Array<FileInfo>
   handleClick: (e: React.MouseEvent) => void
+  sortFunction: (e: React.MouseEvent) => void
 }> = (props) => {
   const folderList: Array<FileInfo> =
     props.folderList !== null ? props.folderList : []
+
   return (
     <table style={{ width: '100%' }}>
       <thead>
         <tr>
-          <th>名前</th>
-          <th>更新日時</th>
-          <th>種類</th>
-          <th>サイズ</th>
+          <th id="fileName" onClick={props.sortFunction}>
+            名前
+          </th>
+          <th id="fileUpdateTime" onClick={props.sortFunction}>
+            更新日時
+          </th>
+          <th id="fileType" onClick={props.sortFunction}>
+            種類
+          </th>
+          <th id="fileSize" onClick={props.sortFunction}>
+            サイズ
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -39,4 +49,5 @@ const MainContent: React.FC<{
     </table>
   )
 }
+
 export default MainContent
