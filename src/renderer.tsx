@@ -23,6 +23,7 @@ const App = (): JSX.Element => {
   const [flag, setFlag] = useState()
   const [programNameList, setProgramNameList] = useState([])
   const [iconList, setIconList] = useState<Array<string>>([])
+  const [isSortTypeAsc, setSortType] = useState(true)
 
   ipcRenderer.once('sendDataMain', (err, data) => {
     setFlag(data.flags)
@@ -91,6 +92,9 @@ const App = (): JSX.Element => {
               folderList={
                 filteredFolderList !== null ? filteredFolderList : folderList
               }
+              sortFunction={(event: React.MouseEvent) => {
+                sort(event, folderList, isSortTypeAsc, setSortType)
+              }}
             ></MainContent>
           </div>
         </>
@@ -225,6 +229,95 @@ const handleBlurFilter = (
   })
   console.log(filteredFolderList)
   setFilteredFolderList(filteredFolderList)
+}
+
+const sort = (
+  event: React.MouseEvent,
+  folderList: Array<FileInfo>,
+  isSortTypeAsc: boolean,
+  setSortType: React.Dispatch<React.SetStateAction<boolean>>
+) => {
+  const sortTarget = event.currentTarget.id
+  console.log(sortTarget)
+  console.log('click')
+  switch (sortTarget) {
+    case 'fileName':
+      sortByName(folderList, isSortTypeAsc)
+      break
+    case 'fileUpdateTime':
+      sortByUpdateTime(folderList, isSortTypeAsc)
+      break
+    case 'fileType':
+      sortByFileType(folderList, isSortTypeAsc)
+      break
+    case 'fileSize':
+      sortByFileSize(folderList, isSortTypeAsc)
+      break
+  }
+  setSortType(!isSortTypeAsc)
+}
+
+const sortByName = (folderList: Array<FileInfo>, isSortTypeAsc: boolean) => {
+  folderList.sort((a, b) => {
+    if (a.fileName === undefined || b.fileName === undefined) {
+      return 0
+    }
+    if (isSortTypeAsc) {
+      return a.fileName.toUpperCase() < b.fileName.toUpperCase() ? -1 : 1
+    } else {
+      return a.fileName.toUpperCase() > b.fileName.toUpperCase() ? -1 : 1
+    }
+  })
+}
+
+const sortByFileSize = (
+  folderList: Array<FileInfo>,
+  isSortTypeAsc: boolean
+) => {
+  console.log('ss')
+
+  folderList.sort((a, b) => {
+    if (a.fileSize === undefined || b.fileSize === undefined) {
+      return 0
+    }
+    if (isSortTypeAsc) {
+      return a.fileSize - b.fileSize
+    } else {
+      return b.fileSize - a.fileSize
+    }
+  })
+}
+
+const sortByFileType = (
+  folderList: Array<FileInfo>,
+  isSortTypeAsc: boolean
+) => {
+  folderList.sort((a, b) => {
+    if (a.fileType === undefined || b.fileType === undefined) {
+      return 0
+    }
+    if (isSortTypeAsc) {
+      return a.fileType < b.fileType ? -1 : 1
+    } else {
+      return a.fileType > b.fileType ? -1 : 1
+    }
+  })
+}
+
+const sortByUpdateTime = (
+  folderList: Array<FileInfo>,
+  isSortTypeAsc: boolean
+) => {
+  folderList.sort((a, b) => {
+    if (a.updateFileTime === undefined || b.updateFileTime === undefined) {
+      return 0
+    }
+    if (isSortTypeAsc) {
+      return a.updateFileTime < b.updateFileTime ? -1 : 1
+    } else {
+      return a.updateFileTime > b.updateFileTime ? -1 : 1
+    }
+  })
 }
 
 render(
