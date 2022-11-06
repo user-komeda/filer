@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useInput } from '@mui/base'
 import { styled } from '@mui/system'
+import { unstable_useForkRef as useForkRef } from '@mui/utils'
 
 // 色定義
 const blue = {
@@ -54,11 +55,13 @@ const TextFilterMenu = React.forwardRef(function CustomInput(
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   // inputに必要なイベントや属性
-  const { getRootProps, getInputProps } = useInput(props, ref)
+  const { getRootProps, getInputProps } = useInput(props)
+  const inputProps = getInputProps()
+  inputProps.ref = useForkRef(inputProps.ref, ref)
 
   return (
     <div {...getRootProps()} style={{ width: '15%' }}>
-      <StyledInputElement {...props} {...getInputProps()} />
+      <StyledInputElement {...props} {...inputProps} />
     </div>
   )
 })

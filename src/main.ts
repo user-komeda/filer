@@ -77,6 +77,7 @@ const createWindow = () => {
     const sendData = {
       folderList: folderList,
       flags: true,
+      volumeLabelList: volumeLabelList,
     }
     mainWindow.webContents.send('sendDataMain', sendData)
     ipcMain.on('onClick', (event, args) => {

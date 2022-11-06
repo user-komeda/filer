@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 
 import './styles.css'
 import TabMenu from './component/tabMenu'
@@ -8,8 +8,23 @@ import TextFilterMenu from './component/textFilterMenu'
 import PanelMenu from './component/panelMenu'
 import MainContent from './component/mainContent'
 import Dialog from './component/dialog'
+import SideMenu from './component/sideMenu'
 import { ipcRenderer } from './@types/ipcRender'
 import FileInfo from './@types/fileInfo'
+import { Box } from '@mui/system'
+import {
+  CssBaseline,
+  Toolbar,
+  AppBar,
+  Typography,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListItemButton,
+  Divider,
+} from '@mui/material'
+import Drawer from '@mui/material/Drawer'
 
 /**
  * レンダラープロセス
@@ -24,10 +39,13 @@ const App = (): JSX.Element => {
   const [programNameList, setProgramNameList] = useState([])
   const [iconList, setIconList] = useState<Array<string>>([])
   const [isSortTypeAsc, setSortType] = useState(true)
+  const [volumeLabelList, setVolumeLabelList] = useState<Array<string>>([])
+  const drawerWidth = 200
 
   ipcRenderer.once('sendDataMain', (err, data) => {
     setFlag(data.flags)
     setFolderList(data.folderList)
+    setVolumeLabelList(data.volumeLabelList)
   })
 
   ipcRenderer.once('sendDataNormal', (err, data) => {
@@ -39,65 +57,157 @@ const App = (): JSX.Element => {
   return (
     <>
       {flag ? (
-        <>
-          <div style={{ backgroundColor: '#F0F0F0' }}>
-            <div className="test">
-              <PanelMenu
-                undoFunction={() => {
-                  undoFunction(nowPath, lastPath, setFolderList, setNowPath)
-                }}
-                redoFunction={() => {
-                  redoFunction(nowPath, lastPath, setFolderList, setNowPath)
-                }}
-              ></PanelMenu>
-              <PathTextMenu
-                path={nowPath ? nowPath : lastPath}
-                handleBlur={(event) => {
-                  handleBlur(
+        <Box sx={{ display: 'flex' }}>
+          <CssBaseline />
+          <AppBar
+            position="fixed"
+            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          >
+            <div style={{ backgroundColor: '#F0F0F0' }}>
+              <div>
+                <div className="test">
+                  <PanelMenu
+                    undoFunction={() => {
+                      undoFunction(nowPath, lastPath, setFolderList, setNowPath)
+                    }}
+                    redoFunction={() => {
+                      redoFunction(nowPath, lastPath, setFolderList, setNowPath)
+                    }}
+                  ></PanelMenu>
+                  <PathTextMenu
+                    path={nowPath ? nowPath : lastPath}
+                    handleBlur={(event) => {
+                      handleBlur(
+                        event,
+                        nowPath,
+                        setLastPath,
+                        setNowPath,
+                        setFolderList
+                      )
+                    }}
+                    handleChange={(event) => {
+                      handleChange(event, setLastPath, setNowPath)
+                    }}
+                  ></PathTextMenu>
+                  <TextFilterMenu
+                    handleBlurFilter={(
+                      event: React.ChangeEvent<HTMLInputElement>
+                    ) => {
+                      handleBlurFilter(event, folderList, setFilteredFolderList)
+                    }}
+                  ></TextFilterMenu>
+                </div>
+              </div>
+              <div>
+                <TabMenu></TabMenu>
+              </div>
+            </div>
+          </AppBar>
+          <Drawer
+            variant="permanent"
+            sx={{
+              width: drawerWidth,
+              flexShrink: 0,
+              [`& .MuiDrawer-paper`]: {
+                width: drawerWidth,
+                boxSizing: 'border-box',
+              },
+            }}
+          >
+            <Toolbar />
+            <Box sx={{ overflow: 'auto' }}>
+              ;
+              <SideMenu
+                folderList={folderList}
+                volumeLabelList={volumeLabelList}
+                handleClick={(event: React.MouseEvent) => {
+                  handleClick(
                     event,
                     nowPath,
+                    lastPath,
+                    setFolderList,
                     setLastPath,
-                    setNowPath,
-                    setFolderList
+                    setNowPath
                   )
                 }}
-                handleChange={(event) => {
-                  handleChange(event, setLastPath, setNowPath)
+              ></SideMenu>
+            </Box>
+          </Drawer>
+          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            <Toolbar />
+            <Typography paragraph>
+              <MainContent
+                handleClick={(event) => {
+                  handleClick(
+                    event,
+                    nowPath,
+                    lastPath,
+                    setFolderList,
+                    setLastPath,
+                    setNowPath
+                  )
                 }}
-              ></PathTextMenu>
-              <TextFilterMenu
-                handleBlurFilter={(
-                  event: React.ChangeEvent<HTMLInputElement>
-                ) => {
-                  handleBlurFilter(event, folderList, setFilteredFolderList)
+                folderList={
+                  filteredFolderList !== null ? filteredFolderList : folderList
+                }
+                sortFunction={(event: React.MouseEvent) => {
+                  sort(event, folderList, isSortTypeAsc, setSortType)
                 }}
-              ></TextFilterMenu>
-            </div>
-            <div>
-              <TabMenu></TabMenu>
-            </div>
-          </div>
-          <div>
-            <MainContent
-              handleClick={(event) => {
-                handleClick(
-                  event,
-                  nowPath,
-                  lastPath,
-                  setFolderList,
-                  setLastPath,
-                  setNowPath
-                )
+              ></MainContent>
+            </Typography>
+          </Box>
+          {/* <Box>
+            <CssBaseline />
+            <Drawer
+              variant='permanent'
+              sx={{
+                width: drawerWidth,
+                flexShrink: 0,
+                [`& .MuiDrawer-paper`]: {
+                  width: drawerWidth,
+                  boxSizing: 'border-box',
+                },
               }}
-              folderList={
-                filteredFolderList !== null ? filteredFolderList : folderList
-              }
-              sortFunction={(event: React.MouseEvent) => {
-                sort(event, folderList, isSortTypeAsc, setSortType)
-              }}
-            ></MainContent>
-          </div>
-        </>
+            >
+              <Toolbar />
+              <SideMenu
+                folderList={folderList}
+                volumeLabelList={volumeLabelList}
+                handleClick={(event: React.MouseEvent) => {
+                  handleClick(
+                    event,
+                    nowPath,
+                    lastPath,
+                    setFolderList,
+                    setLastPath,
+                    setNowPath
+                  )
+                }}
+              ></SideMenu>
+            </Drawer>
+            <Box>
+              <Toolbar />
+              <MainContent
+                handleClick={event => {
+                  handleClick(
+                    event,
+                    nowPath,
+                    lastPath,
+                    setFolderList,
+                    setLastPath,
+                    setNowPath
+                  )
+                }}
+                folderList={
+                  filteredFolderList !== null ? filteredFolderList : folderList
+                }
+                sortFunction={(event: React.MouseEvent) => {
+                  sort(event, folderList, isSortTypeAsc, setSortType)
+                }}
+              ></MainContent>
+            </Box>
+          </Box> */}
+        </Box>
       ) : (
         <div>
           <Dialog
@@ -319,10 +429,6 @@ const sortByUpdateTime = (
     }
   })
 }
-
-render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-)
+const conrainer = document.getElementById('root')!
+const root = createRoot(conrainer)
+root.render(<App></App>)

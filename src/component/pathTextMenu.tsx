@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useInput } from '@mui/base'
 import { styled } from '@mui/system'
+import { unstable_useForkRef as useForkRef } from '@mui/utils'
 
 // 色定義
 const blue = {
@@ -55,11 +56,13 @@ const PathTextMenu = React.forwardRef(
     ref: React.ForwardedRef<HTMLInputElement>
   ): JSX.Element => {
     // inputに必要な属性やeventの定義
-    const { getRootProps, getInputProps } = useInput(props, ref)
+    const { getRootProps, getInputProps } = useInput(props)
+    const inputProps = getInputProps()
+    inputProps.ref = useForkRef(inputProps.ref, ref)
 
     return (
       <div {...getRootProps()} style={{ width: '70%' }}>
-        <StyledInputElement {...props} {...getInputProps()} />
+        <StyledInputElement {...props} {...inputProps} />
         <span style={{ width: '1%', position: 'absolute', right: '17%' }}>
           ×
         </span>
