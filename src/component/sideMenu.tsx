@@ -19,10 +19,13 @@ import { start } from 'repl'
 const SideMenu: React.FC<{
   folderList: Array<FileInfo>
   volumeLabelList: Array<string>
+  clickedFolder: string
   handleClick: (e: React.MouseEvent) => void
-}> = (props) => {
+}> = props => {
   const folderList = props.folderList
   const volumeLabelList = props.volumeLabelList
+
+  const handleClick = props.handleClick
   return (
     <>
       <Box>
@@ -31,18 +34,22 @@ const SideMenu: React.FC<{
             return (
               <ListItem key={index}>
                 <ListItemButton>
-                  <ListItemIcon></ListItemIcon>
-                  <ListItemText primary={folder.fileName}></ListItemText>
+                  <ListItemText primary={folder.fileName} onClick={handleClick}>
+                    <p>ssssss</p>
+                  </ListItemText>
                 </ListItemButton>
               </ListItem>
             )
           })}
           {volumeLabelList.map((volumeLabel, index) => {
+            console.log(volumeLabel)
             return (
-              <ListItem key={index} alignItems={'flex-start'}>
+              <ListItem key={index}>
                 <ListItemButton>
-                  <ListItemIcon></ListItemIcon>
-                  <ListItemText primary={volumeLabel}></ListItemText>
+                  <ListItemText
+                    primary={volumeLabel}
+                    onClick={handleClick}
+                  ></ListItemText>
                 </ListItemButton>
               </ListItem>
             )

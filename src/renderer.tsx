@@ -25,6 +25,7 @@ import {
   Divider,
 } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
+import fs from 'fs'
 
 /**
  * レンダラープロセス
@@ -33,18 +34,29 @@ const App = (): JSX.Element => {
   const [lastPath, setLastPath] = useState('c:/Users/user/')
   const [nowPath, setNowPath] = useState('')
   const [folderList, setFolderList] = useState<Array<FileInfo>>([])
-  const [filteredFolderList, setFilteredFolderList] =
-    useState<Array<FileInfo> | null>(null)
+  const [sideMenuFolderList, setSideMenuFolderList] = useState<Array<FileInfo>>(
+    []
+  )
+  const [filteredFolderList, setFilteredFolderList] = useState<Array<
+    FileInfo
+  > | null>(null)
   const [flag, setFlag] = useState()
   const [programNameList, setProgramNameList] = useState([])
   const [iconList, setIconList] = useState<Array<string>>([])
   const [isSortTypeAsc, setSortType] = useState(true)
   const [volumeLabelList, setVolumeLabelList] = useState<Array<string>>([])
+  const [clickedFolder, setClickedFolder] = useState<string>('')
+
   const drawerWidth = 200
 
   ipcRenderer.once('sendDataMain', (err, data) => {
     setFlag(data.flags)
     setFolderList(data.folderList)
+    setSideMenuFolderList(() => {
+      return sideMenuFolderList.length === 0
+        ? data.folderList
+        : sideMenuFolderList
+    })
     setVolumeLabelList(data.volumeLabelList)
   })
 
@@ -60,12 +72,12 @@ const App = (): JSX.Element => {
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
           <AppBar
-            position="fixed"
-            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            position='fixed'
+            sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
           >
-            <div style={{ backgroundColor: '#F0F0F0' }}>
+            <div style={{ backgroundColor: '#F0F0F0', color: 'black' }}>
               <div>
-                <div className="test">
+                <div className='test'>
                   <PanelMenu
                     undoFunction={() => {
                       undoFunction(nowPath, lastPath, setFolderList, setNowPath)
@@ -76,7 +88,7 @@ const App = (): JSX.Element => {
                   ></PanelMenu>
                   <PathTextMenu
                     path={nowPath ? nowPath : lastPath}
-                    handleBlur={(event) => {
+                    handleBlur={event => {
                       handleBlur(
                         event,
                         nowPath,
@@ -85,7 +97,7 @@ const App = (): JSX.Element => {
                         setFolderList
                       )
                     }}
-                    handleChange={(event) => {
+                    handleChange={event => {
                       handleChange(event, setLastPath, setNowPath)
                     }}
                   ></PathTextMenu>
@@ -104,7 +116,7 @@ const App = (): JSX.Element => {
             </div>
           </AppBar>
           <Drawer
-            variant="permanent"
+            variant='permanent'
             sx={{
               width: drawerWidth,
               flexShrink: 0,
@@ -118,75 +130,24 @@ const App = (): JSX.Element => {
             <Box sx={{ overflow: 'auto' }}>
               ;
               <SideMenu
-                folderList={folderList}
+                folderList={sideMenuFolderList}
                 volumeLabelList={volumeLabelList}
+                clickedFolder={clickedFolder}
                 handleClick={(event: React.MouseEvent) => {
-                  handleClick(
+                  handleSideMenuClick(
                     event,
-                    nowPath,
-                    lastPath,
-                    setFolderList,
                     setLastPath,
-                    setNowPath
+                    setNowPath,
+                    setSideMenuFolderList,
+                    setClickedFolder
                   )
                 }}
               ></SideMenu>
             </Box>
           </Drawer>
-          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
             <Toolbar />
             <Typography paragraph>
-              <MainContent
-                handleClick={(event) => {
-                  handleClick(
-                    event,
-                    nowPath,
-                    lastPath,
-                    setFolderList,
-                    setLastPath,
-                    setNowPath
-                  )
-                }}
-                folderList={
-                  filteredFolderList !== null ? filteredFolderList : folderList
-                }
-                sortFunction={(event: React.MouseEvent) => {
-                  sort(event, folderList, isSortTypeAsc, setSortType)
-                }}
-              ></MainContent>
-            </Typography>
-          </Box>
-          {/* <Box>
-            <CssBaseline />
-            <Drawer
-              variant='permanent'
-              sx={{
-                width: drawerWidth,
-                flexShrink: 0,
-                [`& .MuiDrawer-paper`]: {
-                  width: drawerWidth,
-                  boxSizing: 'border-box',
-                },
-              }}
-            >
-              <Toolbar />
-              <SideMenu
-                folderList={folderList}
-                volumeLabelList={volumeLabelList}
-                handleClick={(event: React.MouseEvent) => {
-                  handleClick(
-                    event,
-                    nowPath,
-                    lastPath,
-                    setFolderList,
-                    setLastPath,
-                    setNowPath
-                  )
-                }}
-              ></SideMenu>
-            </Drawer>
-            <Box>
-              <Toolbar />
               <MainContent
                 handleClick={event => {
                   handleClick(
@@ -205,8 +166,8 @@ const App = (): JSX.Element => {
                   sort(event, folderList, isSortTypeAsc, setSortType)
                 }}
               ></MainContent>
-            </Box>
-          </Box> */}
+            </Typography>
+          </Box>
         </Box>
       ) : (
         <div>
@@ -244,6 +205,29 @@ const handleClick = (
   })
 }
 
+const handleSideMenuClick = (
+  event: React.MouseEvent,
+  setLastPath: React.Dispatch<React.SetStateAction<string>>,
+  setNowPath: React.Dispatch<React.SetStateAction<string>>,
+  setSideMenuFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>,
+  setClickedFolder: React.Dispatch<React.SetStateAction<string>>
+) => {
+  const basePath = 'c://Users/user/'
+  const targetValue = event.currentTarget.textContent ?? ''
+  const path = `${basePath}${targetValue}`
+
+  const result = ipcRenderer.sendSync('onClick', {
+    path: path,
+  })
+
+  setLastPath(`${basePath}${targetValue}`)
+  setNowPath(`${basePath}${targetValue}`)
+  setSideMenuFolderList(() => {
+    return result.folderList
+  })
+  setClickedFolder(targetValue)
+}
+
 const undoFunction = (
   nowPath: string,
   lastPath: string,
@@ -273,7 +257,7 @@ const redoFunction = (
     const pathArray = nowPath.split('/')
     const lastPathArray = lastPath.split('/')
     const test = lastPathArray.filter(
-      (lastPath) => pathArray.indexOf(lastPath) === -1
+      lastPath => pathArray.indexOf(lastPath) === -1
     )[0]
     const a = pathArray.join('/') + test
     const result = ipcRenderer.sendSync('onClick', {
@@ -332,7 +316,7 @@ const handleBlurFilter = (
     setFilteredFolderList(null)
     return
   }
-  const filteredFolderList = folderList.filter((folder) => {
+  const filteredFolderList = folderList.filter(folder => {
     if (folder.fileName !== undefined) {
       return folder.fileName.includes(filterText)
     }
