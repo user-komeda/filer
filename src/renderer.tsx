@@ -47,7 +47,7 @@ const App = (): JSX.Element => {
   const [volumeLabelList, setVolumeLabelList] = useState<Array<string>>([])
   const [clickedFolder, setClickedFolder] = useState<string>('')
 
-  const drawerWidth = 200
+  const drawerWidth = 240
 
   ipcRenderer.once('sendDataMain', (err, data) => {
     setFlag(data.flags)
