@@ -1,5 +1,5 @@
+/* eslint-disable jsdoc/no-undefined-types */
 import React from 'react'
-import Box from '@mui/material/Box'
 import {
   List,
   ListItem,
@@ -8,34 +8,34 @@ import {
   ListItemText,
   ListSubheader,
 } from '@mui/material'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+
 import FileInfo from '../@types/fileInfo'
-import { start } from 'repl'
 
 /**
- * sideMenu
  *
  * @param props props
- * @returns jsx
+ * @returns {JSX.Element} jsx
  */
 const SideMenu: React.FC<{
-  folderList: Array<FileInfo>
+  folderList: Map<number, Array<FileInfo>>
   volumeLabelList: Array<string>
   clickedFolder: string
   handleClick: (e: React.MouseEvent) => void
-}> = props => {
-  const folderList = props.folderList
+}> = (props) => {
+  const loopCount = 0
+  const folderList = props.folderList.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
-
+  const mapSize = props.folderList.size
   const handleClick = props.handleClick
-  console.log('renderf')
   return (
     <>
       <List
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
-        component='nav'
-        aria-labelledby='nested-list-subheader'
+        component="nav"
+        aria-labelledby="nested-list-subheader"
         subheader={
-          <ListSubheader component='div' id='nested-list-subheader'>
+          <ListSubheader component="div" id="nested-list-subheader">
             Nested List Items
           </ListSubheader>
         }
@@ -49,26 +49,15 @@ const SideMenu: React.FC<{
               key={index}
             >
               <ListItemButton>
+                <ListItemIcon>
+                  <ArrowForwardIosIcon></ArrowForwardIosIcon>
+                </ListItemIcon>
                 <ListItemText
                   primary={folder.fileName}
                   onClick={handleClick}
                 ></ListItemText>
               </ListItemButton>
-              <List component='div' disablePadding>
-                <ListItem
-                  sx={{
-                    display: 'block',
-                  }}
-                  key={index}
-                >
-                  <ListItemButton sx={{ pl: 4 }}>
-                    <ListItemText
-                      primary={folder.fileName}
-                      onClick={handleClick}
-                    ></ListItemText>
-                  </ListItemButton>
-                </ListItem>
-              </List>
+              {createList(mapSize, loopCount)}
             </ListItem>
           )
         })}
@@ -77,6 +66,9 @@ const SideMenu: React.FC<{
           return (
             <ListItem key={index}>
               <ListItemButton>
+                <ListItemIcon>
+                  <ArrowForwardIosIcon></ArrowForwardIosIcon>
+                </ListItemIcon>
                 <ListItemText
                   primary={volumeLabel}
                   onClick={handleClick}
@@ -87,6 +79,31 @@ const SideMenu: React.FC<{
         })}
       </List>
     </>
+  )
+}
+
+const createList = (mapSize: number, loopCount: number) => {
+  if (mapSize === 1) {
+    return
+  }
+  loopCount++
+  console.log(mapSize, loopCount)
+  return (
+    <List component="div" disablePadding>
+      <ListItem
+        sx={{
+          display: 'block',
+        }}
+      >
+        <ListItemButton sx={{ pl: 1 }}>
+          <ListItemIcon>
+            <ArrowForwardIosIcon></ArrowForwardIosIcon>
+          </ListItemIcon>
+          <ListItemText primary={'bbb'}></ListItemText>
+        </ListItemButton>
+        {loopCount < mapSize ? createList(mapSize, loopCount) : ''}
+      </ListItem>
+    </List>
   )
 }
 export default SideMenu

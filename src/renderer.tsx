@@ -12,20 +12,8 @@ import SideMenu from './component/sideMenu'
 import { ipcRenderer } from './@types/ipcRender'
 import FileInfo from './@types/fileInfo'
 import { Box } from '@mui/system'
-import {
-  CssBaseline,
-  Toolbar,
-  AppBar,
-  Typography,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListItemButton,
-  Divider,
-} from '@mui/material'
+import { CssBaseline, Toolbar, AppBar, Typography } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
-import fs from 'fs'
 
 /**
  * レンダラープロセス
@@ -34,12 +22,11 @@ const App = (): JSX.Element => {
   const [lastPath, setLastPath] = useState('c:/Users/user/')
   const [nowPath, setNowPath] = useState('')
   const [folderList, setFolderList] = useState<Array<FileInfo>>([])
-  const [sideMenuFolderList, setSideMenuFolderList] = useState<Array<FileInfo>>(
-    []
-  )
-  const [filteredFolderList, setFilteredFolderList] = useState<Array<
-    FileInfo
-  > | null>(null)
+  const [sideMenuFolderList, setSideMenuFolderList] = useState<
+    Map<number, Array<FileInfo>>
+  >(new Map())
+  const [filteredFolderList, setFilteredFolderList] =
+    useState<Array<FileInfo> | null>(null)
   const [flag, setFlag] = useState()
   const [programNameList, setProgramNameList] = useState([])
   const [iconList, setIconList] = useState<Array<string>>([])
@@ -50,12 +37,12 @@ const App = (): JSX.Element => {
   const drawerWidth = 240
 
   ipcRenderer.once('sendDataMain', (err, data) => {
+    console.log('aaaa')
     setFlag(data.flags)
     setFolderList(data.folderList)
     setSideMenuFolderList(() => {
-      return sideMenuFolderList.length === 0
-        ? data.folderList
-        : sideMenuFolderList
+      sideMenuFolderList.set(0, data.folderList)
+      return sideMenuFolderList
     })
     setVolumeLabelList(data.volumeLabelList)
   })
@@ -72,12 +59,12 @@ const App = (): JSX.Element => {
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
           <AppBar
-            position='fixed'
-            sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
+            position="fixed"
+            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
           >
             <div style={{ backgroundColor: '#F0F0F0', color: 'black' }}>
               <div>
-                <div className='test'>
+                <div className="test">
                   <PanelMenu
                     undoFunction={() => {
                       undoFunction(nowPath, lastPath, setFolderList, setNowPath)
@@ -88,7 +75,7 @@ const App = (): JSX.Element => {
                   ></PanelMenu>
                   <PathTextMenu
                     path={nowPath ? nowPath : lastPath}
-                    handleBlur={event => {
+                    handleBlur={(event) => {
                       handleBlur(
                         event,
                         nowPath,
@@ -97,7 +84,7 @@ const App = (): JSX.Element => {
                         setFolderList
                       )
                     }}
-                    handleChange={event => {
+                    handleChange={(event) => {
                       handleChange(event, setLastPath, setNowPath)
                     }}
                   ></PathTextMenu>
@@ -116,7 +103,7 @@ const App = (): JSX.Element => {
             </div>
           </AppBar>
           <Drawer
-            variant='permanent'
+            variant="permanent"
             sx={{
               width: drawerWidth,
               flexShrink: 0,
@@ -128,7 +115,6 @@ const App = (): JSX.Element => {
           >
             <Toolbar />
             <Box sx={{ overflow: 'auto' }}>
-              ;
               <SideMenu
                 folderList={sideMenuFolderList}
                 volumeLabelList={volumeLabelList}
@@ -136,6 +122,7 @@ const App = (): JSX.Element => {
                 handleClick={(event: React.MouseEvent) => {
                   handleSideMenuClick(
                     event,
+                    sideMenuFolderList,
                     setLastPath,
                     setNowPath,
                     setSideMenuFolderList,
@@ -145,11 +132,11 @@ const App = (): JSX.Element => {
               ></SideMenu>
             </Box>
           </Drawer>
-          <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
+          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
             <Toolbar />
             <Typography paragraph>
               <MainContent
-                handleClick={event => {
+                handleClick={(event) => {
                   handleClick(
                     event,
                     nowPath,
@@ -207,9 +194,12 @@ const handleClick = (
 
 const handleSideMenuClick = (
   event: React.MouseEvent,
+  sideMenuFolderList: Map<number, Array<FileInfo>>,
   setLastPath: React.Dispatch<React.SetStateAction<string>>,
   setNowPath: React.Dispatch<React.SetStateAction<string>>,
-  setSideMenuFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>,
+  setSideMenuFolderList: React.Dispatch<
+    React.SetStateAction<Map<number, Array<FileInfo>>>
+  >,
   setClickedFolder: React.Dispatch<React.SetStateAction<string>>
 ) => {
   const basePath = 'c://Users/user/'
@@ -223,7 +213,7 @@ const handleSideMenuClick = (
   setLastPath(`${basePath}${targetValue}`)
   setNowPath(`${basePath}${targetValue}`)
   setSideMenuFolderList(() => {
-    return result.folderList
+    return sideMenuFolderList.set(1, result.folderList)
   })
   setClickedFolder(targetValue)
 }
@@ -257,7 +247,7 @@ const redoFunction = (
     const pathArray = nowPath.split('/')
     const lastPathArray = lastPath.split('/')
     const test = lastPathArray.filter(
-      lastPath => pathArray.indexOf(lastPath) === -1
+      (lastPath) => pathArray.indexOf(lastPath) === -1
     )[0]
     const a = pathArray.join('/') + test
     const result = ipcRenderer.sendSync('onClick', {
@@ -316,7 +306,7 @@ const handleBlurFilter = (
     setFilteredFolderList(null)
     return
   }
-  const filteredFolderList = folderList.filter(folder => {
+  const filteredFolderList = folderList.filter((folder) => {
     if (folder.fileName !== undefined) {
       return folder.fileName.includes(filterText)
     }
@@ -413,6 +403,7 @@ const sortByUpdateTime = (
     }
   })
 }
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const conrainer = document.getElementById('root')!
 const root = createRoot(conrainer)
 root.render(<App></App>)
