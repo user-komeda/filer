@@ -202,19 +202,26 @@ const handleSideMenuClick = (
   >,
   setClickedFolder: React.Dispatch<React.SetStateAction<string>>
 ) => {
+  const targetTagName = event.currentTarget.children[0].tagName
   const basePath = 'c://Users/user/'
-  const targetValue = event.currentTarget.textContent ?? ''
+  const targetValue = event.currentTarget.nextElementSibling?.textContent ?? ''
+  console.log(targetValue)
   const path = `${basePath}${targetValue}`
 
   const result = ipcRenderer.sendSync('onClick', {
     path: path,
   })
 
-  setLastPath(`${basePath}${targetValue}`)
-  setNowPath(`${basePath}${targetValue}`)
-  setSideMenuFolderList(() => {
-    return sideMenuFolderList.set(1, result.folderList)
-  })
+  if (targetTagName === 'svg') {
+    const setIndex = mapFindKeyByValue(targetValue, sideMenuFolderList) + 1
+    setSideMenuFolderList(() => {
+      return sideMenuFolderList.set(setIndex, result.folderList)
+    })
+    console.log('aaa')
+  }
+  // setLastPath(`${basePath}${targetValue}`)
+  // setNowPath(`${basePath}${targetValue}`)
+
   setClickedFolder(targetValue)
 }
 
@@ -403,6 +410,26 @@ const sortByUpdateTime = (
     }
   })
 }
+
+const mapFindKeyByValue = (
+  value: string,
+  map: Map<number, Array<FileInfo>>
+): number => {
+  console.log(value)
+  for (const key of map.keys()) {
+    console.log(key)
+    const fileInfoList = map.get(key)
+    const isSameName = fileInfoList?.some((folderInfo) => {
+      folderInfo.fileName === value
+    })
+    if (isSameName) {
+      console.log(key)
+      return key + 1
+    }
+  }
+  return 0
+}
+
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const conrainer = document.getElementById('root')!
 const root = createRoot(conrainer)

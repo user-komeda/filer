@@ -24,10 +24,12 @@ const SideMenu: React.FC<{
   handleClick: (e: React.MouseEvent) => void
 }> = (props) => {
   const loopCount = 0
-  const folderList = props.folderList.get(0) ?? new Array<FileInfo>()
+  const mapFolderList = props.folderList ?? new Map<number, Array<FileInfo>>()
+  const folderList = mapFolderList.get(0)
   const volumeLabelList = props.volumeLabelList
   const mapSize = props.folderList.size
   const handleClick = props.handleClick
+  props.folderList.has
   return (
     <>
       <List
@@ -49,7 +51,7 @@ const SideMenu: React.FC<{
               key={index}
             >
               <ListItemButton>
-                <ListItemIcon>
+                <ListItemIcon onClick={handleClick}>
                   <ArrowForwardIosIcon></ArrowForwardIosIcon>
                 </ListItemIcon>
                 <ListItemText
@@ -57,7 +59,7 @@ const SideMenu: React.FC<{
                   onClick={handleClick}
                 ></ListItemText>
               </ListItemButton>
-              {createList(mapSize, loopCount)}
+              {createList(mapSize, loopCount, handleClick)}
             </ListItem>
           )
         })}
@@ -82,7 +84,11 @@ const SideMenu: React.FC<{
   )
 }
 
-const createList = (mapSize: number, loopCount: number) => {
+const createList = (
+  mapSize: number,
+  loopCount: number,
+  handleClick: React.MouseEventHandler
+) => {
   if (mapSize === 1) {
     return
   }
@@ -96,14 +102,17 @@ const createList = (mapSize: number, loopCount: number) => {
         }}
       >
         <ListItemButton sx={{ pl: 1 }}>
-          <ListItemIcon>
+          <ListItemIcon onClick={handleClick}>
             <ArrowForwardIosIcon></ArrowForwardIosIcon>
           </ListItemIcon>
-          <ListItemText primary={'bbb'}></ListItemText>
+          <ListItemText primary={'bbb'} onClick={handleClick}></ListItemText>
         </ListItemButton>
-        {loopCount < mapSize ? createList(mapSize, loopCount) : ''}
+        {loopCount < mapSize - 1
+          ? createList(mapSize, loopCount, handleClick)
+          : ''}
       </ListItem>
     </List>
   )
 }
+
 export default SideMenu
