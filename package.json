@@ -35,6 +35,8 @@
     "@types/react": "^17.0.39",
     "@types/styled-components": "^5.1.22",
     "@types/webpack": "^5.28.0",
+    "assert": "^2.0.0",
+    "console-browserify": "^1.2.0",
     "cross-env": "^7.0.3",
     "electron": "^21.2.2",
     "electron-reload": "^2.0.0-alpha.1",

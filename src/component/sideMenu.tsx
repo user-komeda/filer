@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/no-undefined-types */
-import React from 'react'
+import React, { useRef } from 'react'
 import {
   List,
   ListItem,
@@ -11,6 +11,7 @@ import {
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 
 import FileInfo from '../@types/fileInfo'
+import console from 'console'
 
 /**
  *
@@ -20,24 +21,27 @@ import FileInfo from '../@types/fileInfo'
 const SideMenu: React.FC<{
   folderList: Map<number, Array<FileInfo>>
   volumeLabelList: Array<string>
-  clickedFolder: string
+  clickedFolder: Array<string>
   handleClick: (e: React.MouseEvent) => void
-}> = (props) => {
-  const loopCount = 0
+}> = props => {
+  const loopCount = useRef(0)
   const mapFolderList = props.folderList ?? new Map<number, Array<FileInfo>>()
-  const folderList = mapFolderList.get(0)
+  const folderList = mapFolderList.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
-  const mapSize = props.folderList.size
   const handleClick = props.handleClick
-  props.folderList.has
+  const lastMap =
+    mapFolderList.get(mapFolderList.size - 1) ?? new Array<FileInfo>()
+
+  const filePath = lastMap.length === 0 ? '' : lastMap[0].filePath ?? ''
+
   return (
     <>
       <List
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
-        component="nav"
-        aria-labelledby="nested-list-subheader"
+        component='nav'
+        aria-labelledby='nested-list-subheader'
         subheader={
-          <ListSubheader component="div" id="nested-list-subheader">
+          <ListSubheader component='div' id='nested-list-subheader'>
             Nested List Items
           </ListSubheader>
         }
@@ -50,7 +54,7 @@ const SideMenu: React.FC<{
               }}
               key={index}
             >
-              <ListItemButton>
+              <ListItemButton sx={{ pl: 1 }}>
                 <ListItemIcon onClick={handleClick}>
                   <ArrowForwardIosIcon></ArrowForwardIosIcon>
                 </ListItemIcon>
@@ -59,12 +63,20 @@ const SideMenu: React.FC<{
                   onClick={handleClick}
                 ></ListItemText>
               </ListItemButton>
-              {createList(mapSize, loopCount, handleClick)}
+              {props.clickedFolder[0] === folder.fileName
+                ? createList(
+                    mapFolderList,
+                    folder.fileName ?? '',
+                    props.clickedFolder,
+                    loopCount,
+                    filePath,
+                    handleClick
+                  )
+                : ''}
             </ListItem>
           )
         })}
         {volumeLabelList.map((volumeLabel, index) => {
-          console.log(volumeLabel)
           return (
             <ListItem key={index}>
               <ListItemButton>
@@ -80,37 +92,66 @@ const SideMenu: React.FC<{
           )
         })}
       </List>
+      {(loopCount.current = 0)}
     </>
   )
 }
 
 const createList = (
-  mapSize: number,
-  loopCount: number,
+  mapFolderList: Map<number, Array<FileInfo>>,
+  folder: string,
+  clickedFolder: Array<string>,
+  loopCount: React.MutableRefObject<number>,
+  filePath: string,
   handleClick: React.MouseEventHandler
 ) => {
+  const mapSize = mapFolderList.size
   if (mapSize === 1) {
     return
   }
-  loopCount++
-  console.log(mapSize, loopCount)
+
+  loopCount.current = loopCount.current + 1
+  const fileNameList = mapFolderList.get(loopCount.current)
+  const oldFileNameList =
+    mapFolderList.get(loopCount.current - 1) ?? new Array<FileInfo>()
+  console.log('aaaa')
   return (
-    <List component="div" disablePadding>
-      <ListItem
-        sx={{
-          display: 'block',
-        }}
-      >
-        <ListItemButton sx={{ pl: 1 }}>
-          <ListItemIcon onClick={handleClick}>
-            <ArrowForwardIosIcon></ArrowForwardIosIcon>
-          </ListItemIcon>
-          <ListItemText primary={'bbb'} onClick={handleClick}></ListItemText>
-        </ListItemButton>
-        {loopCount < mapSize - 1
-          ? createList(mapSize, loopCount, handleClick)
-          : ''}
-      </ListItem>
+    <List component='nav' disablePadding>
+      {fileNameList?.map((fileName, index) => {
+        console.log(fileName)
+        console.log(loopCount.current)
+        console.log(clickedFolder[loopCount.current - 1])
+        return (
+          <ListItem
+            sx={{
+              display: 'block',
+            }}
+            key={index}
+          >
+            <ListItemButton sx={{ pl: 1 }}>
+              <ListItemIcon onClick={handleClick}>
+                <ArrowForwardIosIcon></ArrowForwardIosIcon>
+              </ListItemIcon>
+              <ListItemText
+                primary={fileName.fileName}
+                onClick={handleClick}
+              ></ListItemText>
+              <span data-path={filePath}></span>
+            </ListItemButton>
+            {loopCount.current < mapSize - 1 &&
+            fileName.fileName === clickedFolder[loopCount.current]
+              ? createList(
+                  mapFolderList,
+                  folder,
+                  clickedFolder,
+                  loopCount,
+                  filePath,
+                  handleClick
+                )
+              : ''}
+          </ListItem>
+        )
+      })}
     </List>
   )
 }

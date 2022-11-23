@@ -110,6 +110,7 @@ const createWindow = () => {
             fileName: file,
             updateFileTime: mtime,
             fileType: '',
+            filePath: path,
           }
           folderList.push(fileInfo)
         })
@@ -117,6 +118,7 @@ const createWindow = () => {
         folderList.forEach((folder, index) => {
           folder.fileType = fileTypeList[index]
         })
+        console.log(folderList)
         event.returnValue = { folderList: folderList, flag: false }
       }
     })

@@ -25,19 +25,19 @@ const App = (): JSX.Element => {
   const [sideMenuFolderList, setSideMenuFolderList] = useState<
     Map<number, Array<FileInfo>>
   >(new Map())
-  const [filteredFolderList, setFilteredFolderList] =
-    useState<Array<FileInfo> | null>(null)
+  const [filteredFolderList, setFilteredFolderList] = useState<Array<
+    FileInfo
+  > | null>(null)
   const [flag, setFlag] = useState()
   const [programNameList, setProgramNameList] = useState([])
   const [iconList, setIconList] = useState<Array<string>>([])
   const [isSortTypeAsc, setSortType] = useState(true)
   const [volumeLabelList, setVolumeLabelList] = useState<Array<string>>([])
-  const [clickedFolder, setClickedFolder] = useState<string>('')
+  const [clickedFolder, setClickedFolder] = useState<Array<string>>([])
 
   const drawerWidth = 240
 
   ipcRenderer.once('sendDataMain', (err, data) => {
-    console.log('aaaa')
     setFlag(data.flags)
     setFolderList(data.folderList)
     setSideMenuFolderList(() => {
@@ -59,12 +59,12 @@ const App = (): JSX.Element => {
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
           <AppBar
-            position="fixed"
-            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            position='fixed'
+            sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
           >
             <div style={{ backgroundColor: '#F0F0F0', color: 'black' }}>
               <div>
-                <div className="test">
+                <div className='test'>
                   <PanelMenu
                     undoFunction={() => {
                       undoFunction(nowPath, lastPath, setFolderList, setNowPath)
@@ -75,7 +75,7 @@ const App = (): JSX.Element => {
                   ></PanelMenu>
                   <PathTextMenu
                     path={nowPath ? nowPath : lastPath}
-                    handleBlur={(event) => {
+                    handleBlur={event => {
                       handleBlur(
                         event,
                         nowPath,
@@ -84,7 +84,7 @@ const App = (): JSX.Element => {
                         setFolderList
                       )
                     }}
-                    handleChange={(event) => {
+                    handleChange={event => {
                       handleChange(event, setLastPath, setNowPath)
                     }}
                   ></PathTextMenu>
@@ -103,7 +103,7 @@ const App = (): JSX.Element => {
             </div>
           </AppBar>
           <Drawer
-            variant="permanent"
+            variant='permanent'
             sx={{
               width: drawerWidth,
               flexShrink: 0,
@@ -123,6 +123,7 @@ const App = (): JSX.Element => {
                   handleSideMenuClick(
                     event,
                     sideMenuFolderList,
+                    clickedFolder,
                     setLastPath,
                     setNowPath,
                     setSideMenuFolderList,
@@ -132,28 +133,26 @@ const App = (): JSX.Element => {
               ></SideMenu>
             </Box>
           </Drawer>
-          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
             <Toolbar />
-            <Typography paragraph>
-              <MainContent
-                handleClick={(event) => {
-                  handleClick(
-                    event,
-                    nowPath,
-                    lastPath,
-                    setFolderList,
-                    setLastPath,
-                    setNowPath
-                  )
-                }}
-                folderList={
-                  filteredFolderList !== null ? filteredFolderList : folderList
-                }
-                sortFunction={(event: React.MouseEvent) => {
-                  sort(event, folderList, isSortTypeAsc, setSortType)
-                }}
-              ></MainContent>
-            </Typography>
+            <MainContent
+              handleClick={event => {
+                handleClick(
+                  event,
+                  nowPath,
+                  lastPath,
+                  setFolderList,
+                  setLastPath,
+                  setNowPath
+                )
+              }}
+              folderList={
+                filteredFolderList !== null ? filteredFolderList : folderList
+              }
+              sortFunction={(event: React.MouseEvent) => {
+                sort(event, folderList, isSortTypeAsc, setSortType)
+              }}
+            ></MainContent>
           </Box>
         </Box>
       ) : (
@@ -195,34 +194,47 @@ const handleClick = (
 const handleSideMenuClick = (
   event: React.MouseEvent,
   sideMenuFolderList: Map<number, Array<FileInfo>>,
+  clickedFolder: Array<string>,
   setLastPath: React.Dispatch<React.SetStateAction<string>>,
   setNowPath: React.Dispatch<React.SetStateAction<string>>,
   setSideMenuFolderList: React.Dispatch<
     React.SetStateAction<Map<number, Array<FileInfo>>>
   >,
-  setClickedFolder: React.Dispatch<React.SetStateAction<string>>
+  setClickedFolder: React.Dispatch<React.SetStateAction<Array<string>>>
 ) => {
+  const mapSize = sideMenuFolderList.size
   const targetTagName = event.currentTarget.children[0].tagName
   const basePath = 'c://Users/user/'
-  const targetValue = event.currentTarget.nextElementSibling?.textContent ?? ''
-  console.log(targetValue)
-  const path = `${basePath}${targetValue}`
+  const targetValue = event.currentTarget.textContent ?? ''
+  const targetChildValue =
+    event.currentTarget.nextElementSibling?.children[0].textContent ?? ''
+  const clickedContentValue =
+    targetValue === '' ? targetChildValue : targetValue
 
+  const filePath = event.currentTarget.parentNode?.children[2].getAttribute(
+    'data-path'
+  )
+  const path =
+    mapSize === 1
+      ? `${basePath}${clickedContentValue}`
+      : `${filePath}/${clickedContentValue}`
   const result = ipcRenderer.sendSync('onClick', {
     path: path,
   })
-
   if (targetTagName === 'svg') {
-    const setIndex = mapFindKeyByValue(targetValue, sideMenuFolderList) + 1
+    const setIndex = mapFindKeyByValue(targetChildValue, sideMenuFolderList) + 1
+    const updateMap = sideMenuFolderList
+    updateMap.set(setIndex, result.folderList)
     setSideMenuFolderList(() => {
-      return sideMenuFolderList.set(setIndex, result.folderList)
+      return new Map<number, Array<FileInfo>>(updateMap)
     })
-    console.log('aaa')
+  } else {
+    setNowPath(`${basePath}${clickedContentValue}`)
+    setLastPath(`${basePath}${clickedContentValue}`)
   }
-  // setLastPath(`${basePath}${targetValue}`)
-  // setNowPath(`${basePath}${targetValue}`)
-
-  setClickedFolder(targetValue)
+  setClickedFolder(() => {
+    return clickedFolder.concat(clickedContentValue)
+  })
 }
 
 const undoFunction = (
@@ -254,7 +266,7 @@ const redoFunction = (
     const pathArray = nowPath.split('/')
     const lastPathArray = lastPath.split('/')
     const test = lastPathArray.filter(
-      (lastPath) => pathArray.indexOf(lastPath) === -1
+      lastPath => pathArray.indexOf(lastPath) === -1
     )[0]
     const a = pathArray.join('/') + test
     const result = ipcRenderer.sendSync('onClick', {
@@ -313,12 +325,11 @@ const handleBlurFilter = (
     setFilteredFolderList(null)
     return
   }
-  const filteredFolderList = folderList.filter((folder) => {
+  const filteredFolderList = folderList.filter(folder => {
     if (folder.fileName !== undefined) {
       return folder.fileName.includes(filterText)
     }
   })
-  console.log(filteredFolderList)
   setFilteredFolderList(filteredFolderList)
 }
 
@@ -329,8 +340,6 @@ const sort = (
   setSortType: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const sortTarget = event.currentTarget.id
-  console.log(sortTarget)
-  console.log('click')
   switch (sortTarget) {
     case 'fileName':
       sortByName(folderList, isSortTypeAsc)
@@ -365,8 +374,6 @@ const sortByFileSize = (
   folderList: Array<FileInfo>,
   isSortTypeAsc: boolean
 ) => {
-  console.log('ss')
-
   folderList.sort((a, b) => {
     if (a.fileSize === undefined || b.fileSize === undefined) {
       return 0
@@ -415,19 +422,16 @@ const mapFindKeyByValue = (
   value: string,
   map: Map<number, Array<FileInfo>>
 ): number => {
-  console.log(value)
   for (const key of map.keys()) {
-    console.log(key)
     const fileInfoList = map.get(key)
-    const isSameName = fileInfoList?.some((folderInfo) => {
+    const isSameName = fileInfoList?.some(folderInfo => {
       folderInfo.fileName === value
     })
     if (isSameName) {
-      console.log(key)
-      return key + 1
+      return key
     }
   }
-  return 0
+  return map.size - 1
 }
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
