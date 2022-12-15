@@ -26,6 +26,8 @@ const common: webpack.Configuration = {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.json'],
     fallback: {
       fs: false,
+      console: require.resolve('console-browserify'),
+      assert: require.resolve('assert/'),
     },
   },
 

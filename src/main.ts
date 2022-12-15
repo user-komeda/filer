@@ -77,6 +77,7 @@ const createWindow = () => {
     const sendData = {
       folderList: folderList,
       flags: true,
+      volumeLabelList: volumeLabelList,
     }
     mainWindow.webContents.send('sendDataMain', sendData)
     ipcMain.on('onClick', (event, args) => {
@@ -109,6 +110,7 @@ const createWindow = () => {
             fileName: file,
             updateFileTime: mtime,
             fileType: '',
+            filePath: path,
           }
           folderList.push(fileInfo)
         })
@@ -116,6 +118,7 @@ const createWindow = () => {
         folderList.forEach((folder, index) => {
           folder.fileType = fileTypeList[index]
         })
+        console.log(folderList)
         event.returnValue = { folderList: folderList, flag: false }
       }
     })

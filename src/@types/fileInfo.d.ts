@@ -3,4 +3,5 @@ export default interface FileInfo {
   fileSize?: number
   updateFileTime?: string
   fileType?: string
+  filePath?: string
 }
