@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import './styles.css'
@@ -12,7 +12,7 @@ import SideMenu from './component/sideMenu'
 import { ipcRenderer } from './@types/ipcRender'
 import FileInfo from './@types/fileInfo'
 import { Box } from '@mui/system'
-import { CssBaseline, Toolbar, AppBar, Typography } from '@mui/material'
+import { CssBaseline, Toolbar, AppBar } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
 
 /**
@@ -25,15 +25,16 @@ const App = (): JSX.Element => {
   const [sideMenuFolderList, setSideMenuFolderList] = useState<
     Map<number, Array<FileInfo>>
   >(new Map())
-  const [filteredFolderList, setFilteredFolderList] = useState<Array<
-    FileInfo
-  > | null>(null)
+  const [filteredFolderList, setFilteredFolderList] =
+    useState<Array<FileInfo> | null>(null)
   const [flag, setFlag] = useState()
   const [programNameList, setProgramNameList] = useState([])
   const [iconList, setIconList] = useState<Array<string>>([])
   const [isSortTypeAsc, setSortType] = useState(true)
   const [volumeLabelList, setVolumeLabelList] = useState<Array<string>>([])
   const [clickedFolder, setClickedFolder] = useState<Array<string>>([])
+  const sameFolderFlag = useRef(false)
+  const row = useRef(-1)
 
   const drawerWidth = 240
 
@@ -59,12 +60,12 @@ const App = (): JSX.Element => {
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
           <AppBar
-            position='fixed'
-            sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
+            position="fixed"
+            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
           >
             <div style={{ backgroundColor: '#F0F0F0', color: 'black' }}>
               <div>
-                <div className='test'>
+                <div className="test">
                   <PanelMenu
                     undoFunction={() => {
                       undoFunction(nowPath, lastPath, setFolderList, setNowPath)
@@ -75,7 +76,7 @@ const App = (): JSX.Element => {
                   ></PanelMenu>
                   <PathTextMenu
                     path={nowPath ? nowPath : lastPath}
-                    handleBlur={event => {
+                    handleBlur={(event) => {
                       handleBlur(
                         event,
                         nowPath,
@@ -84,7 +85,7 @@ const App = (): JSX.Element => {
                         setFolderList
                       )
                     }}
-                    handleChange={event => {
+                    handleChange={(event) => {
                       handleChange(event, setLastPath, setNowPath)
                     }}
                   ></PathTextMenu>
@@ -103,7 +104,7 @@ const App = (): JSX.Element => {
             </div>
           </AppBar>
           <Drawer
-            variant='permanent'
+            variant="permanent"
             sx={{
               width: drawerWidth,
               flexShrink: 0,
@@ -124,6 +125,8 @@ const App = (): JSX.Element => {
                     event,
                     sideMenuFolderList,
                     clickedFolder,
+                    sameFolderFlag,
+                    row,
                     setLastPath,
                     setNowPath,
                     setSideMenuFolderList,
@@ -133,10 +136,10 @@ const App = (): JSX.Element => {
               ></SideMenu>
             </Box>
           </Drawer>
-          <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
+          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
             <Toolbar />
             <MainContent
-              handleClick={event => {
+              handleClick={(event) => {
                 handleClick(
                   event,
                   nowPath,
@@ -195,6 +198,8 @@ const handleSideMenuClick = (
   event: React.MouseEvent,
   sideMenuFolderList: Map<number, Array<FileInfo>>,
   clickedFolder: Array<string>,
+  sameFolderFlag: React.MutableRefObject<boolean>,
+  row: React.MutableRefObject<number>,
   setLastPath: React.Dispatch<React.SetStateAction<string>>,
   setNowPath: React.Dispatch<React.SetStateAction<string>>,
   setSideMenuFolderList: React.Dispatch<
@@ -211,17 +216,50 @@ const handleSideMenuClick = (
   const clickedContentValue =
     targetValue === '' ? targetChildValue : targetValue
 
-  const filePath = event.currentTarget.parentNode?.children[2].getAttribute(
-    'data-path'
-  )
-  const path =
-    mapSize === 1
-      ? `${basePath}${clickedContentValue}`
-      : `${filePath}/${clickedContentValue}`
-  const result = ipcRenderer.sendSync('onClick', {
-    path: path,
+  if (clickedContentValue === clickedFolder[clickedFolder.length - 1]) {
+    if (!sameFolderFlag.current) {
+      const updateMap = new Map<number, Array<FileInfo>>(sideMenuFolderList)
+      updateMap.delete(updateMap.size - 1)
+      setSideMenuFolderList(() => {
+        return new Map<number, Array<FileInfo>>(updateMap)
+      })
+      sameFolderFlag.current = sameFolderFlag.current ? false : true
+
+      return
+    } else {
+      sameFolderFlag.current = sameFolderFlag.current ? false : true
+    }
+  }
+  const lastFolderList =
+    sideMenuFolderList.get(sideMenuFolderList.size - 1) ?? new Array<FileInfo>()
+  const flag = lastFolderList?.some((fileInfo) => {
+    fileInfo.fileName === clickedContentValue
   })
+
+  const filePath =
+    event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
+  const rowCount =
+    Number(
+      event.currentTarget.parentNode?.children[2].getAttribute('data-row')
+    ) ?? 0
+  const splitFilePath = filePath.split('/')
+  if (rowCount === row.current) {
+    splitFilePath.length = splitFilePath.length - 2
+  }
+  row.current = rowCount
+  console.log(splitFilePath)
+  const result = ipcRenderer.sendSync('onClick', {
+    path: generatePath(
+      mapSize,
+      clickedContentValue,
+      filePath,
+      splitFilePath,
+      flag
+    ),
+  })
+
   if (targetTagName === 'svg') {
+    console.log('aaaa')
     const setIndex = mapFindKeyByValue(targetChildValue, sideMenuFolderList) + 1
     const updateMap = sideMenuFolderList
     updateMap.set(setIndex, result.folderList)
@@ -266,7 +304,7 @@ const redoFunction = (
     const pathArray = nowPath.split('/')
     const lastPathArray = lastPath.split('/')
     const test = lastPathArray.filter(
-      lastPath => pathArray.indexOf(lastPath) === -1
+      (lastPath) => pathArray.indexOf(lastPath) === -1
     )[0]
     const a = pathArray.join('/') + test
     const result = ipcRenderer.sendSync('onClick', {
@@ -325,7 +363,7 @@ const handleBlurFilter = (
     setFilteredFolderList(null)
     return
   }
-  const filteredFolderList = folderList.filter(folder => {
+  const filteredFolderList = folderList.filter((folder) => {
     if (folder.fileName !== undefined) {
       return folder.fileName.includes(filterText)
     }
@@ -424,14 +462,41 @@ const mapFindKeyByValue = (
 ): number => {
   for (const key of map.keys()) {
     const fileInfoList = map.get(key)
-    const isSameName = fileInfoList?.some(folderInfo => {
+    const isSameName = fileInfoList?.some((folderInfo) => {
       folderInfo.fileName === value
     })
     if (isSameName) {
+      console.log('aaaa')
       return key
     }
   }
   return map.size - 1
+}
+
+const generatePath = (
+  mapSize: number,
+  clickedContentValue: string,
+  filePath: string,
+  spiltFilePath: Array<string>,
+  flag: boolean
+) => {
+  const basePath = 'c://Users/user/'
+  const path =
+    mapSize === 1
+      ? `${basePath}${clickedContentValue}`
+      : `${
+          filePath === ''
+            ? basePath
+            : flag
+            ? spiltFilePath[spiltFilePath.length - 1]
+            : filePath
+        }/${
+          clickedContentValue === spiltFilePath[spiltFilePath.length - 1]
+            ? ''
+            : clickedContentValue
+        }`
+
+  return path
 }
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

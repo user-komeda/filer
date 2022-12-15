@@ -11,7 +11,6 @@ import {
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 
 import FileInfo from '../@types/fileInfo'
-import console from 'console'
 
 /**
  *
@@ -23,7 +22,7 @@ const SideMenu: React.FC<{
   volumeLabelList: Array<string>
   clickedFolder: Array<string>
   handleClick: (e: React.MouseEvent) => void
-}> = props => {
+}> = (props) => {
   const loopCount = useRef(0)
   const mapFolderList = props.folderList ?? new Map<number, Array<FileInfo>>()
   const folderList = mapFolderList.get(0) ?? new Array<FileInfo>()
@@ -38,10 +37,10 @@ const SideMenu: React.FC<{
     <>
       <List
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
-        component='nav'
-        aria-labelledby='nested-list-subheader'
+        component="nav"
+        aria-labelledby="nested-list-subheader"
         subheader={
-          <ListSubheader component='div' id='nested-list-subheader'>
+          <ListSubheader component="div" id="nested-list-subheader">
             Nested List Items
           </ListSubheader>
         }
@@ -62,6 +61,11 @@ const SideMenu: React.FC<{
                   primary={folder.fileName}
                   onClick={handleClick}
                 ></ListItemText>
+                <span
+                  style={{ display: 'none' }}
+                  data-path={filePath}
+                  data-row={0}
+                ></span>
               </ListItemButton>
               {props.clickedFolder[0] === folder.fileName
                 ? createList(
@@ -112,15 +116,10 @@ const createList = (
 
   loopCount.current = loopCount.current + 1
   const fileNameList = mapFolderList.get(loopCount.current)
-  const oldFileNameList =
-    mapFolderList.get(loopCount.current - 1) ?? new Array<FileInfo>()
-  console.log('aaaa')
+
   return (
-    <List component='nav' disablePadding>
+    <List component="nav" disablePadding>
       {fileNameList?.map((fileName, index) => {
-        console.log(fileName)
-        console.log(loopCount.current)
-        console.log(clickedFolder[loopCount.current - 1])
         return (
           <ListItem
             sx={{
@@ -136,7 +135,11 @@ const createList = (
                 primary={fileName.fileName}
                 onClick={handleClick}
               ></ListItemText>
-              <span data-path={filePath}></span>
+              <span
+                style={{ display: 'none' }}
+                data-path={filePath}
+                data-row={index}
+              ></span>
             </ListItemButton>
             {loopCount.current < mapSize - 1 &&
             fileName.fileName === clickedFolder[loopCount.current]
