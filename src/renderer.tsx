@@ -246,15 +246,16 @@ const handleSideMenuClick = (
   if (rowCount === row.current) {
     splitFilePath.length = splitFilePath.length - 2
   }
+
   row.current = rowCount
-  console.log(splitFilePath)
-  const path = generatePath(
+  const [path, arrayIndex] = generatePath(
     mapSize,
     clickedContentValue,
     filePath,
     splitFilePath,
     flag
   )
+  console.log(arrayIndex)
   const result = ipcRenderer.sendSync('onClick', {
     path: path,
   })
@@ -263,13 +264,28 @@ const handleSideMenuClick = (
   }
 
   if (targetTagName === 'svg') {
-    console.log('aaaa')
-    const setIndex = mapFindKeyByValue(targetChildValue, sideMenuFolderList) + 1
-    const updateMap = sideMenuFolderList
-    updateMap.set(setIndex, result.folderList)
-    setSideMenuFolderList(() => {
-      return new Map<number, Array<FileInfo>>(updateMap)
-    })
+    if (arrayIndex && mapSize > 1) {
+      console.log(arrayIndex)
+      console.log(path.split('/').length)
+      console.log(sideMenuFolderList.size)
+      for (let index = path.split('/').length; index >= arrayIndex; index--) {
+        console.log(sideMenuFolderList)
+        sideMenuFolderList.delete(sideMenuFolderList.size - 1)
+        console.log(sideMenuFolderList)
+      }
+      console.log('aaa')
+      setSideMenuFolderList(() => {
+        return new Map<number, Array<FileInfo>>(sideMenuFolderList)
+      })
+    } else {
+      const setIndex =
+        mapFindKeyByValue(targetChildValue, sideMenuFolderList) + 1
+      const updateMap = sideMenuFolderList
+      updateMap.set(setIndex, result.folderList)
+      setSideMenuFolderList(() => {
+        return new Map<number, Array<FileInfo>>(updateMap)
+      })
+    }
   } else {
     setNowPath(`${basePath}${clickedContentValue}`)
     setLastPath(`${basePath}${clickedContentValue}`)
@@ -470,7 +486,6 @@ const mapFindKeyByValue = (
       folderInfo.fileName === value
     })
     if (isSameName) {
-      console.log('aaaa')
       return key
     }
   }
@@ -483,7 +498,7 @@ const generatePath = (
   filePath: string,
   spiltFilePath: Array<string>,
   flag: boolean
-) => {
+): [string, number] => {
   const basePath = 'c://Users/user/'
   const path =
     mapSize === 1
@@ -499,8 +514,16 @@ const generatePath = (
             ? ''
             : clickedContentValue
         }`
+  const pathArray = path.split('/')
+  const arrayIndex = pathArray.indexOf(clickedContentValue)
+  console.log(arrayIndex)
+  if (arrayIndex !== -1 && arrayIndex !== pathArray.length - 1) {
+    pathArray.length = arrayIndex + 1
+    console.log(pathArray)
+    return [pathArray.join('/'), arrayIndex]
+  }
 
-  return path
+  return [path, -0]
 }
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
