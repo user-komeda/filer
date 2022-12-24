@@ -82,8 +82,19 @@ const createWindow = () => {
     mainWindow.webContents.send('sendDataMain', sendData)
     ipcMain.on('onClick', (event, args) => {
       const path = args.path
-      const isDirectory = fs.statSync(path).isDirectory()
+      const result = fs.existsSync(path)
 
+      if (!result) {
+        dialog.showErrorBox(
+          'エクスプローラ',
+          `${args.path}は見つかりません。綴りを確認して再度実行してください。`
+        )
+        event.returnValue = { folderList: null, flag: false }
+        return
+      }
+      console.log('aaa')
+      const isDirectory = fs.statSync(path).isDirectory()
+      console.log('aaa')
       if (!isDirectory) {
         const extensionName = getExtensionName(path)
         try {
