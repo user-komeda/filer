@@ -248,15 +248,19 @@ const handleSideMenuClick = (
   }
   row.current = rowCount
   console.log(splitFilePath)
+  const path = generatePath(
+    mapSize,
+    clickedContentValue,
+    filePath,
+    splitFilePath,
+    flag
+  )
   const result = ipcRenderer.sendSync('onClick', {
-    path: generatePath(
-      mapSize,
-      clickedContentValue,
-      filePath,
-      splitFilePath,
-      flag
-    ),
+    path: path,
   })
+  if (result.folderList === null) {
+    return
+  }
 
   if (targetTagName === 'svg') {
     console.log('aaaa')
