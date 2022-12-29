@@ -35,6 +35,7 @@ const App = (): JSX.Element => {
   const [clickedFolder, setClickedFolder] = useState<Array<string>>([])
   const sameFolderFlag = useRef(false)
   const row = useRef(-1)
+  const sideMenuFolderPath = useRef('')
 
   const drawerWidth = 240
 
@@ -127,6 +128,7 @@ const App = (): JSX.Element => {
                     clickedFolder,
                     sameFolderFlag,
                     row,
+                    sideMenuFolderPath,
                     setLastPath,
                     setNowPath,
                     setSideMenuFolderList,
@@ -200,6 +202,7 @@ const handleSideMenuClick = (
   clickedFolder: Array<string>,
   sameFolderFlag: React.MutableRefObject<boolean>,
   row: React.MutableRefObject<number>,
+  sideMenuFolderPath: React.MutableRefObject<string>,
   setLastPath: React.Dispatch<React.SetStateAction<string>>,
   setNowPath: React.Dispatch<React.SetStateAction<string>>,
   setSideMenuFolderList: React.Dispatch<
@@ -215,21 +218,6 @@ const handleSideMenuClick = (
     event.currentTarget.nextElementSibling?.children[0].textContent ?? ''
   const clickedContentValue =
     targetValue === '' ? targetChildValue : targetValue
-
-  if (clickedContentValue === clickedFolder[clickedFolder.length - 1]) {
-    if (!sameFolderFlag.current) {
-      const updateMap = new Map<number, Array<FileInfo>>(sideMenuFolderList)
-      updateMap.delete(updateMap.size - 1)
-      setSideMenuFolderList(() => {
-        return new Map<number, Array<FileInfo>>(updateMap)
-      })
-      sameFolderFlag.current = sameFolderFlag.current ? false : true
-
-      return
-    } else {
-      sameFolderFlag.current = sameFolderFlag.current ? false : true
-    }
-  }
   const lastFolderList =
     sideMenuFolderList.get(sideMenuFolderList.size - 1) ?? new Array<FileInfo>()
   const flag = lastFolderList?.some((fileInfo) => {
@@ -242,10 +230,14 @@ const handleSideMenuClick = (
     Number(
       event.currentTarget.parentNode?.children[2].getAttribute('data-row')
     ) ?? 0
+  console.log(filePath)
   const splitFilePath = filePath.split('/')
-  if (rowCount === row.current) {
-    splitFilePath.length = splitFilePath.length - 2
-  }
+  const splitFilePathLength = splitFilePath.length
+  // if (rowCount === row.current) {
+  //   splitFilePath.length = splitFilePath.length - 2
+  // }
+
+  row.current = rowCount
 
   row.current = rowCount
   const [path, arrayIndex] = generatePath(
@@ -255,7 +247,6 @@ const handleSideMenuClick = (
     splitFilePath,
     flag
   )
-  console.log(arrayIndex)
   const result = ipcRenderer.sendSync('onClick', {
     path: path,
   })
@@ -263,36 +254,51 @@ const handleSideMenuClick = (
     return
   }
 
+  setClickedFolder(() => {
+    return clickedFolder.concat(clickedContentValue)
+  })
   if (targetTagName === 'svg') {
-    if (arrayIndex && mapSize > 1) {
-      console.log(arrayIndex)
-      console.log(path.split('/').length)
-      console.log(sideMenuFolderList.size)
-      for (let index = path.split('/').length; index >= arrayIndex; index--) {
-        console.log(sideMenuFolderList)
-        sideMenuFolderList.delete(sideMenuFolderList.size - 1)
-        console.log(sideMenuFolderList)
+    const sideMenuPath = sideMenuFolderPath.current
+    if (sideMenuPath !== '') {
+      const splitSideMenuPath = sideMenuPath.split('/')
+
+      const count = splitSideMenuPath.length - splitFilePathLength
+      console.log(sideMenuPath.split('/'))
+      console.log(splitFilePath)
+      if (count > 0) {
+        for (let i = 0; i < count; i++) {
+          sideMenuFolderList.delete(sideMenuFolderList.size - 1)
+        }
+        setSideMenuFolderList(() => {
+          return new Map<number, Array<FileInfo>>(sideMenuFolderList)
+        })
+      } else {
+        const setIndex =
+          mapFindKeyByValue(targetChildValue, sideMenuFolderList) + 1
+
+        const updateMap = sideMenuFolderList
+        updateMap.set(setIndex, result.folderList)
+
+        setSideMenuFolderList(() => {
+          return new Map<number, Array<FileInfo>>(updateMap)
+        })
       }
-      console.log('aaa')
-      setSideMenuFolderList(() => {
-        return new Map<number, Array<FileInfo>>(sideMenuFolderList)
-      })
-    } else {
-      const setIndex =
-        mapFindKeyByValue(targetChildValue, sideMenuFolderList) + 1
-      const updateMap = sideMenuFolderList
-      updateMap.set(setIndex, result.folderList)
-      setSideMenuFolderList(() => {
-        return new Map<number, Array<FileInfo>>(updateMap)
-      })
+      sideMenuFolderPath.current = path
+      return
     }
+    const setIndex = mapFindKeyByValue(targetChildValue, sideMenuFolderList) + 1
+
+    const updateMap = sideMenuFolderList
+    updateMap.set(setIndex, result.folderList)
+
+    setSideMenuFolderList(() => {
+      return new Map<number, Array<FileInfo>>(updateMap)
+    })
+    sideMenuFolderPath.current = splitFilePath.join('/')
   } else {
     setNowPath(`${basePath}${clickedContentValue}`)
     setLastPath(`${basePath}${clickedContentValue}`)
   }
-  setClickedFolder(() => {
-    return clickedFolder.concat(clickedContentValue)
-  })
 }
 
 const undoFunction = (
@@ -515,11 +521,12 @@ const generatePath = (
             : clickedContentValue
         }`
   const pathArray = path.split('/')
+  if (pathArray[pathArray.length - 1] === '') {
+    pathArray.pop()
+  }
   const arrayIndex = pathArray.indexOf(clickedContentValue)
-  console.log(arrayIndex)
   if (arrayIndex !== -1 && arrayIndex !== pathArray.length - 1) {
     pathArray.length = arrayIndex + 1
-    console.log(pathArray)
     return [pathArray.join('/'), arrayIndex]
   }
 

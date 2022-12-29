@@ -23,6 +23,7 @@ const SideMenu: React.FC<{
   clickedFolder: Array<string>
   handleClick: (e: React.MouseEvent) => void
 }> = (props) => {
+  const basePath = 'c://Users/user/'
   const loopCount = useRef(0)
   const mapFolderList = props.folderList ?? new Map<number, Array<FileInfo>>()
   const folderList = mapFolderList.get(0) ?? new Array<FileInfo>()
@@ -31,8 +32,8 @@ const SideMenu: React.FC<{
   const lastMap =
     mapFolderList.get(mapFolderList.size - 1) ?? new Array<FileInfo>()
 
-  const filePath = lastMap.length === 0 ? '' : lastMap[0].filePath ?? ''
-
+  const filePath =
+    lastMap.length === 0 ? '' : lastMap[lastMap.length - 1].filePath ?? ''
   return (
     <>
       <List
@@ -63,7 +64,7 @@ const SideMenu: React.FC<{
                 ></ListItemText>
                 <span
                   style={{ display: 'none' }}
-                  data-path={filePath}
+                  data-path={basePath + folder.fileName}
                   data-row={0}
                 ></span>
               </ListItemButton>
@@ -137,8 +138,8 @@ const createList = (
               ></ListItemText>
               <span
                 style={{ display: 'none' }}
-                data-path={filePath}
-                data-row={index}
+                data-path={fileName.filePath + '/' + fileName.fileName}
+                data-row={loopCount.current}
               ></span>
             </ListItemButton>
             {loopCount.current < mapSize - 1 &&

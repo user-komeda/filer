@@ -92,9 +92,7 @@ const createWindow = () => {
         event.returnValue = { folderList: null, flag: false }
         return
       }
-      console.log('aaa')
       const isDirectory = fs.statSync(path).isDirectory()
-      console.log('aaa')
       if (!isDirectory) {
         const extensionName = getExtensionName(path)
         try {
@@ -129,7 +127,6 @@ const createWindow = () => {
         folderList.forEach((folder, index) => {
           folder.fileType = fileTypeList[index]
         })
-        console.log(folderList)
         event.returnValue = { folderList: folderList, flag: false }
       }
     })
