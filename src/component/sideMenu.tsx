@@ -34,6 +34,7 @@ const SideMenu: React.FC<{
 
   const filePath =
     lastMap.length === 0 ? '' : lastMap[lastMap.length - 1].filePath ?? ''
+  console.log(folderList)
   return (
     <>
       <List
@@ -117,6 +118,7 @@ const createList = (
 
   loopCount.current = loopCount.current + 1
   const fileNameList = mapFolderList.get(loopCount.current)
+  console.log(fileNameList)
 
   return (
     <List component="nav" disablePadding>

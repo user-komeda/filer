@@ -226,12 +226,13 @@ const handleSideMenuClick = (
 
   const filePath =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
+
   const rowCount =
     Number(
       event.currentTarget.parentNode?.children[2].getAttribute('data-row')
     ) ?? 0
-  console.log(filePath)
   const splitFilePath = filePath.split('/')
+
   const splitFilePathLength = splitFilePath.length
   // if (rowCount === row.current) {
   //   splitFilePath.length = splitFilePath.length - 2
@@ -260,12 +261,15 @@ const handleSideMenuClick = (
   if (targetTagName === 'svg') {
     const sideMenuPath = sideMenuFolderPath.current
     if (sideMenuPath !== '') {
+      console.log(sideMenuPath)
       const splitSideMenuPath = sideMenuPath.split('/')
-
-      const count = splitSideMenuPath.length - splitFilePathLength
-      console.log(sideMenuPath.split('/'))
+      if (splitSideMenuPath[splitSideMenuPath.length - 1] === '') {
+        splitSideMenuPath.pop()
+      }
+      const count = splitSideMenuPath.length + 1 - splitFilePathLength
+      console.log(splitSideMenuPath)
       console.log(splitFilePath)
-      if (count > 0) {
+      if (count > 1) {
         for (let i = 0; i < count; i++) {
           sideMenuFolderList.delete(sideMenuFolderList.size - 1)
         }
@@ -283,6 +287,7 @@ const handleSideMenuClick = (
           return new Map<number, Array<FileInfo>>(updateMap)
         })
       }
+      console.log(path)
       sideMenuFolderPath.current = path
       return
     }
@@ -294,7 +299,8 @@ const handleSideMenuClick = (
     setSideMenuFolderList(() => {
       return new Map<number, Array<FileInfo>>(updateMap)
     })
-    sideMenuFolderPath.current = splitFilePath.join('/')
+    console.log(path)
+    sideMenuFolderPath.current = path
   } else {
     setNowPath(`${basePath}${clickedContentValue}`)
     setLastPath(`${basePath}${clickedContentValue}`)
@@ -524,13 +530,7 @@ const generatePath = (
   if (pathArray[pathArray.length - 1] === '') {
     pathArray.pop()
   }
-  const arrayIndex = pathArray.indexOf(clickedContentValue)
-  if (arrayIndex !== -1 && arrayIndex !== pathArray.length - 1) {
-    pathArray.length = arrayIndex + 1
-    return [pathArray.join('/'), arrayIndex]
-  }
-
-  return [path, -0]
+  return [pathArray.join('/'), -0]
 }
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
