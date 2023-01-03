@@ -23,7 +23,7 @@ const App = (): JSX.Element => {
   const [nowPath, setNowPath] = useState('')
   const [folderList, setFolderList] = useState<Array<FileInfo>>([])
   const [sideMenuFolderList, setSideMenuFolderList] = useState<
-    Map<number, Array<FileInfo>>
+    Map<string, Map<number, Array<FileInfo>>>
   >(new Map())
   const [filteredFolderList, setFilteredFolderList] =
     useState<Array<FileInfo> | null>(null)
@@ -40,10 +40,11 @@ const App = (): JSX.Element => {
   const drawerWidth = 240
 
   ipcRenderer.once('sendDataMain', (err, data) => {
+    const tmpMap = new Map<number, Array<FileInfo>>([[0, data.folderList]])
     setFlag(data.flags)
     setFolderList(data.folderList)
     setSideMenuFolderList(() => {
-      sideMenuFolderList.set(0, data.folderList)
+      sideMenuFolderList.set('firstKey', tmpMap)
       return sideMenuFolderList
     })
     setVolumeLabelList(data.volumeLabelList)
@@ -198,7 +199,7 @@ const handleClick = (
 
 const handleSideMenuClick = (
   event: React.MouseEvent,
-  sideMenuFolderList: Map<number, Array<FileInfo>>,
+  sideMenuFolderList: Map<string, Map<number, Array<FileInfo>>>,
   clickedFolder: Array<string>,
   sameFolderFlag: React.MutableRefObject<boolean>,
   row: React.MutableRefObject<number>,
@@ -206,11 +207,10 @@ const handleSideMenuClick = (
   setLastPath: React.Dispatch<React.SetStateAction<string>>,
   setNowPath: React.Dispatch<React.SetStateAction<string>>,
   setSideMenuFolderList: React.Dispatch<
-    React.SetStateAction<Map<number, Array<FileInfo>>>
+    React.SetStateAction<Map<string, Map<number, Array<FileInfo>>>>
   >,
   setClickedFolder: React.Dispatch<React.SetStateAction<Array<string>>>
 ) => {
-  const mapSize = sideMenuFolderList.size
   const targetTagName = event.currentTarget.children[0].tagName
   const basePath = 'c://Users/user/'
   const targetValue = event.currentTarget.textContent ?? ''
@@ -218,8 +218,12 @@ const handleSideMenuClick = (
     event.currentTarget.nextElementSibling?.children[0].textContent ?? ''
   const clickedContentValue =
     targetValue === '' ? targetChildValue : targetValue
+  const menuFolderList =
+    sideMenuFolderList.get(clickedContentValue) ??
+    new Map<number, Array<FileInfo>>()
+  const mapSize = menuFolderList.size
   const lastFolderList =
-    sideMenuFolderList.get(sideMenuFolderList.size - 1) ?? new Array<FileInfo>()
+    menuFolderList.get(mapSize - 1) ?? new Array<FileInfo>()
   const flag = lastFolderList?.some((fileInfo) => {
     fileInfo.fileName === clickedContentValue
   })
@@ -231,6 +235,11 @@ const handleSideMenuClick = (
     Number(
       event.currentTarget.parentNode?.children[2].getAttribute('data-row')
     ) ?? 0
+
+  const folderParentName =
+    event.currentTarget.parentNode?.children[2].getAttribute(
+      'data-parent-folder'
+    )
   const splitFilePath = filePath.split('/')
 
   const splitFilePathLength = splitFilePath.length
@@ -255,7 +264,6 @@ const handleSideMenuClick = (
   if (targetTagName === 'svg') {
     const sideMenuPath = sideMenuFolderPath.current
     if (sideMenuPath !== '') {
-      console.log('error')
       const splitSideMenuPath = sideMenuPath.split('/')
       if (splitSideMenuPath[splitSideMenuPath.length - 1] === '') {
         splitSideMenuPath.pop()
@@ -263,34 +271,42 @@ const handleSideMenuClick = (
       const count = splitSideMenuPath.length + 1 - splitFilePathLength
       if (count > 1) {
         for (let i = 0; i < count; i++) {
-          sideMenuFolderList.delete(sideMenuFolderList.size - 1)
+          sideMenuFolderList
+            .get(folderParentName ?? clickedContentValue)
+            ?.delete(mapSize - 1)
         }
         setSideMenuFolderList(() => {
-          return new Map<number, Array<FileInfo>>(sideMenuFolderList)
+          return new Map<string, Map<number, Array<FileInfo>>>(
+            sideMenuFolderList
+          )
         })
       } else {
-        const setIndex =
-          mapFindKeyByValue(targetChildValue, sideMenuFolderList) + 1
-        const updateMap = new Map<number, Array<FileInfo>>(sideMenuFolderList)
+        const updateMap = new Map<string, Map<number, Array<FileInfo>>>(
+          sideMenuFolderList
+        )
+        console.log(row.current === rowCount)
         if (row.current === rowCount) {
-          console.log(updateMap)
-          const tmpFolderList = updateMap.get(rowCount + 1) ?? []
-          console.log(tmpFolderList)
-          console.log(rowCount)
-          if (updateMap.has(rowCount + 1)) {
-            console.log('delete')
-            updateMap.delete(rowCount + 1)
+          if (menuFolderList.has(rowCount + 1)) {
+            updateMap
+              .get(folderParentName ?? clickedContentValue)
+              ?.delete(rowCount + 1)
           }
-          updateMap.set(rowCount + 1, tmpFolderList.concat(result.folderList))
+          updateMap
+            .get(folderParentName ?? clickedContentValue)
+            ?.set(rowCount + 1, result.folderList)
           console.log(updateMap)
           setSideMenuFolderList(() => {
-            return new Map<number, Array<FileInfo>>(updateMap)
+            return new Map<string, Map<number, Array<FileInfo>>>(updateMap)
           })
         } else {
-          updateMap.set(setIndex, result.folderList)
+          updateMap
+            .get(folderParentName ?? clickedContentValue)
+            ?.set(rowCount + 1, result.folderList)
 
+          console.log(updateMap)
+          console.log(rowCount + 1)
           setSideMenuFolderList(() => {
-            return new Map<number, Array<FileInfo>>(updateMap)
+            return new Map<string, Map<number, Array<FileInfo>>>(updateMap)
           })
         }
       }
@@ -298,14 +314,14 @@ const handleSideMenuClick = (
       row.current = rowCount
       return
     }
-    const setIndex = mapFindKeyByValue(targetChildValue, sideMenuFolderList) + 1
-    console.log(setIndex)
-    console.log(sideMenuFolderList)
     const updateMap = sideMenuFolderList
-    updateMap.set(setIndex, result.folderList)
 
+    const tmpMap = new Map<number, Array<FileInfo>>([
+      [rowCount + 1, result.folderList],
+    ])
+    updateMap.set(folderParentName ?? clickedContentValue, tmpMap)
     setSideMenuFolderList(() => {
-      return new Map<number, Array<FileInfo>>(updateMap)
+      return new Map<string, Map<number, Array<FileInfo>>>(updateMap)
     })
     row.current = rowCount
     sideMenuFolderPath.current = path
@@ -494,22 +510,6 @@ const sortByUpdateTime = (
       return a.updateFileTime > b.updateFileTime ? -1 : 1
     }
   })
-}
-
-const mapFindKeyByValue = (
-  value: string,
-  map: Map<number, Array<FileInfo>>
-): number => {
-  for (const key of map.keys()) {
-    const fileInfoList = map.get(key)
-    const isSameName = fileInfoList?.some((folderInfo) => {
-      folderInfo.fileName === value
-    })
-    if (isSameName) {
-      return key
-    }
-  }
-  return map.size - 1
 }
 
 const generatePath = (
