@@ -14,6 +14,7 @@ import FileInfo from './@types/fileInfo'
 import { Box } from '@mui/system'
 import { CssBaseline, Toolbar, AppBar } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
+import RequestValue from './@types/sideMenuClickReqestValue'
 
 /**
  * レンダラープロセス
@@ -33,7 +34,7 @@ const App = (): JSX.Element => {
   const [isSortTypeAsc, setSortType] = useState(true)
   const [volumeLabelList, setVolumeLabelList] = useState<Array<string>>([])
   const [clickedFolder, setClickedFolder] = useState<Array<string>>([])
-  const sameFolderFlag = useRef(false)
+  const sameFolderDeletedFlag = useRef(true)
   const row = useRef(-1)
   const sideMenuFolderPath = useRef('')
 
@@ -56,6 +57,18 @@ const App = (): JSX.Element => {
     setFlag(data.flags)
     setIconList(data.iconList)
   })
+
+  const requestValue: RequestValue = {
+    sideMenuFolderList,
+    clickedFolder,
+    sameFolderDeletedFlag,
+    row,
+    sideMenuFolderPath,
+    setLastPath,
+    setNowPath,
+    setSideMenuFolderList,
+    setClickedFolder,
+  }
   return (
     <>
       {flag ? (
@@ -123,18 +136,7 @@ const App = (): JSX.Element => {
                 volumeLabelList={volumeLabelList}
                 clickedFolder={clickedFolder}
                 handleClick={(event: React.MouseEvent) => {
-                  handleSideMenuClick(
-                    event,
-                    sideMenuFolderList,
-                    clickedFolder,
-                    sameFolderFlag,
-                    row,
-                    sideMenuFolderPath,
-                    setLastPath,
-                    setNowPath,
-                    setSideMenuFolderList,
-                    setClickedFolder
-                  )
+                  handleSideMenuClick(event, requestValue)
                 }}
               ></SideMenu>
             </Box>
@@ -199,17 +201,7 @@ const handleClick = (
 
 const handleSideMenuClick = (
   event: React.MouseEvent,
-  sideMenuFolderList: Map<string, Map<number, Array<FileInfo>>>,
-  clickedFolder: Array<string>,
-  sameFolderFlag: React.MutableRefObject<boolean>,
-  row: React.MutableRefObject<number>,
-  sideMenuFolderPath: React.MutableRefObject<string>,
-  setLastPath: React.Dispatch<React.SetStateAction<string>>,
-  setNowPath: React.Dispatch<React.SetStateAction<string>>,
-  setSideMenuFolderList: React.Dispatch<
-    React.SetStateAction<Map<string, Map<number, Array<FileInfo>>>>
-  >,
-  setClickedFolder: React.Dispatch<React.SetStateAction<Array<string>>>
+  requestValue: RequestValue
 ) => {
   const targetTagName = event.currentTarget.children[0].tagName
   const basePath = 'c://Users/user/'
@@ -219,7 +211,7 @@ const handleSideMenuClick = (
   const clickedContentValue =
     targetValue === '' ? targetChildValue : targetValue
   const menuFolderList =
-    sideMenuFolderList.get(clickedContentValue) ??
+    requestValue.sideMenuFolderList.get(clickedContentValue) ??
     new Map<number, Array<FileInfo>>()
   const mapSize = menuFolderList.size
   const lastFolderList =
@@ -244,48 +236,79 @@ const handleSideMenuClick = (
 
   const splitFilePathLength = splitFilePath.length
 
-  const [path, arrayIndex] = generatePath(
+  const [path] = generatePath(
     mapSize,
     clickedContentValue,
     filePath,
     splitFilePath,
     flag
   )
+  console.log(requestValue.sideMenuFolderList)
+  if (
+    clickedContentValue ===
+    requestValue.clickedFolder[requestValue.clickedFolder.length - 1]
+  ) {
+    if (requestValue.sameFolderDeletedFlag.current === true) {
+      setInitValue(
+        path,
+        rowCount,
+        deleteWhenCClickedFolderIsSame(
+          folderParentName ?? '',
+          requestValue.sideMenuFolderList,
+          rowCount
+        ),
+        requestValue.row,
+        requestValue.sideMenuFolderPath,
+        requestValue.setSideMenuFolderList
+      )
+      requestValue.sameFolderDeletedFlag.current =
+        !requestValue.sameFolderDeletedFlag.current
+      return
+    }
+    requestValue.sameFolderDeletedFlag.current =
+      !requestValue.sameFolderDeletedFlag.current
+  }
   const result = ipcRenderer.sendSync('onClick', {
     path: path,
   })
+  console.log(result)
+  console.log(path)
   if (result.folderList === null) {
     return
   }
 
-  setClickedFolder(() => {
-    return clickedFolder.concat(clickedContentValue)
+  requestValue.setClickedFolder(() => {
+    return requestValue.clickedFolder.concat(clickedContentValue)
   })
   if (targetTagName === 'svg') {
-    const sideMenuPath = sideMenuFolderPath.current
+    const sideMenuPath = requestValue.sideMenuFolderPath.current
     if (sideMenuPath !== '') {
+      console.log('insert')
       const splitSideMenuPath = sideMenuPath.split('/')
+      console.log(splitSideMenuPath)
       if (splitSideMenuPath[splitSideMenuPath.length - 1] === '') {
         splitSideMenuPath.pop()
       }
       const count = splitSideMenuPath.length + 1 - splitFilePathLength
       if (count > 1) {
+        console.log('delete')
         for (let i = 0; i < count; i++) {
-          sideMenuFolderList
+          requestValue.sideMenuFolderList
             .get(folderParentName ?? clickedContentValue)
             ?.delete(mapSize - 1)
         }
-        setSideMenuFolderList(() => {
+        requestValue.setSideMenuFolderList(() => {
           return new Map<string, Map<number, Array<FileInfo>>>(
-            sideMenuFolderList
+            requestValue.sideMenuFolderList
           )
         })
+        return
       } else {
         const updateMap = new Map<string, Map<number, Array<FileInfo>>>(
-          sideMenuFolderList
+          requestValue.sideMenuFolderList
         )
-        console.log(row.current === rowCount)
-        if (row.current === rowCount) {
+        if (requestValue.row.current === rowCount) {
+          console.log('bbb')
           if (menuFolderList.has(rowCount + 1)) {
             updateMap
               .get(folderParentName ?? clickedContentValue)
@@ -294,40 +317,40 @@ const handleSideMenuClick = (
           updateMap
             .get(folderParentName ?? clickedContentValue)
             ?.set(rowCount + 1, result.folderList)
-          console.log(updateMap)
-          setSideMenuFolderList(() => {
+          requestValue.setSideMenuFolderList(() => {
             return new Map<string, Map<number, Array<FileInfo>>>(updateMap)
           })
         } else {
+          console.log(requestValue.sideMenuFolderList)
+          console.log('ccc')
           updateMap
             .get(folderParentName ?? clickedContentValue)
             ?.set(rowCount + 1, result.folderList)
-
           console.log(updateMap)
-          console.log(rowCount + 1)
-          setSideMenuFolderList(() => {
+
+          requestValue.setSideMenuFolderList(() => {
             return new Map<string, Map<number, Array<FileInfo>>>(updateMap)
           })
         }
       }
-      sideMenuFolderPath.current = path
-      row.current = rowCount
+      requestValue.sideMenuFolderPath.current = path
+      requestValue.row.current = rowCount
       return
     }
-    const updateMap = sideMenuFolderList
-
+    const updateMap = requestValue.sideMenuFolderList
+    console.log('aa')
     const tmpMap = new Map<number, Array<FileInfo>>([
       [rowCount + 1, result.folderList],
     ])
     updateMap.set(folderParentName ?? clickedContentValue, tmpMap)
-    setSideMenuFolderList(() => {
+    requestValue.setSideMenuFolderList(() => {
       return new Map<string, Map<number, Array<FileInfo>>>(updateMap)
     })
-    row.current = rowCount
-    sideMenuFolderPath.current = path
+    requestValue.row.current = rowCount
+    requestValue.sideMenuFolderPath.current = path
   } else {
-    setNowPath(`${basePath}${clickedContentValue}`)
-    setLastPath(`${basePath}${clickedContentValue}`)
+    requestValue.setNowPath(`${basePath}${clickedContentValue}`)
+    requestValue.setLastPath(`${basePath}${clickedContentValue}`)
   }
 }
 
@@ -541,6 +564,38 @@ const generatePath = (
   return [pathArray.join('/'), -0]
 }
 
+const deleteWhenCClickedFolderIsSame = (
+  folderParentName: string,
+  folderList: Map<string, Map<number, Array<FileInfo>>>,
+  rowCount: number
+) => {
+  console.log(folderParentName)
+  console.log(folderList)
+  const sideMenuFolderList = new Map<string, Map<number, Array<FileInfo>>>(
+    folderList
+  )
+  sideMenuFolderList.get(folderParentName)?.delete(rowCount + 1)
+  console.log(sideMenuFolderList.get(folderParentName))
+  return sideMenuFolderList
+}
+
+const setInitValue = (
+  path: string,
+  rowCount: number,
+  sideMenuFolderList: Map<string, Map<number, Array<FileInfo>>>,
+  row: React.MutableRefObject<number>,
+  sideMenuFolderPath: React.MutableRefObject<string>,
+  setSideMenuFolderList: React.Dispatch<
+    React.SetStateAction<Map<string, Map<number, Array<FileInfo>>>>
+  >
+) => {
+  setSideMenuFolderList(() => {
+    // const sideMenuFolderList = sideMenuFolderList
+    return new Map<string, Map<number, Array<FileInfo>>>(sideMenuFolderList)
+  })
+  row.current = rowCount
+  sideMenuFolderPath.current = path
+}
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const conrainer = document.getElementById('root')!
 const root = createRoot(conrainer)

@@ -33,7 +33,6 @@ const SideMenu: React.FC<{
   const volumeLabelList = props.volumeLabelList
   const handleClick = props.handleClick
 
-  console.dir(mapFolderList)
   return (
     <>
       <List
@@ -109,14 +108,13 @@ const createList = (
   loopCount: React.MutableRefObject<number>,
   handleClick: React.MouseEventHandler
 ) => {
-  const mapSize = mapFolderList.size
-  // if (mapSize === 1) {
-  //   return
-  // }
+  // const mapSize = mapFolderList.size
+  // // if (mapSize === 1) {
+  // //   return
+  // // }
 
   loopCount.current = loopCount.current + 1
   const fileNameList = mapFolderList.get(loopCount.current)
-  console.log(fileNameList)
   return (
     <List component="nav" disablePadding>
       {fileNameList?.map((fileName, index) => {
