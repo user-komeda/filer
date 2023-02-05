@@ -32,6 +32,7 @@ const SideMenu: React.FC<{
     mapFolderList.get('firstKey')?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
   const handleClick = props.handleClick
+  const nowFolder = useRef('')
 
   return (
     <>
@@ -46,6 +47,7 @@ const SideMenu: React.FC<{
         }
       >
         {folderList.map((folder, index) => {
+          console.log(folder)
           return (
             <ListItem
               sx={{
@@ -74,7 +76,8 @@ const SideMenu: React.FC<{
                     folder.fileName ?? '',
                     props.clickedFolder,
                     loopCount,
-                    handleClick
+                    handleClick,
+                    nowFolder
                   )
                 : ''}
             </ListItem>
@@ -106,13 +109,18 @@ const createList = (
   folder: string,
   clickedFolder: Array<string>,
   loopCount: React.MutableRefObject<number>,
-  handleClick: React.MouseEventHandler
+  handleClick: React.MouseEventHandler,
+  nowFolder: React.MutableRefObject<string>
 ) => {
+  if (nowFolder.current !== folder) {
+    loopCount.current = 0
+  }
+  nowFolder.current = folder
   // const mapSize = mapFolderList.size
   // // if (mapSize === 1) {
   // //   return
   // // }
-
+  console.log(mapFolderList)
   loopCount.current = loopCount.current + 1
   const fileNameList = mapFolderList.get(loopCount.current)
   return (
@@ -146,7 +154,8 @@ const createList = (
                   folder,
                   clickedFolder,
                   loopCount,
-                  handleClick
+                  handleClick,
+                  nowFolder
                 )
               : ''}
           </ListItem>
