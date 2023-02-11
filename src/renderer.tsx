@@ -325,29 +325,25 @@ const handleSideMenuClick = (
           //     .get(folderParentName ?? clickedContentValue)
           //     ?.delete(rowCount + 1)
           // }
-          console.log(updateMap)
 
           const tmpMap = updateMap.get(folderParentName ?? clickedContentValue)
-          console.log(folderParentName)
-          console.log(tmpMap)
           if (tmpMap) {
             updateMap
               .get(folderParentName ?? clickedContentValue)
               ?.set(rowCount + 1, result.folderList)
           } else {
-            console.log('dsjfgp;j')
             const tmpMap = new Map<number, FileInfo[]>()
             tmpMap.set(1, result.folderList)
             updateMap.set(folderParentName ?? clickedContentValue, tmpMap)
-            console.log(updateMap)
           }
 
           requestValue.setSideMenuFolderList(() => {
             return new Map<string, Map<number, Array<FileInfo>>>(updateMap)
           })
         } else {
-          console.log(requestValue.sideMenuFolderList)
-          console.log('ccc')
+          // console.log(updateMap.get(folderParentName))
+          // console.log(folderParentName)
+          // console.log(clickedContentValue)
           updateMap
             .get(folderParentName ?? clickedContentValue)
             ?.set(rowCount + 1, result.folderList)

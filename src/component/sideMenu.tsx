@@ -24,15 +24,25 @@ const SideMenu: React.FC<{
   handleClick: (e: React.MouseEvent) => void
 }> = (props): JSX.Element => {
   const basePath = 'c://Users/user/'
-  const loopCount = useRef(0)
+  const loopCount = useRef(1)
   const clickFolder = props.clickedFolder
   const mapFolderList =
     props.folderList ?? new Map<string, Map<number, Array<FileInfo>>>()
+  console.log(mapFolderList)
   const folderList =
     mapFolderList.get('firstKey')?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
   const handleClick = props.handleClick
   const nowFolder = useRef('')
+  const initFolder = [
+    '3D Objects',
+    'Downloads',
+    'Desktop',
+    'Documents',
+    'Videos',
+    'Pictures',
+    'Music',
+  ]
 
   return (
     <>
@@ -47,7 +57,6 @@ const SideMenu: React.FC<{
         }
       >
         {folderList.map((folder, index) => {
-          console.log(folder)
           return (
             <ListItem
               sx={{
@@ -75,7 +84,7 @@ const SideMenu: React.FC<{
                       new Map<number, Array<FileInfo>>(),
                     folder.fileName ?? '',
                     props.clickedFolder,
-                    loopCount,
+                    loopCount.current,
                     handleClick,
                     nowFolder
                   )
@@ -99,7 +108,6 @@ const SideMenu: React.FC<{
           )
         })}
       </List>
-      {(loopCount.current = 0)}
     </>
   )
 }
@@ -108,21 +116,27 @@ const createList = (
   mapFolderList: Map<number, Array<FileInfo>>,
   folder: string,
   clickedFolder: Array<string>,
-  loopCount: React.MutableRefObject<number>,
+  loopCount: number,
   handleClick: React.MouseEventHandler,
-  nowFolder: React.MutableRefObject<string>
+  initFolder: React.MutableRefObject<string>
 ) => {
-  if (nowFolder.current !== folder) {
-    loopCount.current = 0
-  }
-  nowFolder.current = folder
+  // if (initFolder.current !== folder) {
+  //   console.log('insert')
+  //   console.log(folder)
+  //   console.log()
+  //   loopCount.current = 0
+  // }
   // const mapSize = mapFolderList.size
   // // if (mapSize === 1) {
   // //   return
   // // }
-  console.log(mapFolderList)
-  loopCount.current = loopCount.current + 1
-  const fileNameList = mapFolderList.get(loopCount.current)
+
+  const fileNameList = mapFolderList.get(loopCount)
+  initFolder.current = folder
+  console.log(fileNameList)
+  console.log(clickedFolder)
+  console.log(loopCount)
+
   return (
     <List component="nav" disablePadding>
       {fileNameList?.map((fileName, index) => {
@@ -144,18 +158,19 @@ const createList = (
               <span
                 style={{ display: 'none' }}
                 data-path={fileName.filePath + '/' + fileName.fileName}
-                data-row={loopCount.current}
+                data-row={loopCount}
                 data-parent-folder={folder}
               ></span>
             </ListItemButton>
-            {fileName.fileName === clickedFolder[loopCount.current]
+
+            {fileName.fileName === clickedFolder[clickedFolder.length - 1]
               ? createList(
                   mapFolderList,
                   folder,
                   clickedFolder,
-                  loopCount,
+                  loopCount + 1,
                   handleClick,
-                  nowFolder
+                  initFolder
                 )
               : ''}
           </ListItem>
