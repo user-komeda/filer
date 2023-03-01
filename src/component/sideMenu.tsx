@@ -18,7 +18,7 @@ import FileInfo from '../@types/fileInfo'
  * @returns {JSX.Element} jsx
  */
 const SideMenu: React.FC<{
-  folderList: Map<string, Map<number, Array<FileInfo>>>
+  folderList: Map<string, Map<number, Map<number, Array<FileInfo>>>>
   volumeLabelList: Array<string>
   clickedFolder: Array<string>
   handleClick: (e: React.MouseEvent) => void
@@ -30,19 +30,10 @@ const SideMenu: React.FC<{
     props.folderList ?? new Map<string, Map<number, Array<FileInfo>>>()
   console.log(mapFolderList)
   const folderList =
-    mapFolderList.get('firstKey')?.get(0) ?? new Array<FileInfo>()
+    mapFolderList.get('firstKey')?.get(0)?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
   const handleClick = props.handleClick
   const nowFolder = useRef('')
-  const initFolder = [
-    '3D Objects',
-    'Downloads',
-    'Desktop',
-    'Documents',
-    'Videos',
-    'Pictures',
-    'Music',
-  ]
 
   return (
     <>
@@ -113,29 +104,15 @@ const SideMenu: React.FC<{
 }
 
 const createList = (
-  mapFolderList: Map<number, Array<FileInfo>>,
+  mapFolderList: Map<number, Map<number, Map<number, Array<FileInfo>>>>,
   folder: string,
   clickedFolder: Array<string>,
   loopCount: number,
   handleClick: React.MouseEventHandler,
   initFolder: React.MutableRefObject<string>
 ) => {
-  // if (initFolder.current !== folder) {
-  //   console.log('insert')
-  //   console.log(folder)
-  //   console.log()
-  //   loopCount.current = 0
-  // }
-  // const mapSize = mapFolderList.size
-  // // if (mapSize === 1) {
-  // //   return
-  // // }
-
   const fileNameList = mapFolderList.get(loopCount)
   initFolder.current = folder
-  console.log(fileNameList)
-  console.log(clickedFolder)
-  console.log(loopCount)
 
   return (
     <List component="nav" disablePadding>
