@@ -14,7 +14,7 @@ import FileInfo from './@types/fileInfo'
 import { Box } from '@mui/system'
 import { CssBaseline, Toolbar, AppBar } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
-import RequestValue from './@types/sideMenuClickReqestValue'
+import RequestValue from './@types/sideMenuClickRequestValue'
 
 /**
  * レンダラープロセス
@@ -37,6 +37,7 @@ const App = (): JSX.Element => {
   const sameFolderDeletedFlag = useRef(true)
   const row = useRef(-1)
   const sideMenuFolderPath = useRef('')
+  const [colCountList, setColCountList] = useState<Array<number>>([])
 
   const drawerWidth = 240
 
@@ -66,11 +67,14 @@ const App = (): JSX.Element => {
     sameFolderDeletedFlag,
     row,
     sideMenuFolderPath,
+    colCountList,
     setLastPath,
     setNowPath,
     setSideMenuFolderList,
     setClickedFolder,
+    setColCountList,
   }
+
   return (
     <>
       {flag ? (
@@ -137,6 +141,7 @@ const App = (): JSX.Element => {
                 folderList={sideMenuFolderList}
                 volumeLabelList={volumeLabelList}
                 clickedFolder={clickedFolder}
+                colCountList={colCountList}
                 handleClick={(event: React.MouseEvent) => {
                   handleSideMenuClick(event, requestValue)
                 }}
@@ -215,7 +220,7 @@ const handleSideMenuClick = (
     targetValue === '' ? targetChildValue : targetValue
 
   const firstFolderList =
-    requestValue.sideMenuFolderList.get('firstKey')?.get(0) ?? []
+    requestValue.sideMenuFolderList.get('firstKey')?.get(0)?.get(0) ?? []
 
   const filePath =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
@@ -224,6 +229,12 @@ const handleSideMenuClick = (
     Number(
       event.currentTarget.parentNode?.children[2].getAttribute('data-row')
     ) ?? 0
+
+  const colCount =
+    Number(
+      event.currentTarget.parentNode?.children[2].getAttribute('data-col')
+    ) ?? 0
+  requestValue.setColCountList(requestValue.colCountList.concat(colCount))
 
   const folderParentName =
     event.currentTarget.parentNode?.children[2].getAttribute(
@@ -300,10 +311,10 @@ const handleSideMenuClick = (
         // })
         return
       } else {
-        console.log('gtyuguyf')
-        const updateMap = new Map<string, Map<number,Map<number,Array<FileInfo>>>>(
-          requestValue.sideMenuFolderList
-        )
+        const updateMap = new Map<
+          string,
+          Map<number, Map<number, Array<FileInfo>>>
+        >(requestValue.sideMenuFolderList)
 
         if (requestValue.row.current === rowCount) {
           // if (menuFolderList.has(rowCount + 1)) {
@@ -314,17 +325,27 @@ const handleSideMenuClick = (
 
           const tmpMap = updateMap.get(folderParentName ?? clickedContentValue)
           if (tmpMap) {
+            const map = new Map<number, Array<FileInfo>>([
+              colCount,
+              result.folderList,
+            ])
             updateMap
               .get(folderParentName ?? clickedContentValue)
-              ?.set(rowCount + 1, result.folderList)
+              ?.set(rowCount + 1, map)
           } else {
-            const tmpMap = new Map<number, FileInfo[]>()
-            tmpMap.set(1, result.folderList)
+            const tmpMap = new Map<number, Map<number, Array<FileInfo>>>()
+            const map = new Map<number, Array<FileInfo>>([
+              colCount,
+              result.folderList,
+            ])
+            tmpMap.set(1, map)
             updateMap.set(folderParentName ?? clickedContentValue, tmpMap)
           }
 
           requestValue.setSideMenuFolderList(() => {
-            return new Map<string, Map<number, Map<number,Array<FileInfo>>>>(updateMap)
+            return new Map<string, Map<number, Map<number, Array<FileInfo>>>>(
+              updateMap
+            )
           })
         } else {
           // console.log(updateMap.get(folderParentName))
@@ -335,7 +356,9 @@ const handleSideMenuClick = (
             ?.set(rowCount + 1, result.folderList)
 
           requestValue.setSideMenuFolderList(() => {
-            return new Map<string, Map<number, Map<number,Array<FileInfo>>>>(updateMap)
+            return new Map<string, Map<number, Map<number, Array<FileInfo>>>>(
+              updateMap
+            )
           })
         }
       }
@@ -345,12 +368,15 @@ const handleSideMenuClick = (
     }
     const updateMap = requestValue.sideMenuFolderList
     console.log('aa')
-    const tmpMap = new Map<number, Array<FileInfo>>([
-      [rowCount + 1, result.folderList],
+    const map = new Map<number, Array<FileInfo>>([colCount, result.folderList])
+    const tmpMap = new Map<number, Map<number, Array<FileInfo>>>([
+      [rowCount + 1, map],
     ])
     updateMap.set(folderParentName ?? clickedContentValue, tmpMap)
     requestValue.setSideMenuFolderList(() => {
-      return new Map<string, Map<number, Map<number,Array<FileInfo>>>>(updateMap)
+      return new Map<string, Map<number, Map<number, Array<FileInfo>>>>(
+        updateMap
+      )
     })
     requestValue.row.current = rowCount
     requestValue.sideMenuFolderPath.current = path
@@ -564,7 +590,7 @@ const setInitValue = (
   row: React.MutableRefObject<number>,
   sideMenuFolderPath: React.MutableRefObject<string>,
   setSideMenuFolderList: React.Dispatch<
-    React.SetStateAction<Map<string, Map<number, Map<number,Array<FileInfo>>>>
+    React.SetStateAction<Map<string, Map<number, Map<number, Array<FileInfo>>>>>
   >
 ) => {
   setSideMenuFolderList(() => {
@@ -577,6 +603,6 @@ const setInitValue = (
   sideMenuFolderPath.current = path
 }
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const conrainer = document.getElementById('root')!
-const root = createRoot(conrainer)
+const container = document.getElementById('root')!
+const root = createRoot(container)
 root.render(<App></App>)
