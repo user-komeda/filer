@@ -233,7 +233,9 @@ const handleSideMenuClick = (
   const colCount =
     Number(
       event.currentTarget.parentNode?.children[2].getAttribute('data-col')
-    ) ?? 0
+    ) + rowCount ?? 0
+
+  console.log(colCount)
   requestValue.setColCountList(requestValue.colCountList.concat(colCount))
 
   const folderParentName =
@@ -243,9 +245,7 @@ const handleSideMenuClick = (
   const splitFilePath = filePath.split('/')
 
   const splitFilePathLength = splitFilePath.length
-  console.log(
-    event.currentTarget.parentNode?.children[2].getAttribute('data-path')
-  )
+
   const path =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
 
@@ -325,14 +325,15 @@ const handleSideMenuClick = (
 
           const tmpMap = updateMap.get(folderParentName ?? clickedContentValue)
           if (tmpMap) {
+            console.log('ngfkn')
             const map = new Map<number, Array<FileInfo>>([
-              colCount,
-              result.folderList,
+              [colCount, result.folderList],
             ])
             updateMap
               .get(folderParentName ?? clickedContentValue)
               ?.set(rowCount + 1, map)
           } else {
+            console.log('nkpmgpk')
             const tmpMap = new Map<number, Map<number, Array<FileInfo>>>()
             const map = new Map<number, Array<FileInfo>>([
               colCount,
@@ -350,11 +351,13 @@ const handleSideMenuClick = (
         } else {
           // console.log(updateMap.get(folderParentName))
           // console.log(folderParentName)
-          // console.log(clickedContentValue)
+          const tmpMap = new Map<number, Array<FileInfo>>([
+            [rowCount + 1, result.folderList],
+          ])
+          console.log('mmgrw')
           updateMap
             .get(folderParentName ?? clickedContentValue)
-            ?.set(rowCount + 1, result.folderList)
-
+            ?.set(colCount, tmpMap)
           requestValue.setSideMenuFolderList(() => {
             return new Map<string, Map<number, Map<number, Array<FileInfo>>>>(
               updateMap
@@ -367,10 +370,11 @@ const handleSideMenuClick = (
       return
     }
     const updateMap = requestValue.sideMenuFolderList
-    console.log('aa')
-    const map = new Map<number, Array<FileInfo>>([colCount, result.folderList])
+    const map = new Map<number, Array<FileInfo>>([
+      [rowCount + 1, result.folderList],
+    ])
     const tmpMap = new Map<number, Map<number, Array<FileInfo>>>([
-      [rowCount + 1, map],
+      [colCount, map],
     ])
     updateMap.set(folderParentName ?? clickedContentValue, tmpMap)
     requestValue.setSideMenuFolderList(() => {

@@ -29,7 +29,6 @@ const SideMenu: React.FC<{
   const clickFolder = props.clickedFolder
   const mapFolderList =
     props.folderList ?? new Map<string, Map<number, Array<FileInfo>>>()
-  console.log(mapFolderList)
   const folderList =
     mapFolderList.get('firstKey')?.get(0)?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
@@ -39,10 +38,10 @@ const SideMenu: React.FC<{
     <>
       <List
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
-        component='nav'
-        aria-labelledby='nested-list-subheader'
+        component="nav"
+        aria-labelledby="nested-list-subheader"
         subheader={
-          <ListSubheader component='div' id='nested-list-subheader'>
+          <ListSubheader component="div" id="nested-list-subheader">
             Nested List Items
           </ListSubheader>
         }
@@ -78,6 +77,7 @@ const SideMenu: React.FC<{
                     props.clickedFolder,
                     loopCount.current,
                     props.colCountList,
+                    0,
                     handleClick
                   )
                 : ''}
@@ -110,109 +110,194 @@ const createColList = (
   clickedFolder: Array<string>,
   loopCount: number,
   colCountList: Array<number>,
+  callCount: number,
   handleClick: React.MouseEventHandler
 ) => {
-  // const fileNameList = mapFolderList.get(loopCount)
+  const colCount = colCountList[callCount]
+  const tmpFileNameList =
+    mapFolderList.get(colCount) ?? new Map<number, Array<FileInfo>>()
+  const keyList = Array.from(tmpFileNameList.keys())
+
+  const fileNameList = tmpFileNameList?.get(keyList[0])
+
+  console.log(callCount)
+  console.log(mapFolderList)
+  console.log(colCountList)
+  console.log(tmpFileNameList)
+  console.log(fileNameList)
+  console.log(clickedFolder[clickedFolder.length - 1])
 
   return (
-    <List component='nav' disablePadding>
-      {colCountList.map(colcount => {
-        {
-          const tmpFileNameList = mapFolderList.get(colcount)
-          const fileNameList = tmpFileNameList?.get(loopCount)
-          fileNameList?.map((fileName, index) => {
-            return (
-              <ListItem
-                sx={{
-                  display: 'block',
-                }}
-                key={index}
-              >
-                <ListItemButton sx={{ pl: 1 }}>
-                  <ListItemIcon onClick={handleClick}>
-                    <ArrowForwardIosIcon></ArrowForwardIosIcon>
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={fileName.fileName}
-                    onClick={handleClick}
-                  ></ListItemText>
-                  <span
-                    style={{ display: 'none' }}
-                    data-path={fileName.filePath + '/' + fileName.fileName}
-                    data-row={loopCount}
-                    data-col={colcount}
-                    data-parent-folder={folder}
-                  ></span>
-                </ListItemButton>
-
-                {fileName.fileName === clickedFolder[clickedFolder.length - 1]
-                  ? createRowList(
-                      tmpFileNameList ?? new Map(),
-                      folder,
-                      clickedFolder,
-                      loopCount + 1,
-                      handleClick
-                    )
-                  : ''}
-              </ListItem>
-            )
-          })
-        }
-      })}
-    </List>
-  )
-}
-
-const createRowList = (
-  mapFolderList: Map<number, Array<FileInfo>>,
-  folder: string,
-  clickedFolder: Array<string>,
-  loopCount: number,
-  handleClick: React.MouseEventHandler
-) => {
-  const fileNameList = mapFolderList.get(loopCount)
-
-  return (
-    <List component='nav' disablePadding>
+    <List component="nav" disablePadding>
       {fileNameList?.map((fileName, index) => {
+        console.log(fileName.fileName)
+        console.log(
+          clickedFolder[clickedFolder.length - 1].includes(
+            fileName.fileName ?? ''
+          )
+        )
         return (
-          <ListItem
-            sx={{
-              display: 'block',
-            }}
-            key={index}
-          >
-            <ListItemButton sx={{ pl: 1 }}>
-              <ListItemIcon onClick={handleClick}>
-                <ArrowForwardIosIcon></ArrowForwardIosIcon>
-              </ListItemIcon>
-              <ListItemText
-                primary={fileName.fileName}
-                onClick={handleClick}
-              ></ListItemText>
-              <span
-                style={{ display: 'none' }}
-                data-path={fileName.filePath + '/' + fileName.fileName}
-                data-row={loopCount}
-                data-col={index}
-                data-parent-folder={folder}
-              ></span>
-            </ListItemButton>
-
-            {fileName.fileName === clickedFolder[clickedFolder.length - 1]
-              ? createRowList(
-                  mapFolderList,
-                  folder,
-                  clickedFolder,
-                  loopCount + 1,
-                  handleClick
-                )
-              : ''}
-          </ListItem>
+          <div key={index}>
+            <ListItem
+              sx={{
+                display: 'block',
+              }}
+              key={index}
+            >
+              <ListItemButton sx={{ pl: 1 }}>
+                <ListItemIcon onClick={handleClick}>
+                  <ArrowForwardIosIcon></ArrowForwardIosIcon>
+                </ListItemIcon>
+                <ListItemText
+                  primary={fileName.fileName}
+                  onClick={handleClick}
+                ></ListItemText>
+                <span
+                  style={{ display: 'none' }}
+                  data-path={fileName.filePath + '/' + fileName.fileName}
+                  data-row={loopCount}
+                  data-col={index}
+                  data-parent-folder={folder}
+                ></span>
+              </ListItemButton>
+              {clickedFolder.includes(fileName.fileName ?? '')
+                ? createColList(
+                    mapFolderList ?? new Map(),
+                    folder,
+                    clickedFolder,
+                    loopCount + 1,
+                    colCountList,
+                    callCount + 1,
+                    handleClick
+                  )
+                : ''}
+            </ListItem>
+          </div>
         )
       })}
     </List>
   )
 }
+
+// const createColList2 = (
+//   mapFolderList: Map<number, Map<number, Array<FileInfo>>>,
+//   folder: string,
+//   clickedFolder: Array<string>,
+//   loopCount: number,
+//   colCountList: Array<number>,
+//   handleClick: React.MouseEventHandler
+// ) => {
+//   // const fileNameList = mapFolderList.get(loopCount)
+//   console.log(mapFolderList)
+//   console.log(colCountList)
+
+//   return colCountList.map((colCount, index) => {
+//     const tmpFileNameList =
+//       mapFolderList.get(colCount) ?? new Map<number, Array<FileInfo>>()
+//     const keyList = Array.from(tmpFileNameList.keys())
+
+//     const fileNameList = tmpFileNameList?.get(keyList[0])
+
+//     console.log(colCount)
+//     console.log(fileNameList)
+
+//     return (
+//       <List component='nav' disablePadding key={index}>
+//         {fileNameList?.map((fileName, index) => {
+//           return (
+//             <div key={index}>
+//               <ListItem
+//                 sx={{
+//                   display: 'block',
+//                 }}
+//                 key={index}
+//               >
+//                 <ListItemButton sx={{ pl: 1 }}>
+//                   <ListItemIcon onClick={handleClick}>
+//                     <ArrowForwardIosIcon></ArrowForwardIosIcon>
+//                   </ListItemIcon>
+//                   <ListItemText
+//                     primary={fileName.fileName}
+//                     onClick={handleClick}
+//                   ></ListItemText>
+//                   <span
+//                     style={{ display: 'none' }}
+//                     data-path={fileName.filePath + '/' + fileName.fileName}
+//                     data-row={loopCount}
+//                     data-col={index}
+//                     data-parent-folder={folder}
+//                   ></span>
+//                 </ListItemButton>
+//                 {fileName.fileName === clickedFolder[clickedFolder.length - 1]
+//                   ? createRowList(
+//                       tmpFileNameList ?? new Map(),
+//                       folder,
+//                       clickedFolder,
+//                       loopCount + 1,
+//                       handleClick
+//                     )
+//                   : ''}
+//               </ListItem>
+//             </div>
+//           )
+//         })}
+//       </List>
+//     )
+//   })
+// }
+
+// const createRowList = (
+//   mapFolderList: Map<number, Array<FileInfo>>,
+//   folder: string,
+//   clickedFolder: Array<string>,
+//   loopCount: number,
+//   handleClick: React.MouseEventHandler
+// ) => {
+//   console.log(mapFolderList)
+//   const fileNameList = mapFolderList.get(loopCount)
+//   console.log('insert')
+//   console.log(fileNameList)
+//   return (
+//     <List component='nav' disablePadding>
+//       {fileNameList?.map((fileName, index) => {
+//         return (
+//           <ListItem
+//             sx={{
+//               display: 'block',
+//             }}
+//             key={index}
+//           >
+//             <ListItemButton sx={{ pl: 1 }}>
+//               <ListItemIcon onClick={handleClick}>
+//                 <ArrowForwardIosIcon></ArrowForwardIosIcon>
+//               </ListItemIcon>
+//               <ListItemText
+//                 primary={fileName.fileName}
+//                 onClick={handleClick}
+//               ></ListItemText>
+//               <span
+//                 style={{ display: 'none' }}
+//                 data-path={fileName.filePath + '/' + fileName.fileName}
+//                 data-row={loopCount}
+//                 data-col={index}
+//                 data-parent-folder={folder}
+//               ></span>
+//             </ListItemButton>
+//             {/*
+//             {fileName.fileName === clickedFolder[clickedFolder.length - 1]
+//               ? createRowList(
+//                   mapFolderList,
+//                   folder,
+//                   clickedFolder,
+//                   loopCount + 1,
+//                   handleClick
+//                 )
+//               : ''} */}
+//           </ListItem>
+//         )
+//       })}
+//     </List>
+//   )
+// }
 
 export default SideMenu
