@@ -26,14 +26,18 @@ const SideMenu: React.FC<{
 }> = (props): JSX.Element => {
   const basePath = 'c://Users/user/'
   const loopCount = useRef(1)
+  const callCount = useRef(0)
+  callCount.current = 0
   const clickFolder = props.clickedFolder
   const mapFolderList =
     props.folderList ?? new Map<string, Map<number, Array<FileInfo>>>()
+  console.log(mapFolderList)
   const folderList =
     mapFolderList.get('firstKey')?.get(0)?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
   const handleClick = props.handleClick
-
+  console.log(folderList)
+  console.log(clickFolder)
   return (
     <>
       <List
@@ -47,6 +51,7 @@ const SideMenu: React.FC<{
         }
       >
         {folderList.map((folder, index) => {
+          const number = clickFolder.findIndex((x) => x === folder.fileName)
           return (
             <ListItem
               sx={{
@@ -69,7 +74,7 @@ const SideMenu: React.FC<{
                   data-col={index}
                 ></span>
               </ListItemButton>
-              {clickFolder.includes(folder.fileName ?? '')
+              {number !== -1
                 ? createColList(
                     mapFolderList.get(folder.fileName ?? '') ??
                       new Map<number, Map<number, Array<FileInfo>>>(),
@@ -77,7 +82,7 @@ const SideMenu: React.FC<{
                     props.clickedFolder,
                     loopCount.current,
                     props.colCountList,
-                    0,
+                    number,
                     handleClick
                   )
                 : ''}
@@ -121,12 +126,13 @@ const createColList = (
   const fileNameList = tmpFileNameList?.get(keyList[0])
 
   console.log(callCount)
+  console.log(folder)
   console.log(mapFolderList)
-  console.log(colCountList)
   console.log(tmpFileNameList)
+  console.log(keyList)
   console.log(fileNameList)
-  console.log(clickedFolder[clickedFolder.length - 1])
-
+  console.log(colCountList)
+  // console.log(clickedFolder[clickedFolder.length - 1])
   return (
     <List component="nav" disablePadding>
       {fileNameList?.map((fileName, index) => {

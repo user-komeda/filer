@@ -327,19 +327,18 @@ const handleSideMenuClick = (
           if (tmpMap) {
             console.log('ngfkn')
             const map = new Map<number, Array<FileInfo>>([
-              [colCount, result.folderList],
+              [rowCount + 1, result.folderList],
             ])
             updateMap
               .get(folderParentName ?? clickedContentValue)
-              ?.set(rowCount + 1, map)
+              ?.set(colCount, map)
           } else {
             console.log('nkpmgpk')
             const tmpMap = new Map<number, Map<number, Array<FileInfo>>>()
             const map = new Map<number, Array<FileInfo>>([
-              colCount,
-              result.folderList,
+              [rowCount + 1, result.folderList],
             ])
-            tmpMap.set(1, map)
+            tmpMap.set(colCount, map)
             updateMap.set(folderParentName ?? clickedContentValue, tmpMap)
           }
 
