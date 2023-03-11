@@ -24,7 +24,7 @@ const App = (): JSX.Element => {
   const [nowPath, setNowPath] = useState('')
   const [folderList, setFolderList] = useState<Array<FileInfo>>([])
   const [sideMenuFolderList, setSideMenuFolderList] = useState<
-    Map<string, Map<number, Map<number, Array<FileInfo>>>>
+    Map<string, Map<string, Map<number, Array<FileInfo>>>>
   >(new Map())
   const [filteredFolderList, setFilteredFolderList] =
     useState<Array<FileInfo> | null>(null)
@@ -37,14 +37,17 @@ const App = (): JSX.Element => {
   const sameFolderDeletedFlag = useRef(true)
   const row = useRef(-1)
   const sideMenuFolderPath = useRef('')
-  const [colCountList, setColCountList] = useState<Array<number>>([])
+  const [colCountList, setColCountList] = useState<Array<string>>([])
+  const [rowCountList, setRowCountList] = useState<Array<number>>([])
 
   const drawerWidth = 240
 
   ipcRenderer.once('sendDataMain', (err, data) => {
     const tmpMap = new Map<number, Array<FileInfo>>([[0, data.folderList]])
 
-    const dataMap = new Map<number, Map<number, Array<FileInfo>>>([[0, tmpMap]])
+    const dataMap = new Map<string, Map<number, Array<FileInfo>>>([
+      ['0', tmpMap],
+    ])
     setFlag(data.flags)
     setFolderList(data.folderList)
     setSideMenuFolderList(() => {
@@ -68,11 +71,13 @@ const App = (): JSX.Element => {
     row,
     sideMenuFolderPath,
     colCountList,
+    rowCountList,
     setLastPath,
     setNowPath,
     setSideMenuFolderList,
     setClickedFolder,
     setColCountList,
+    setRowCountList,
   }
 
   return (
@@ -210,7 +215,6 @@ const handleSideMenuClick = (
   event: React.MouseEvent,
   requestValue: RequestValue
 ) => {
-  console.log(requestValue.sideMenuFolderList)
   const targetTagName = event.currentTarget.children[0].tagName
   const basePath = 'c://Users/user/'
   const targetValue = event.currentTarget.textContent ?? ''
@@ -220,7 +224,7 @@ const handleSideMenuClick = (
     targetValue === '' ? targetChildValue : targetValue
 
   const firstFolderList =
-    requestValue.sideMenuFolderList.get('firstKey')?.get(0)?.get(0) ?? []
+    requestValue.sideMenuFolderList.get('firstKey')?.get('0')?.get(0) ?? []
 
   const filePath =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
@@ -229,14 +233,33 @@ const handleSideMenuClick = (
     Number(
       event.currentTarget.parentNode?.children[2].getAttribute('data-row')
     ) ?? 0
-
+  console.log(rowCount)
+  requestValue.setRowCountList(requestValue.rowCountList.concat(rowCount))
   const colCount =
-    Number(
-      event.currentTarget.parentNode?.children[2].getAttribute('data-col')
-    ) + rowCount ?? 0
+    event.currentTarget.parentNode?.children[2].getAttribute('data-col') +
+    '' +
+    '_' +
+    rowCount
+  console.log(requestValue.rowCountList)
+  console.log(requestValue.rowCountList.length - 1)
+  console.log(requestValue.rowCountList.length - 2)
+  if (
+    requestValue.rowCountList.length > 1 &&
+    rowCount === requestValue.rowCountList[requestValue.rowCountList.length - 1]
+  ) {
+    console.log(requestValue.rowCountList)
+    requestValue.setColCountList(() => {
+      const copyArray = requestValue.colCountList.slice()
+      copyArray.splice(requestValue.colCountList.length - 1, 0, colCount)
 
-  console.log(colCount)
-  requestValue.setColCountList(requestValue.colCountList.concat(colCount))
+      return copyArray
+    })
+  } else {
+    console.log('qqqq')
+    requestValue.setColCountList(
+      requestValue.colCountList.concat(colCount ?? '')
+    )
+  }
 
   const folderParentName =
     event.currentTarget.parentNode?.children[2].getAttribute(
@@ -298,7 +321,6 @@ const handleSideMenuClick = (
       }
       const count = splitSideMenuPath.length + 1 - splitFilePathLength
       if (count > 1) {
-        console.log('delete')
         // for (let i = 0; i < count; i++) {
         //   requestValue.sideMenuFolderList
         //     .get(folderParentName ?? clickedContentValue)
@@ -313,7 +335,7 @@ const handleSideMenuClick = (
       } else {
         const updateMap = new Map<
           string,
-          Map<number, Map<number, Array<FileInfo>>>
+          Map<string, Map<number, Array<FileInfo>>>
         >(requestValue.sideMenuFolderList)
 
         if (requestValue.row.current === rowCount) {
@@ -324,41 +346,37 @@ const handleSideMenuClick = (
           // }
 
           const tmpMap = updateMap.get(folderParentName ?? clickedContentValue)
+
           if (tmpMap) {
-            console.log('ngfkn')
             const map = new Map<number, Array<FileInfo>>([
               [rowCount + 1, result.folderList],
             ])
             updateMap
               .get(folderParentName ?? clickedContentValue)
-              ?.set(colCount, map)
+              ?.set(colCount ?? '', map)
           } else {
-            console.log('nkpmgpk')
-            const tmpMap = new Map<number, Map<number, Array<FileInfo>>>()
+            const tmpMap = new Map<string, Map<number, Array<FileInfo>>>()
             const map = new Map<number, Array<FileInfo>>([
               [rowCount + 1, result.folderList],
             ])
-            tmpMap.set(colCount, map)
+            tmpMap.set(colCount ?? '', map)
             updateMap.set(folderParentName ?? clickedContentValue, tmpMap)
           }
 
           requestValue.setSideMenuFolderList(() => {
-            return new Map<string, Map<number, Map<number, Array<FileInfo>>>>(
+            return new Map<string, Map<string, Map<number, Array<FileInfo>>>>(
               updateMap
             )
           })
         } else {
-          // console.log(updateMap.get(folderParentName))
-          // console.log(folderParentName)
           const tmpMap = new Map<number, Array<FileInfo>>([
             [rowCount + 1, result.folderList],
           ])
-          console.log('mmgrw')
           updateMap
             .get(folderParentName ?? clickedContentValue)
-            ?.set(colCount, tmpMap)
+            ?.set(colCount ?? '', tmpMap)
           requestValue.setSideMenuFolderList(() => {
-            return new Map<string, Map<number, Map<number, Array<FileInfo>>>>(
+            return new Map<string, Map<string, Map<number, Array<FileInfo>>>>(
               updateMap
             )
           })
@@ -372,12 +390,12 @@ const handleSideMenuClick = (
     const map = new Map<number, Array<FileInfo>>([
       [rowCount + 1, result.folderList],
     ])
-    const tmpMap = new Map<number, Map<number, Array<FileInfo>>>([
-      [colCount, map],
+    const tmpMap = new Map<string, Map<number, Array<FileInfo>>>([
+      [colCount ?? '', map],
     ])
     updateMap.set(folderParentName ?? clickedContentValue, tmpMap)
     requestValue.setSideMenuFolderList(() => {
-      return new Map<string, Map<number, Map<number, Array<FileInfo>>>>(
+      return new Map<string, Map<string, Map<number, Array<FileInfo>>>>(
         updateMap
       )
     })
@@ -572,33 +590,29 @@ const sortByUpdateTime = (
 
 const deleteWhenCClickedFolderIsSame = (
   folderParentName: string,
-  folderList: Map<string, Map<number, Map<number, Array<FileInfo>>>>,
-  rowCount: number
+  folderList: Map<string, Map<string, Map<number, Array<FileInfo>>>>
 ) => {
-  console.log(folderParentName)
-  console.log(folderList)
   const sideMenuFolderList = new Map<
     string,
-    Map<number, Map<number, Array<FileInfo>>>
+    Map<string, Map<number, Array<FileInfo>>>
   >(folderList)
-  sideMenuFolderList.get(folderParentName)?.delete(rowCount + 1)
-  console.log(sideMenuFolderList.get(folderParentName))
+  // sideMenuFolderList.get(folderParentName)?.delete(rowCount + 1)
   return sideMenuFolderList
 }
 
 const setInitValue = (
   path: string,
   rowCount: number,
-  sideMenuFolderList: Map<string, Map<number, Map<number, Array<FileInfo>>>>,
+  sideMenuFolderList: Map<string, Map<string, Map<number, Array<FileInfo>>>>,
   row: React.MutableRefObject<number>,
   sideMenuFolderPath: React.MutableRefObject<string>,
   setSideMenuFolderList: React.Dispatch<
-    React.SetStateAction<Map<string, Map<number, Map<number, Array<FileInfo>>>>>
+    React.SetStateAction<Map<string, Map<string, Map<number, Array<FileInfo>>>>>
   >
 ) => {
   setSideMenuFolderList(() => {
     // const sideMenuFolderList = sideMenuFolderList
-    return new Map<string, Map<number, Map<number, Array<FileInfo>>>>(
+    return new Map<string, Map<string, Map<number, Array<FileInfo>>>>(
       sideMenuFolderList
     )
   })
