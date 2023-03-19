@@ -28,13 +28,12 @@ const SideMenu: React.FC<{
   const loopCount = useRef(0)
   loopCount.current = 0
   let number = 0
-  const clickFolder = props.clickedFolder.slice(1)
-  const colCountList = props.colCountList.slice(1)
   const mapFolderList =
     props.folderList ?? new Map<string, Map<number, Array<FileInfo>>>()
   const folderList =
     mapFolderList.get('firstKey')?.get('0')?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
+  console.log(mapFolderList)
   const handleClick = props.handleClick
   return (
     <>
@@ -80,8 +79,6 @@ const SideMenu: React.FC<{
                     props.clickedFolder,
                     loopCount,
                     props.colCountList,
-                    clickFolder,
-                    colCountList,
                     handleClick
                   )
                 : ''}
@@ -114,32 +111,16 @@ const createColList = (
   clickedFolder: Array<string>,
   loopCount: React.MutableRefObject<number>,
   colCountList: Array<string>,
-  slicedClickedFolder: Array<string>,
-  slicedColCountList: Array<string>,
   handleClick: React.MouseEventHandler
 ) => {
   console.log(colCountList)
   const colCount = colCountList[loopCount.current]
-  const oldColCount = colCountList[loopCount.current - 1]
   const tmpFileNameList =
     mapFolderList.get(colCount) ?? new Map<number, Array<FileInfo>>()
-  const oldTmpFileNameList =
-    mapFolderList.get(oldColCount) ?? new Map<number, Array<FileInfo>>()
+
   const keyList = Array.from(tmpFileNameList.keys())
-  const oldKey = Array.from(oldTmpFileNameList.keys())[0]
   const fileNameList = tmpFileNameList?.get(keyList[0])
-  const oldFileNameList =
-    oldTmpFileNameList.get(oldKey) ?? new Array<FileInfo>()
-  // console.log(colCountList)
-  // console.log(clickedFolder)
-  // console.log(fileNameList)
-  // console.log(colCount)
-  console.log(oldFileNameList)
-  // console.log(clickedFolder[clickedFolder.length - 1])
-  // console.log(mapFolderList)
-  // console.log(fileNameList)
-  // console.log(keyList)
-  // console.log(tmpFileNameList)
+  console.log(tmpFileNameList)
   loopCount.current += 1
 
   return (
@@ -179,8 +160,6 @@ const createColList = (
                     clickedFolder,
                     loopCount,
                     colCountList,
-                    slicedClickedFolder,
-                    slicedColCountList,
                     handleClick
                   )
                 : ''}
@@ -191,59 +170,5 @@ const createColList = (
     </List>
   )
 }
-
-// const createRowList = (
-//   mapFolderList: Map<number, Array<FileInfo>>,
-//   folder: string,
-//   clickedFolder: Array<string>,
-//   loopCount: number,
-//   handleClick: React.MouseEventHandler
-// ) => {
-//   console.log(mapFolderList)
-//   const fileNameList = mapFolderList.get(loopCount)
-//   console.log('insert')
-//   console.log(fileNameList)
-//   return (
-//     <List component='nav' disablePadding>
-//       {fileNameList?.map((fileName, index) => {
-//         return (
-//           <ListItem
-//             sx={{
-//               display: 'block',
-//             }}
-//             key={index}
-//           >
-//             <ListItemButton sx={{ pl: 1 }}>
-//               <ListItemIcon onClick={handleClick}>
-//                 <ArrowForwardIosIcon></ArrowForwardIosIcon>
-//               </ListItemIcon>
-//               <ListItemText
-//                 primary={fileName.fileName}
-//                 onClick={handleClick}
-//               ></ListItemText>
-//               <span
-//                 style={{ display: 'none' }}
-//                 data-path={fileName.filePath + '/' + fileName.fileName}
-//                 data-row={loopCount}
-//                 data-col={index}
-//                 data-parent-folder={folder}
-//               ></span>
-//             </ListItemButton>
-//             {/*
-//             {fileName.fileName === clickedFolder[clickedFolder.length - 1]
-//               ? createRowList(
-//                   mapFolderList,
-//                   folder,
-//                   clickedFolder,
-//                   loopCount + 1,
-//                   handleClick
-//                 )
-//               : ''} */}
-//           </ListItem>
-//         )
-//       })}
-//     </List>
-//   )
-// }
 
 export default SideMenu

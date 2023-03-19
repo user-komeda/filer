@@ -15,6 +15,7 @@ import { Box } from '@mui/system'
 import { CssBaseline, Toolbar, AppBar } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
 import RequestValue from './@types/sideMenuClickRequestValue'
+import console from 'console'
 
 /**
  * レンダラープロセス
@@ -233,33 +234,12 @@ const handleSideMenuClick = (
     Number(
       event.currentTarget.parentNode?.children[2].getAttribute('data-row')
     ) ?? 0
-  console.log(rowCount)
   requestValue.setRowCountList(requestValue.rowCountList.concat(rowCount))
   const colCount =
     event.currentTarget.parentNode?.children[2].getAttribute('data-col') +
     '' +
     '_' +
     rowCount
-  console.log(requestValue.rowCountList)
-  console.log(requestValue.rowCountList.length - 1)
-  console.log(requestValue.rowCountList.length - 2)
-  if (
-    requestValue.rowCountList.length > 1 &&
-    rowCount === requestValue.rowCountList[requestValue.rowCountList.length - 1]
-  ) {
-    console.log(requestValue.rowCountList)
-    requestValue.setColCountList(() => {
-      const copyArray = requestValue.colCountList.slice()
-      copyArray.splice(requestValue.colCountList.length - 1, 0, colCount)
-
-      return copyArray
-    })
-  } else {
-    console.log('qqqq')
-    requestValue.setColCountList(
-      requestValue.colCountList.concat(colCount ?? '')
-    )
-  }
 
   const folderParentName =
     event.currentTarget.parentNode?.children[2].getAttribute(
@@ -287,8 +267,7 @@ const handleSideMenuClick = (
         rowCount,
         deleteWhenCClickedFolderIsSame(
           folderParentName ?? '',
-          requestValue.sideMenuFolderList,
-          rowCount
+          requestValue.sideMenuFolderList
         ),
         requestValue.row,
         requestValue.sideMenuFolderPath,
@@ -309,10 +288,65 @@ const handleSideMenuClick = (
     return
   }
 
+  if (requestValue.rowCountList.length > 1) {
+    console.log('aaaa')
+    console.log(requestValue.sideMenuFolderList)
+    console.log(requestValue.clickedFolder)
+    console.log(clickedContentValue)
+    console.log(result.folderList)
+    requestValue.setColCountList(() => {
+      // TODO folderParentNameごとの並べ替えが必須
+      const cloneMap = new Map(requestValue.sideMenuFolderList)
+      console.log(cloneMap)
+      const tmpMap = new Map<number, Array<FileInfo>>([
+        [rowCount + 1, result.folderList],
+      ])
+      const map = new Map<string, Map<number, Array<FileInfo>>>([
+        [colCount, tmpMap],
+      ])
+
+      cloneMap.get(folderParentName)
+        ? cloneMap.get(folderParentName)?.set(colCount, tmpMap)
+        : cloneMap.set(folderParentName, map)
+      console.log(cloneMap)
+      const keyList = Array.from(cloneMap.keys())
+      const colCountMap = new Map<number, Array<string>>()
+      const tmpArray: Array<string> = []
+      keyList.map((key, index) => {
+        const array = Array.from(cloneMap.get(key)?.keys() ?? '')
+        console.log(array)
+        console.log(key)
+        array.sort()
+        tmpArray.push(array[array.length - 1])
+        colCountMap.set(index, array)
+      })
+      const a = tmpArray
+        .map((val, ind) => {
+          return { ind, val }
+        })
+        .sort((a, b) => {
+          return a.val > b.val ? 1 : a.val == b.val ? 0 : -1
+        })
+        .map((obj) => obj.ind)
+      const tmp: Array<string> = []
+      a.map((data) => {
+        tmp.push(...(colCountMap.get(data) ?? []))
+      })
+      tmp.flat()
+      tmp.shift()
+      return tmp
+    })
+  } else {
+    console.log('qqqq')
+    requestValue.setColCountList(
+      requestValue.colCountList.concat(colCount ?? '')
+    )
+  }
   requestValue.setClickedFolder(() => {
     return requestValue.clickedFolder.concat(clickedContentValue)
   })
   if (targetTagName === 'svg') {
+    // TODO ここから下の分岐の見直し
     const sideMenuPath = requestValue.sideMenuFolderPath.current
     if (sideMenuPath !== '') {
       const splitSideMenuPath = sideMenuPath.split('/')
@@ -321,6 +355,7 @@ const handleSideMenuClick = (
       }
       const count = splitSideMenuPath.length + 1 - splitFilePathLength
       if (count > 1) {
+        console.log()
         // for (let i = 0; i < count; i++) {
         //   requestValue.sideMenuFolderList
         //     .get(folderParentName ?? clickedContentValue)
@@ -331,6 +366,21 @@ const handleSideMenuClick = (
         //     requestValue.sideMenuFolderList
         //   )
         // })
+        const updateMap = new Map<
+          string,
+          Map<string, Map<number, Array<FileInfo>>>
+        >(requestValue.sideMenuFolderList)
+        const tmpMap = new Map<string, Map<number, Array<FileInfo>>>()
+        const map = new Map<number, Array<FileInfo>>([
+          [rowCount + 1, result.folderList],
+        ])
+        tmpMap.set(colCount ?? '', map)
+        updateMap.set(folderParentName ?? clickedContentValue, tmpMap)
+        requestValue.setSideMenuFolderList(() => {
+          return new Map<string, Map<string, Map<number, Array<FileInfo>>>>(
+            updateMap
+          )
+        })
         return
       } else {
         const updateMap = new Map<
@@ -348,6 +398,7 @@ const handleSideMenuClick = (
           const tmpMap = updateMap.get(folderParentName ?? clickedContentValue)
 
           if (tmpMap) {
+            console.log('aaaa')
             const map = new Map<number, Array<FileInfo>>([
               [rowCount + 1, result.folderList],
             ])
@@ -355,6 +406,7 @@ const handleSideMenuClick = (
               .get(folderParentName ?? clickedContentValue)
               ?.set(colCount ?? '', map)
           } else {
+            console.log('bbb')
             const tmpMap = new Map<string, Map<number, Array<FileInfo>>>()
             const map = new Map<number, Array<FileInfo>>([
               [rowCount + 1, result.folderList],
@@ -369,6 +421,7 @@ const handleSideMenuClick = (
             )
           })
         } else {
+          console.log('ccc')
           const tmpMap = new Map<number, Array<FileInfo>>([
             [rowCount + 1, result.folderList],
           ])
@@ -386,6 +439,7 @@ const handleSideMenuClick = (
       requestValue.row.current = rowCount
       return
     }
+    console.log('ddd')
     const updateMap = requestValue.sideMenuFolderList
     const map = new Map<number, Array<FileInfo>>([
       [rowCount + 1, result.folderList],
@@ -402,6 +456,7 @@ const handleSideMenuClick = (
     requestValue.row.current = rowCount
     requestValue.sideMenuFolderPath.current = path
   } else {
+    console.log('eee')
     requestValue.setNowPath(`${basePath}${clickedContentValue}`)
     requestValue.setLastPath(`${basePath}${clickedContentValue}`)
   }
