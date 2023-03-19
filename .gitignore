@@ -1,7 +1,6 @@
+yarn.lock
 node_modules
 dist/
 .yarn
-.ps1
 /icon/
-*.ps1
 .vscode/settings.json

@@ -27,6 +27,7 @@ const iconFolderPath = 'c://Users/user/Desktop/learning/electron/filer/icon/'
 
 // BrowserWindow インスタンスを作成する関数
 const createWindow = () => {
+  console.log('aaaaaaaaaaaaaaaa')
   const mainWindow = new BrowserWindow({
     webPreferences: {
       preload: path.resolve(__dirname, 'preload.js'),
@@ -92,11 +93,11 @@ const createWindow = () => {
         event.returnValue = { folderList: null, flag: false }
         return
       }
-      console.log('aaa')
       const isDirectory = fs.statSync(path).isDirectory()
-      console.log('aaa')
       if (!isDirectory) {
+        console.log('bbbbbbbbbbbbbbbbbb')
         const extensionName = getExtensionName(path)
+        console.log(extensionName)
         try {
           getExecProgramName(extensionName, path)
         } catch (error) {
@@ -129,7 +130,6 @@ const createWindow = () => {
         folderList.forEach((folder, index) => {
           folder.fileType = fileTypeList[index]
         })
-        console.log(folderList)
         event.returnValue = { folderList: folderList, flag: false }
       }
     })
@@ -153,7 +153,7 @@ const createWindow = () => {
         `pwsh.exe -command c://Users/user/Desktop/learning/electron/filer/test.ps1 ${path} -NoNewWindow -Wait`
       )
       const fileTypeList = iconv.decode(fileType, 'Shift_JIS').split('\n')
-
+      console.log('AAAA')
       // ②：filesの内容をターミナルに表示
       files.forEach(function (file) {
         const fileData = fs.statSync(`${path}/${file}`)
@@ -224,6 +224,7 @@ const getExecProgramName = (extensionName: string, path: string) => {
   const execProgramName = openedProgramName.substring(openedProgramIndex + 1)
   const execProgramIndex = execProgramName.lastIndexOf('%')
   const execProgram = execProgramName.substring(0, execProgramIndex)
+  console.log(execProgram, path.substring(0, path.length - 1))
   exec(execProgram + path.substring(0, path.length - 1))
 }
 

@@ -18,21 +18,23 @@ import FileInfo from '../@types/fileInfo'
  * @returns {JSX.Element} jsx
  */
 const SideMenu: React.FC<{
-  folderList: Map<number, Array<FileInfo>>
+  folderList: Map<string, Map<string, Map<number, Array<FileInfo>>>>
   volumeLabelList: Array<string>
   clickedFolder: Array<string>
+  colCountList: Array<string>
   handleClick: (e: React.MouseEvent) => void
-}> = (props) => {
+}> = (props): JSX.Element => {
+  const basePath = 'c://Users/user/'
   const loopCount = useRef(0)
-  const mapFolderList = props.folderList ?? new Map<number, Array<FileInfo>>()
-  const folderList = mapFolderList.get(0) ?? new Array<FileInfo>()
+  loopCount.current = 0
+  let number = 0
+  const mapFolderList =
+    props.folderList ?? new Map<string, Map<number, Array<FileInfo>>>()
+  const folderList =
+    mapFolderList.get('firstKey')?.get('0')?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
+  console.log(mapFolderList)
   const handleClick = props.handleClick
-  const lastMap =
-    mapFolderList.get(mapFolderList.size - 1) ?? new Array<FileInfo>()
-
-  const filePath = lastMap.length === 0 ? '' : lastMap[0].filePath ?? ''
-
   return (
     <>
       <List
@@ -46,6 +48,7 @@ const SideMenu: React.FC<{
         }
       >
         {folderList.map((folder, index) => {
+          number = props.clickedFolder.findIndex((x) => x === folder.fileName)
           return (
             <ListItem
               sx={{
@@ -63,17 +66,19 @@ const SideMenu: React.FC<{
                 ></ListItemText>
                 <span
                   style={{ display: 'none' }}
-                  data-path={filePath}
+                  data-path={basePath + folder.fileName}
                   data-row={0}
+                  data-col={index}
                 ></span>
               </ListItemButton>
-              {props.clickedFolder[0] === folder.fileName
-                ? createList(
-                    mapFolderList,
+              {number !== -1
+                ? createColList(
+                    mapFolderList.get(folder.fileName ?? '') ??
+                      new Map<string, Map<number, Array<FileInfo>>>(),
                     folder.fileName ?? '',
                     props.clickedFolder,
                     loopCount,
-                    filePath,
+                    props.colCountList,
                     handleClick
                   )
                 : ''}
@@ -96,63 +101,70 @@ const SideMenu: React.FC<{
           )
         })}
       </List>
-      {(loopCount.current = 0)}
     </>
   )
 }
 
-const createList = (
-  mapFolderList: Map<number, Array<FileInfo>>,
+const createColList = (
+  mapFolderList: Map<string, Map<number, Array<FileInfo>>>,
   folder: string,
   clickedFolder: Array<string>,
   loopCount: React.MutableRefObject<number>,
-  filePath: string,
+  colCountList: Array<string>,
   handleClick: React.MouseEventHandler
 ) => {
-  const mapSize = mapFolderList.size
-  if (mapSize === 1) {
-    return
-  }
+  console.log(colCountList)
+  const colCount = colCountList[loopCount.current]
+  const tmpFileNameList =
+    mapFolderList.get(colCount) ?? new Map<number, Array<FileInfo>>()
 
-  loopCount.current = loopCount.current + 1
-  const fileNameList = mapFolderList.get(loopCount.current)
+  const keyList = Array.from(tmpFileNameList.keys())
+  const fileNameList = tmpFileNameList?.get(keyList[0])
+  console.log(tmpFileNameList)
+  loopCount.current += 1
 
   return (
     <List component="nav" disablePadding>
       {fileNameList?.map((fileName, index) => {
+        // document,kindleContent,mygame
+        // console.log(fileName)
+
         return (
-          <ListItem
-            sx={{
-              display: 'block',
-            }}
-            key={index}
-          >
-            <ListItemButton sx={{ pl: 1 }}>
-              <ListItemIcon onClick={handleClick}>
-                <ArrowForwardIosIcon></ArrowForwardIosIcon>
-              </ListItemIcon>
-              <ListItemText
-                primary={fileName.fileName}
-                onClick={handleClick}
-              ></ListItemText>
-              <span
-                style={{ display: 'none' }}
-                data-path={filePath}
-                data-row={index}
-              ></span>
-            </ListItemButton>
-            {loopCount.current < mapSize - 1 &&
-            fileName.fileName === clickedFolder[loopCount.current]
-              ? createList(
-                  mapFolderList,
-                  folder,
-                  clickedFolder,
-                  loopCount,
-                  filePath,
-                  handleClick
-                )
-              : ''}
-          </ListItem>
+          <div key={index}>
+            <ListItem
+              sx={{
+                display: 'block',
+              }}
+              key={index}
+            >
+              <ListItemButton sx={{ pl: 1 }}>
+                <ListItemIcon onClick={handleClick}>
+                  <ArrowForwardIosIcon></ArrowForwardIosIcon>
+                </ListItemIcon>
+                <ListItemText
+                  primary={fileName.fileName}
+                  onClick={handleClick}
+                ></ListItemText>
+                <span
+                  style={{ display: 'none' }}
+                  data-path={fileName.filePath + '/' + fileName.fileName}
+                  data-row={loopCount.current}
+                  data-col={index}
+                  data-parent-folder={folder}
+                ></span>
+              </ListItemButton>
+              {clickedFolder.includes(fileName.fileName ?? '')
+                ? createColList(
+                    mapFolderList ?? new Map(),
+                    folder,
+                    clickedFolder,
+                    loopCount,
+                    colCountList,
+                    handleClick
+                  )
+                : ''}
+            </ListItem>
+          </div>
         )
       })}
     </List>
