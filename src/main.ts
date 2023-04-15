@@ -266,7 +266,6 @@ const cleatsChildWindow = (
       path: clickedPath,
       iconList: iconList,
     }
-    console.log(clickedPath)
     childWindow.webContents.send('sendDataNormal', sendData)
     ipcMain.on('clickedProgramList', (event, data) => {
       childWindow.close()
