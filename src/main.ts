@@ -246,7 +246,6 @@ const cleatsChildWindow = (
   programNameList: Array<string>,
   clickedPath: string
 ) => {
-  console.log('fndajln')
   const childWindow = new BrowserWindow({
     webPreferences: {
       preload: path.resolve(__dirname, 'preload.js'),
