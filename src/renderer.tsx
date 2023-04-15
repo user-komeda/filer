@@ -15,8 +15,6 @@ import { Box } from '@mui/system'
 import { CssBaseline, Toolbar, AppBar } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
 import RequestValue from './@types/sideMenuClickRequestValue'
-import console from 'console'
-
 /**
  * レンダラープロセス
  */
@@ -87,12 +85,12 @@ const App = (): JSX.Element => {
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
           <AppBar
-            position="fixed"
-            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            position='fixed'
+            sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
           >
             <div style={{ backgroundColor: '#F0F0F0', color: 'black' }}>
               <div>
-                <div className="test">
+                <div className='test'>
                   <PanelMenu
                     undoFunction={() => {
                       undoFunction(nowPath, lastPath, setFolderList, setNowPath)
@@ -103,7 +101,7 @@ const App = (): JSX.Element => {
                   ></PanelMenu>
                   <PathTextMenu
                     path={nowPath ? nowPath : lastPath}
-                    handleBlur={(event) => {
+                    handleBlur={event => {
                       handleBlur(
                         event,
                         nowPath,
@@ -112,7 +110,7 @@ const App = (): JSX.Element => {
                         setFolderList
                       )
                     }}
-                    handleChange={(event) => {
+                    handleChange={event => {
                       handleChange(event, setLastPath, setNowPath)
                     }}
                   ></PathTextMenu>
@@ -131,7 +129,7 @@ const App = (): JSX.Element => {
             </div>
           </AppBar>
           <Drawer
-            variant="permanent"
+            variant='permanent'
             sx={{
               width: drawerWidth,
               flexShrink: 0,
@@ -154,10 +152,10 @@ const App = (): JSX.Element => {
               ></SideMenu>
             </Box>
           </Drawer>
-          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
             <Toolbar />
             <MainContent
-              handleClick={(event) => {
+              handleClick={event => {
                 handleClick(
                   event,
                   nowPath,
@@ -219,8 +217,10 @@ const handleSideMenuClick = (
   const targetTagName = event.currentTarget.children[0].tagName
   const basePath = 'c://Users/user/'
   const targetValue = event.currentTarget.textContent ?? ''
+  console.log(event.currentTarget)
+  console.log(event.currentTarget.nextElementSibling)
   const targetChildValue =
-    event.currentTarget.nextElementSibling?.children[0].textContent ?? ''
+    event.currentTarget.nextElementSibling?.children[0]?.textContent ?? ''
   const clickedContentValue =
     targetValue === '' ? targetChildValue : targetValue
 
@@ -252,7 +252,7 @@ const handleSideMenuClick = (
   const path =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
 
-  const firstFolderFlag = firstFolderList.some((folder) => {
+  const firstFolderFlag = firstFolderList.some(folder => {
     folder.fileName === clickedContentValue &&
       clickedContentValue === folderParentName
   })
@@ -327,9 +327,9 @@ const handleSideMenuClick = (
         .sort((a, b) => {
           return a.val > b.val ? 1 : a.val == b.val ? 0 : -1
         })
-        .map((obj) => obj.ind)
+        .map(obj => obj.ind)
       const tmp: Array<string> = []
-      a.map((data) => {
+      a.map(data => {
         tmp.push(...(colCountMap.get(data) ?? []))
       })
       tmp.flat()
@@ -459,6 +459,9 @@ const handleSideMenuClick = (
     console.log('eee')
     requestValue.setNowPath(`${basePath}${clickedContentValue}`)
     requestValue.setLastPath(`${basePath}${clickedContentValue}`)
+    ipcRenderer.sendSync('onClick', {
+      path: `${basePath}${clickedContentValue}`,
+    })
   }
 }
 
@@ -491,7 +494,7 @@ const redoFunction = (
     const pathArray = nowPath.split('/')
     const lastPathArray = lastPath.split('/')
     const test = lastPathArray.filter(
-      (lastPath) => pathArray.indexOf(lastPath) === -1
+      lastPath => pathArray.indexOf(lastPath) === -1
     )[0]
     const a = pathArray.join('/') + test
     const result = ipcRenderer.sendSync('onClick', {
@@ -550,7 +553,7 @@ const handleBlurFilter = (
     setFilteredFolderList(null)
     return
   }
-  const filteredFolderList = folderList.filter((folder) => {
+  const filteredFolderList = folderList.filter(folder => {
     if (folder.fileName !== undefined) {
       return folder.fileName.includes(filterText)
     }
