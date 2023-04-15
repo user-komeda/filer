@@ -21,6 +21,7 @@ foreach ($result in $query3) {
     $iconPathList = $iconPathList.remove($iconPathList.length - 1, 1)
     $result = Test-Path $iconPathList
     $icon = [System.Drawing.Icon]::ExtractAssociatedIcon($iconPathList)
+    echo $icon
     $icon.ToBitmap().Save((Join-Path $env:UserProfile\Desktop\learning\electron\filer\icon "${i}icon.bmp"))
     $icon.Dispose()
     $i++

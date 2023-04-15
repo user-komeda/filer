@@ -27,7 +27,6 @@ const iconFolderPath = 'c://Users/user/Desktop/learning/electron/filer/icon/'
 
 // BrowserWindow インスタンスを作成する関数
 const createWindow = () => {
-  console.log('aaaaaaaaaaaaaaaa')
   const mainWindow = new BrowserWindow({
     webPreferences: {
       preload: path.resolve(__dirname, 'preload.js'),
@@ -84,7 +83,6 @@ const createWindow = () => {
     ipcMain.on('onClick', (event, args) => {
       const path = args.path
       const result = fs.existsSync(path)
-
       if (!result) {
         dialog.showErrorBox(
           'エクスプローラ',
@@ -95,9 +93,7 @@ const createWindow = () => {
       }
       const isDirectory = fs.statSync(path).isDirectory()
       if (!isDirectory) {
-        console.log('bbbbbbbbbbbbbbbbbb')
         const extensionName = getExtensionName(path)
-        console.log(extensionName)
         try {
           getExecProgramName(extensionName, path)
         } catch (error) {
@@ -148,12 +144,10 @@ const createWindow = () => {
       const files = fs.readdirSync(path)
 
       folderList.length = 0
-      console.debug('faire')
       const fileType = execSync(
         `pwsh.exe -command c://Users/user/Desktop/learning/electron/filer/test.ps1 ${path} -NoNewWindow -Wait`
       )
       const fileTypeList = iconv.decode(fileType, 'Shift_JIS').split('\n')
-      console.log('AAAA')
       // ②：filesの内容をターミナルに表示
       files.forEach(function (file) {
         const fileData = fs.statSync(`${path}/${file}`)
@@ -179,8 +173,6 @@ const createWindow = () => {
 app.whenReady().then(async () => {
   if (isDev) {
     // installExtension(REDUX_DEVTOOLS)
-    //   .then(name => console.log(`Added Extension:  ${name}`))
-    //   .catch(err => console.log('An error occurred: ', err))
     // // 開発モードの場合は React Devtools をロード
     // const devtools = await searchDevtools('REACT')
     // if (devtools) {
@@ -204,9 +196,10 @@ app.once('window-all-closed', () => app.quit())
  */
 const getExtensionName = (path: string): string => {
   const splitPath = path.split('/')
-  const name = splitPath[splitPath.length - 2]
+  const name = splitPath[splitPath.length - 1]
   const index = name.lastIndexOf('.')
   const extensionName = name.substring(index)
+
   return extensionName
 }
 
@@ -224,8 +217,7 @@ const getExecProgramName = (extensionName: string, path: string) => {
   const execProgramName = openedProgramName.substring(openedProgramIndex + 1)
   const execProgramIndex = execProgramName.lastIndexOf('%')
   const execProgram = execProgramName.substring(0, execProgramIndex)
-  console.log(execProgram, path.substring(0, path.length - 1))
-  exec(execProgram + path.substring(0, path.length - 1))
+  exec(execProgram + path)
 }
 
 /**
@@ -234,12 +226,10 @@ const getExecProgramName = (extensionName: string, path: string) => {
  * @param path path
  */
 const openDialog = (path: string) => {
-  execSync(
-    'C:\\Users\\user\\Desktop\\learning\\electron\\filer\\getProgramPath.ps1'
-  )
   const programName = execSync(
-    'C:\\Users\\user\\Desktop\\learning\\electron\\filer\\getProgramName.ps1'
+    'pwsh.exe -command c://Users/user/Desktop/learning/electron/filer/getProgramName.ps1'
   ).toString()
+
   const programNameList: Array<string> = programName.split('\n')
   cleatsChildWindow(programNameList, path)
 }
@@ -248,6 +238,7 @@ const cleatsChildWindow = (
   programNameList: Array<string>,
   clickedPath: string
 ) => {
+  console.log('fndajln')
   const childWindow = new BrowserWindow({
     webPreferences: {
       preload: path.resolve(__dirname, 'preload.js'),
@@ -268,18 +259,18 @@ const cleatsChildWindow = (
       path: clickedPath,
       iconList: iconList,
     }
+    console.log('aaaa')
+    console.log(clickedPath)
     childWindow.webContents.send('sendDataNormal', sendData)
     ipcMain.on('clickedProgramList', (event, data) => {
       childWindow.close()
       const programPath = execSync(
-        'C:\\Users\\user\\Desktop\\learning\\electron\\filer\\getProgramPath.ps1'
+        'pwsh.exe -command C:\\Users\\user\\Desktop\\learning\\electron\\filer\\getProgramPath.ps1'
       ).toString()
       const programPathList = programPath.split('\n')
       for (const programPath of programPathList) {
         if (programPath.includes(data.trim())) {
-          exec(
-            programPath + ' ' + clickedPath.substring(0, clickedPath.length - 1)
-          )
+          exec(programPath + ' ' + clickedPath)
           break
         }
       }
