@@ -22,7 +22,8 @@ const SideMenu: React.FC<{
   volumeLabelList: Array<string>
   clickedFolder: Array<string>
   colCountList: Array<string>
-  handleClick: (e: React.MouseEvent) => void
+  handleSideMenuSvgClick: (e: React.MouseEvent) => void
+  handleSideMenuClick: (e: React.MouseEvent) => void
 }> = (props): JSX.Element => {
   const basePath = 'c://Users/user/'
   const loopCount = useRef(0)
@@ -34,21 +35,22 @@ const SideMenu: React.FC<{
     mapFolderList.get('firstKey')?.get('0')?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
   console.log(mapFolderList)
-  const handleClick = props.handleClick
+  const handleSideMenuSvgClick = props.handleSideMenuSvgClick
+  const handleSideMenuClick = props.handleSideMenuClick
   return (
     <>
       <List
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
-        component="nav"
-        aria-labelledby="nested-list-subheader"
+        component='nav'
+        aria-labelledby='nested-list-subheader'
         subheader={
-          <ListSubheader component="div" id="nested-list-subheader">
+          <ListSubheader component='div' id='nested-list-subheader'>
             Nested List Items
           </ListSubheader>
         }
       >
         {folderList.map((folder, index) => {
-          number = props.clickedFolder.findIndex((x) => x === folder.fileName)
+          number = props.clickedFolder.findIndex(x => x === folder.fileName)
           return (
             <ListItem
               sx={{
@@ -57,12 +59,12 @@ const SideMenu: React.FC<{
               key={index}
             >
               <ListItemButton sx={{ pl: 1 }}>
-                <ListItemIcon onClick={handleClick}>
+                <ListItemIcon onClick={handleSideMenuSvgClick}>
                   <ArrowForwardIosIcon></ArrowForwardIosIcon>
                 </ListItemIcon>
                 <ListItemText
                   primary={folder.fileName}
-                  onClick={handleClick}
+                  onClick={handleSideMenuClick}
                 ></ListItemText>
                 <span
                   style={{ display: 'none' }}
@@ -79,7 +81,8 @@ const SideMenu: React.FC<{
                     props.clickedFolder,
                     loopCount,
                     props.colCountList,
-                    handleClick
+                    handleSideMenuSvgClick,
+                    handleSideMenuClick
                   )
                 : ''}
             </ListItem>
@@ -94,7 +97,7 @@ const SideMenu: React.FC<{
                 </ListItemIcon>
                 <ListItemText
                   primary={volumeLabel}
-                  onClick={handleClick}
+                  onClick={handleSideMenuClick}
                 ></ListItemText>
               </ListItemButton>
             </ListItem>
@@ -111,7 +114,8 @@ const createColList = (
   clickedFolder: Array<string>,
   loopCount: React.MutableRefObject<number>,
   colCountList: Array<string>,
-  handleClick: React.MouseEventHandler
+  handleSideMenuSvgClick: React.MouseEventHandler,
+  handleSideMenuClick: React.MouseEventHandler
 ) => {
   console.log(colCountList)
   const colCount = colCountList[loopCount.current]
@@ -124,7 +128,7 @@ const createColList = (
   loopCount.current += 1
 
   return (
-    <List component="nav" disablePadding>
+    <List component='nav' disablePadding>
       {fileNameList?.map((fileName, index) => {
         // document,kindleContent,mygame
         // console.log(fileName)
@@ -138,12 +142,12 @@ const createColList = (
               key={index}
             >
               <ListItemButton sx={{ pl: 1 }}>
-                <ListItemIcon onClick={handleClick}>
+                <ListItemIcon onClick={handleSideMenuSvgClick}>
                   <ArrowForwardIosIcon></ArrowForwardIosIcon>
                 </ListItemIcon>
                 <ListItemText
                   primary={fileName.fileName}
-                  onClick={handleClick}
+                  onClick={handleSideMenuClick}
                 ></ListItemText>
                 <span
                   style={{ display: 'none' }}
@@ -160,7 +164,8 @@ const createColList = (
                     clickedFolder,
                     loopCount,
                     colCountList,
-                    handleClick
+                    handleSideMenuSvgClick,
+                    handleSideMenuClick
                   )
                 : ''}
             </ListItem>

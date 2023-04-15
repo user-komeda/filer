@@ -99,7 +99,11 @@ const createWindow = () => {
         } catch (error) {
           openDialog(path)
         }
-        event.returnValue = { folderList: folderList, flag: true }
+        event.returnValue = {
+          folderList: folderList,
+          flag: true,
+          isFile: true,
+        }
       } else {
         const files = fs.readdirSync(path)
         folderList.length = 0
@@ -126,7 +130,11 @@ const createWindow = () => {
         folderList.forEach((folder, index) => {
           folder.fileType = fileTypeList[index]
         })
-        event.returnValue = { folderList: folderList, flag: false }
+        event.returnValue = {
+          folderList: folderList,
+          flag: false,
+          isFile: false,
+        }
       }
     })
     ipcMain.on('onChange', (event, args) => {

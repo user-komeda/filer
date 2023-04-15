@@ -15,6 +15,8 @@ import { Box } from '@mui/system'
 import { CssBaseline, Toolbar, AppBar } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
 import RequestValue from './@types/sideMenuClickRequestValue'
+import { basePath } from './const/const'
+
 /**
  * レンダラープロセス
  */
@@ -77,6 +79,7 @@ const App = (): JSX.Element => {
     setClickedFolder,
     setColCountList,
     setRowCountList,
+    setFolderList,
   }
 
   return (
@@ -146,7 +149,10 @@ const App = (): JSX.Element => {
                 volumeLabelList={volumeLabelList}
                 clickedFolder={clickedFolder}
                 colCountList={colCountList}
-                handleClick={(event: React.MouseEvent) => {
+                handleSideMenuSvgClick={(event: React.MouseEvent) => {
+                  handleSideMenuSvgClick(event, requestValue)
+                }}
+                handleSideMenuClick={(event: React.MouseEvent) => {
                   handleSideMenuClick(event, requestValue)
                 }}
               ></SideMenu>
@@ -202,25 +208,24 @@ const handleClick = (
   const result = ipcRenderer.sendSync('onClick', {
     path: tmpPath,
   })
-
-  setLastPath(tmpPath + '/')
-  setNowPath(tmpPath + '/')
+  if (!result.isFile) {
+    setLastPath(tmpPath + '/')
+    setNowPath(tmpPath + '/')
+  }
   setFolderList(() => {
     return result.folderList
   })
 }
 
-const handleSideMenuClick = (
+const handleSideMenuSvgClick = (
   event: React.MouseEvent,
   requestValue: RequestValue
 ) => {
   const targetTagName = event.currentTarget.children[0].tagName
   const basePath = 'c://Users/user/'
   const targetValue = event.currentTarget.textContent ?? ''
-  console.log(event.currentTarget)
-  console.log(event.currentTarget.nextElementSibling)
   const targetChildValue =
-    event.currentTarget.nextElementSibling?.children[0]?.textContent ?? ''
+    event.currentTarget.nextElementSibling?.children[0].textContent ?? ''
   const clickedContentValue =
     targetValue === '' ? targetChildValue : targetValue
 
@@ -284,16 +289,12 @@ const handleSideMenuClick = (
     path: path,
   })
 
-  if (result.folderList === null) {
+  if (result.folderList === null || result.isFile) {
+    console.log('ifdjapjf')
     return
   }
 
   if (requestValue.rowCountList.length > 1) {
-    console.log('aaaa')
-    console.log(requestValue.sideMenuFolderList)
-    console.log(requestValue.clickedFolder)
-    console.log(clickedContentValue)
-    console.log(result.folderList)
     requestValue.setColCountList(() => {
       // TODO folderParentNameごとの並べ替えが必須
       const cloneMap = new Map(requestValue.sideMenuFolderList)
@@ -459,10 +460,25 @@ const handleSideMenuClick = (
     console.log('eee')
     requestValue.setNowPath(`${basePath}${clickedContentValue}`)
     requestValue.setLastPath(`${basePath}${clickedContentValue}`)
-    ipcRenderer.sendSync('onClick', {
-      path: `${basePath}${clickedContentValue}`,
-    })
   }
+}
+
+const handleSideMenuClick = (
+  event: React.MouseEvent,
+  requestValue: RequestValue
+) => {
+  const filePath =
+    event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
+  console.log(event.currentTarget)
+  console.log(event.currentTarget.parentNode)
+  const result = ipcRenderer.sendSync('onClick', {
+    path: filePath,
+  })
+  requestValue.setNowPath(filePath + '/')
+  requestValue.setLastPath(filePath + '/')
+  requestValue.setFolderList(() => {
+    return result.folderList
+  })
 }
 
 const undoFunction = (
