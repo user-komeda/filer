@@ -17,4 +17,5 @@ export default interface RequestValue {
   setClickedFolder: React.Dispatch<React.SetStateAction<Array<string>>>
   setColCountList: React.Dispatch<React.SetStateAction<Array<string>>>
   setRowCountList: React.Dispatch<React.SetStateAction<Array<number>>>
+  setFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>
 }

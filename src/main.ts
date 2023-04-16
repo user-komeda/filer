@@ -99,7 +99,11 @@ const createWindow = () => {
         } catch (error) {
           openDialog(path)
         }
-        event.returnValue = { folderList: folderList, flag: true }
+        event.returnValue = {
+          folderList: folderList,
+          flag: true,
+          isFile: true,
+        }
       } else {
         const files = fs.readdirSync(path)
         folderList.length = 0
@@ -126,7 +130,11 @@ const createWindow = () => {
         folderList.forEach((folder, index) => {
           folder.fileType = fileTypeList[index]
         })
-        event.returnValue = { folderList: folderList, flag: false }
+        event.returnValue = {
+          folderList: folderList,
+          flag: false,
+          isFile: false,
+        }
       }
     })
     ipcMain.on('onChange', (event, args) => {
@@ -238,7 +246,6 @@ const cleatsChildWindow = (
   programNameList: Array<string>,
   clickedPath: string
 ) => {
-  console.log('fndajln')
   const childWindow = new BrowserWindow({
     webPreferences: {
       preload: path.resolve(__dirname, 'preload.js'),
@@ -259,8 +266,6 @@ const cleatsChildWindow = (
       path: clickedPath,
       iconList: iconList,
     }
-    console.log('aaaa')
-    console.log(clickedPath)
     childWindow.webContents.send('sendDataNormal', sendData)
     ipcMain.on('clickedProgramList', (event, data) => {
       childWindow.close()
