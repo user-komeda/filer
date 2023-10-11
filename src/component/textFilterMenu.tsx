@@ -69,7 +69,7 @@ const TextFilterMenu = React.forwardRef(function CustomInput(
 /**
  * TextFilterMenu view
  *
- * @param props props
+ * @param props - props
  */
 const _TextFilterMenu: React.FC<{
   handleBlurFilter: (event: React.ChangeEvent<HTMLInputElement>) => void

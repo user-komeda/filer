@@ -14,7 +14,7 @@ import FileInfo from './@types/fileInfo'
 import { Box } from '@mui/system'
 import { CssBaseline, Toolbar, AppBar } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
-import RequestValue from './@types/sideMenuClickRequestValue'
+import StateListRequest from './@types/sideMenuClickRequestValue'
 import { basePath } from './const/const'
 
 /**
@@ -65,9 +65,9 @@ const App = (): JSX.Element => {
     setIconList(data.iconList)
   })
 
-  const requestValue: RequestValue = {
+  const requestValue: StateListRequest = {
     sideMenuFolderList,
-    clickedFolder,
+    clickedFolderList: clickedFolder,
     sameFolderDeletedFlag,
     row,
     sideMenuFolderPath,
@@ -76,7 +76,7 @@ const App = (): JSX.Element => {
     setLastPath,
     setNowPath,
     setSideMenuFolderList,
-    setClickedFolder,
+    setClickedFolderList: setClickedFolder,
     setColCountList,
     setRowCountList,
     setFolderList,
@@ -88,12 +88,12 @@ const App = (): JSX.Element => {
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
           <AppBar
-            position="fixed"
-            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            position='fixed'
+            sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
           >
             <div style={{ backgroundColor: '#F0F0F0', color: 'black' }}>
               <div>
-                <div className="test">
+                <div className='test'>
                   <PanelMenu
                     undoFunction={() => {
                       undoFunction(nowPath, lastPath, setFolderList, setNowPath)
@@ -104,7 +104,7 @@ const App = (): JSX.Element => {
                   ></PanelMenu>
                   <PathTextMenu
                     path={nowPath ? nowPath : lastPath}
-                    handleBlur={(event) => {
+                    handleBlur={event => {
                       handleBlur(
                         event,
                         nowPath,
@@ -113,7 +113,7 @@ const App = (): JSX.Element => {
                         setFolderList
                       )
                     }}
-                    handleChange={(event) => {
+                    handleChange={event => {
                       handleChange(event, setLastPath, setNowPath)
                     }}
                   ></PathTextMenu>
@@ -132,7 +132,7 @@ const App = (): JSX.Element => {
             </div>
           </AppBar>
           <Drawer
-            variant="permanent"
+            variant='permanent'
             sx={{
               width: drawerWidth,
               flexShrink: 0,
@@ -158,10 +158,10 @@ const App = (): JSX.Element => {
               ></SideMenu>
             </Box>
           </Drawer>
-          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
             <Toolbar />
             <MainContent
-              handleClick={(event) => {
+              handleClick={event => {
                 handleClick(
                   event,
                   nowPath,
@@ -219,7 +219,7 @@ const handleClick = (
 
 const handleSideMenuSvgClick = (
   event: React.MouseEvent,
-  requestValue: RequestValue
+  requestValue: StateListRequest
 ) => {
   const targetTagName = event.currentTarget.children[0].tagName
   const targetValue = event.currentTarget.textContent ?? ''
@@ -256,13 +256,15 @@ const handleSideMenuSvgClick = (
   const path =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
 
-  const firstFolderFlag = firstFolderList.some((folder) => {
+  const firstFolderFlag = firstFolderList.some(folder => {
     folder.fileName === clickedContentValue &&
       clickedContentValue === folderParentName
   })
   if (
     clickedContentValue ===
-      requestValue.clickedFolder[requestValue.clickedFolder.length - 1] ||
+      requestValue.clickedFolderList[
+        requestValue.clickedFolderList.length - 1
+      ] ||
     firstFolderFlag
   ) {
     if (requestValue.sameFolderDeletedFlag.current === true) {
@@ -289,61 +291,11 @@ const handleSideMenuSvgClick = (
   })
 
   if (result.folderList === null || result.isFile) {
-    console.log('ifdjapjf')
     return
   }
-
-  if (requestValue.rowCountList.length > 1) {
-    requestValue.setColCountList(() => {
-      // TODO folderParentNameごとの並べ替えが必須
-      const cloneMap = new Map(requestValue.sideMenuFolderList)
-      console.log(cloneMap)
-      const tmpMap = new Map<number, Array<FileInfo>>([
-        [rowCount + 1, result.folderList],
-      ])
-      const map = new Map<string, Map<number, Array<FileInfo>>>([
-        [colCount, tmpMap],
-      ])
-
-      cloneMap.get(folderParentName)
-        ? cloneMap.get(folderParentName)?.set(colCount, tmpMap)
-        : cloneMap.set(folderParentName, map)
-      console.log(cloneMap)
-      const keyList = Array.from(cloneMap.keys())
-      const colCountMap = new Map<number, Array<string>>()
-      const tmpArray: Array<string> = []
-      keyList.map((key, index) => {
-        const array = Array.from(cloneMap.get(key)?.keys() ?? '')
-        console.log(array)
-        console.log(key)
-        array.sort()
-        tmpArray.push(array[array.length - 1])
-        colCountMap.set(index, array)
-      })
-      const a = tmpArray
-        .map((val, ind) => {
-          return { ind, val }
-        })
-        .sort((a, b) => {
-          return a.val > b.val ? 1 : a.val == b.val ? 0 : -1
-        })
-        .map((obj) => obj.ind)
-      const tmp: Array<string> = []
-      a.map((data) => {
-        tmp.push(...(colCountMap.get(data) ?? []))
-      })
-      tmp.flat()
-      tmp.shift()
-      return tmp
-    })
-  } else {
-    console.log('qqqq')
-    requestValue.setColCountList(
-      requestValue.colCountList.concat(colCount ?? '')
-    )
-  }
-  requestValue.setClickedFolder(() => {
-    return requestValue.clickedFolder.concat(clickedContentValue)
+  requestValue.setColCountList(requestValue.colCountList.concat(colCount ?? ''))
+  requestValue.setClickedFolderList(() => {
+    return requestValue.clickedFolderList.concat(clickedContentValue)
   })
   if (targetTagName === 'svg') {
     // TODO ここから下の分岐の見直し
@@ -355,7 +307,6 @@ const handleSideMenuSvgClick = (
       }
       const count = splitSideMenuPath.length + 1 - splitFilePathLength
       if (count > 1) {
-        console.log()
         // for (let i = 0; i < count; i++) {
         //   requestValue.sideMenuFolderList
         //     .get(folderParentName ?? clickedContentValue)
@@ -398,7 +349,6 @@ const handleSideMenuSvgClick = (
           const tmpMap = updateMap.get(folderParentName ?? clickedContentValue)
 
           if (tmpMap) {
-            console.log('aaaa')
             const map = new Map<number, Array<FileInfo>>([
               [rowCount + 1, result.folderList],
             ])
@@ -406,7 +356,6 @@ const handleSideMenuSvgClick = (
               .get(folderParentName ?? clickedContentValue)
               ?.set(colCount ?? '', map)
           } else {
-            console.log('bbb')
             const tmpMap = new Map<string, Map<number, Array<FileInfo>>>()
             const map = new Map<number, Array<FileInfo>>([
               [rowCount + 1, result.folderList],
@@ -421,7 +370,6 @@ const handleSideMenuSvgClick = (
             )
           })
         } else {
-          console.log('ccc')
           const tmpMap = new Map<number, Array<FileInfo>>([
             [rowCount + 1, result.folderList],
           ])
@@ -439,7 +387,6 @@ const handleSideMenuSvgClick = (
       requestValue.row.current = rowCount
       return
     }
-    console.log('ddd')
     const updateMap = requestValue.sideMenuFolderList
     const map = new Map<number, Array<FileInfo>>([
       [rowCount + 1, result.folderList],
@@ -456,7 +403,6 @@ const handleSideMenuSvgClick = (
     requestValue.row.current = rowCount
     requestValue.sideMenuFolderPath.current = path
   } else {
-    console.log('eee')
     requestValue.setNowPath(`${basePath}${clickedContentValue}`)
     requestValue.setLastPath(`${basePath}${clickedContentValue}`)
   }
@@ -464,12 +410,10 @@ const handleSideMenuSvgClick = (
 
 const handleSideMenuClick = (
   event: React.MouseEvent,
-  requestValue: RequestValue
+  requestValue: StateListRequest
 ) => {
   const filePath =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
-  console.log(event.currentTarget)
-  console.log(event.currentTarget.parentNode)
   const result = ipcRenderer.sendSync('onClick', {
     path: filePath,
   })
@@ -509,7 +453,7 @@ const redoFunction = (
     const pathArray = nowPath.split('/')
     const lastPathArray = lastPath.split('/')
     const test = lastPathArray.filter(
-      (lastPath) => pathArray.indexOf(lastPath) === -1
+      lastPath => pathArray.indexOf(lastPath) === -1
     )[0]
     const a = pathArray.join('/') + test
     const result = ipcRenderer.sendSync('onClick', {
@@ -568,7 +512,7 @@ const handleBlurFilter = (
     setFilteredFolderList(null)
     return
   }
-  const filteredFolderList = folderList.filter((folder) => {
+  const filteredFolderList = folderList.filter(folder => {
     if (folder.fileName !== undefined) {
       return folder.fileName.includes(filterText)
     }

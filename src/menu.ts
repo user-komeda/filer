@@ -93,4 +93,46 @@ const template: MenuItemConstructorOptions[] = [
 
 if (process.platform === 'darwin') template.unshift({ role: 'appMenu' })
 
-export const menu = Menu.buildFromTemplate(template)
+export /**
+eeeeeee *
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee
+eeeeeee */
+const menu = Menu.buildFromTemplate(template)

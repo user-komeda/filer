@@ -4,7 +4,7 @@ import { ipcRenderer } from '../@types/ipcRender'
 
 /**
  *
- * @param props props
+ * @param props - props
  */
 const Dialog: React.FC<{
   programNameList: Array<string>

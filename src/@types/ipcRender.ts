@@ -8,4 +8,7 @@ declare global {
     }
   }
 }
+/**
+ * aa
+ */
 export const { ipcRenderer } = window.require('electron')

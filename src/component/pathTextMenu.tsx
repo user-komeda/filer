@@ -77,7 +77,7 @@ const PathTextMenu = React.forwardRef(
 /**
  * PathTextMenuView
  *
- * @param props props
+ * @param props - props
  */
 const _PathTextMenu: React.FC<{
   path: string

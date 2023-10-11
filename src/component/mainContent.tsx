@@ -4,7 +4,7 @@ import FileInfo from '../@types/fileInfo'
 /**
  * メインコンテンツ部view
  *
- * @param props props
+ * @param props - props
  */
 const MainContent: React.FC<{
   folderList: null | Array<FileInfo>

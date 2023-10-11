@@ -14,8 +14,9 @@ import FileInfo from '../@types/fileInfo'
 
 /**
  *
- * @param props props
- * @returns {JSX.Element} jsx
+ * @param props - props
+ *
+ * @return jsx
  */
 const SideMenu: React.FC<{
   folderList: Map<string, Map<string, Map<number, Array<FileInfo>>>>
@@ -25,6 +26,7 @@ const SideMenu: React.FC<{
   handleSideMenuSvgClick: (e: React.MouseEvent) => void
   handleSideMenuClick: (e: React.MouseEvent) => void
 }> = (props): JSX.Element => {
+  console.log(props.folderList)
   const basePath = 'c://Users/user/'
   const loopCount = useRef(0)
   loopCount.current = 0
@@ -34,7 +36,6 @@ const SideMenu: React.FC<{
   const folderList =
     mapFolderList.get('firstKey')?.get('0')?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
-  console.log(mapFolderList)
   const handleSideMenuSvgClick = props.handleSideMenuSvgClick
   const handleSideMenuClick = props.handleSideMenuClick
   return (
@@ -117,21 +118,21 @@ const createColList = (
   handleSideMenuSvgClick: React.MouseEventHandler,
   handleSideMenuClick: React.MouseEventHandler
 ) => {
-  console.log(colCountList)
   const colCount = colCountList[loopCount.current]
+  console.dir(colCountList)
+  console.dir(loopCount.current)
+  console.log(colCount)
   const tmpFileNameList =
     mapFolderList.get(colCount) ?? new Map<number, Array<FileInfo>>()
-
+  console.log(tmpFileNameList)
   const keyList = Array.from(tmpFileNameList.keys())
   const fileNameList = tmpFileNameList?.get(keyList[0])
-  console.log(tmpFileNameList)
   loopCount.current += 1
-
+  console.log('==============================================')
   return (
     <List component='nav' disablePadding>
       {fileNameList?.map((fileName, index) => {
         // document,kindleContent,mygame
-        // console.log(fileName)
 
         return (
           <div key={index}>

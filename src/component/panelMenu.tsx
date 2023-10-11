@@ -3,7 +3,7 @@ import React from 'react'
 /**
  *ボタン部view
  *
- * @param props props
+ * @param props - props
  */
 const PanelMenu: React.FC<{
   undoFunction: (e: React.MouseEvent) => void

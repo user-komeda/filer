@@ -199,8 +199,9 @@ app.once('window-all-closed', () => app.quit())
 
 /**
  *
- * @param path path
- * @returns {string} extensionName
+ * @param path - path
+ *
+ * @return extensionName
  */
 const getExtensionName = (path: string): string => {
   const splitPath = path.split('/')
@@ -213,8 +214,9 @@ const getExtensionName = (path: string): string => {
 
 /**
  *
- * @param extensionName extensionName
- * @param path path
+ * @param extensionName - extensionName
+ *
+ * @param path - path
  */
 const getExecProgramName = (extensionName: string, path: string) => {
   const fileName = execSync(`assoc ${extensionName}`).toString()
@@ -231,7 +233,7 @@ const getExecProgramName = (extensionName: string, path: string) => {
 /**
  * 関連付けられた拡張子以外のファイルをクリックした場合どのプログラムで開くかダイアログを表示
  *
- * @param path path
+ * @param path - path
  */
 const openDialog = (path: string) => {
   const programName = execSync(
