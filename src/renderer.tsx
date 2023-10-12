@@ -18,10 +18,12 @@ import StateListRequest from './@types/sideMenuClickRequestValue'
 import { basePath } from './const/const'
 
 /**
- * レンダラープロセス
+ * レンダラー
+ *
+ * @returns  jsx
  */
 const App = (): JSX.Element => {
-  const [lastPath, setLastPath] = useState('c:/Users/user/')
+  const [lastPath, setLastPath] = useState(basePath)
   const [nowPath, setNowPath] = useState('')
   const [folderList, setFolderList] = useState<Array<FileInfo>>([])
   const [sideMenuFolderList, setSideMenuFolderList] = useState<

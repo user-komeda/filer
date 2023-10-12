@@ -5,7 +5,9 @@ import TabPanelUnstyled from '@mui/base/TabPanelUnstyled'
 import TabUnstyled from '@mui/base/TabUnstyled'
 
 /**
- * タブ部view
+ *tab表示用コンポーネント
+ *
+ * @returns jsx
  */
 const TabMenu = (): JSX.Element => {
   const [tabList, setTabList] = useState<JSX.Element[]>([])

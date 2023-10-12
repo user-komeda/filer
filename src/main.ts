@@ -52,6 +52,7 @@ const createWindow = () => {
     { fileName: 'Pictures' },
     { fileName: 'Music' },
   ]
+
   // diskのキャプションを取得
   const stdout = execSync('wmic logicaldisk get caption').toString()
 
@@ -72,16 +73,20 @@ const createWindow = () => {
     }
   })
 
-  // レンダラープロセスのイベント受信
+  // mainWindow読み込み終了
   mainWindow.webContents.on('did-finish-load', () => {
     const sendData = {
       folderList: folderList,
       flags: true,
       volumeLabelList: volumeLabelList,
     }
+
+    // 描画に必要なデータをレンダラーに送信
     mainWindow.webContents.send('sendDataMain', sendData)
+
+    // クリックイベント受信
     ipcMain.on('onClick', (event, args) => {
-      const path = args.path
+      const path: string = args.path
       const result = fs.existsSync(path)
       if (!result) {
         dialog.showErrorBox(
@@ -95,7 +100,7 @@ const createWindow = () => {
       if (!isDirectory) {
         const extensionName = getExtensionName(path)
         try {
-          getExecProgramName(extensionName, path)
+          execProgram(extensionName, path)
         } catch (error) {
           openDialog(path)
         }
@@ -137,6 +142,8 @@ const createWindow = () => {
         }
       }
     })
+
+    // レンダラープロセスで表示中のパスが変わった場合発火
     ipcMain.on('onChange', (event, args) => {
       const path = args.path
       const result = fs.existsSync(path)
@@ -156,7 +163,6 @@ const createWindow = () => {
         `pwsh.exe -command c://Users/user/Desktop/learning/electron/filer/test.ps1 ${path} -NoNewWindow -Wait`
       )
       const fileTypeList = iconv.decode(fileType, 'Shift_JIS').split('\n')
-      // ②：filesの内容をターミナルに表示
       files.forEach(function (file) {
         const fileData = fs.statSync(`${path}/${file}`)
         const size = fileData.size
@@ -178,6 +184,7 @@ const createWindow = () => {
     })
   })
 }
+
 app.whenReady().then(async () => {
   if (isDev) {
     // installExtension(REDUX_DEVTOOLS)
@@ -198,10 +205,11 @@ app.whenReady().then(async () => {
 app.once('window-all-closed', () => app.quit())
 
 /**
+ *ファイルの拡張子を取得
  *
- * @param path - path
+ * @param path - パス
  *
- * @return extensionName
+ * @returns ファイル拡張子
  */
 const getExtensionName = (path: string): string => {
   const splitPath = path.split('/')
@@ -213,12 +221,13 @@ const getExtensionName = (path: string): string => {
 }
 
 /**
+ *渡された拡張子を関連付けられたソフトで実行
  *
- * @param extensionName - extensionName
+ * @param extensionName - 拡張子
  *
  * @param path - path
  */
-const getExecProgramName = (extensionName: string, path: string) => {
+const execProgram = (extensionName: string, path: string) => {
   const fileName = execSync(`assoc ${extensionName}`).toString()
   const fileIndex = fileName.lastIndexOf('=')
   const programName = fileName.substring(fileIndex + 1)
@@ -241,10 +250,17 @@ const openDialog = (path: string) => {
   ).toString()
 
   const programNameList: Array<string> = programName.split('\n')
-  cleatsChildWindow(programNameList, path)
+  createChildWindow(programNameList, path)
 }
 
-const cleatsChildWindow = (
+/**
+ * プログラム一覧表示用ダイアログ表示
+ *
+ * @param programNameList - プログラム一覧
+ *
+ * @param clickedPath - パス
+ */
+const createChildWindow = (
   programNameList: Array<string>,
   clickedPath: string
 ) => {
@@ -257,9 +273,11 @@ const cleatsChildWindow = (
     width: 450,
     height: 600,
   })
+
   childWindow.loadFile('dist/index.html')
   childWindow.webContents.openDevTools({ mode: 'detach' })
 
+  // childWindow読み込み終了
   childWindow.webContents.on('did-finish-load', () => {
     const iconList = fs.readdirSync(iconFolderPath)
     const sendData = {
@@ -268,6 +286,8 @@ const cleatsChildWindow = (
       path: clickedPath,
       iconList: iconList,
     }
+
+    // レンダラープロセスにデータ送信
     childWindow.webContents.send('sendDataNormal', sendData)
     ipcMain.on('clickedProgramList', (event, data) => {
       childWindow.close()

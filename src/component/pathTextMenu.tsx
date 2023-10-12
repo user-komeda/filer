@@ -75,19 +75,21 @@ const PathTextMenu = React.forwardRef(
 )
 
 /**
- * PathTextMenuView
+ *pathText部表示コンポーネント
  *
  * @param props - props
+ *
+ * @returns jsx
  */
 const _PathTextMenu: React.FC<{
   path: string
   handleBlur: (event: React.ChangeEvent<HTMLInputElement>) => void
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-}> = (props) => {
+}> = props => {
   return (
     <PathTextMenu
-      aria-label="Demo input"
-      placeholder="Type something..."
+      aria-label='Demo input'
+      placeholder='Type something...'
       onBlur={props.handleBlur}
       onChange={props.handleChange}
       value={props.path}

@@ -22,4 +22,4 @@ export default interface FileInfo {
    * ファイルパス
    */
   filePath?: string
-}
+};;;;;;;;;;;;;;;;;;;;

@@ -1,5 +1,5 @@
-import React from 'react'
-import FileInfo from './fileInfo'
+import React from 'react';
+import FileInfo from './fileInfo';
 
 /**
  * メソッドの引数となりうるstateの一覧
@@ -76,4 +76,4 @@ export default interface StateListRequest {
    * メインコンテント内フォルダーリスト設定
    */
   setFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>
-}
+};;;;;;;;;;;;;;;;;;;;
