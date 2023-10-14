@@ -43,7 +43,6 @@
     "electron-search-devtools": "^1.8.7",
     "encoding-japanese": "^2.0.0",
     "execSync": "^1.0.2",
-    "fs": "^0.0.1-security",
     "has-property-descriptors": "^1.0.0",
     "iconv-lite": "^0.6.3",
     "jschardet": "^3.0.0",

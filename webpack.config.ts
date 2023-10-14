@@ -1,13 +1,13 @@
-import path from 'path';
+import path from 'path'
 
 /** エディタで補完を効かせるために型定義をインポート */
-import * as webpack from 'webpack';
+import * as webpack from 'webpack'
 
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 
 // 開発者モードか否かで処理を分岐する
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development'
 
 // 共通設定
 const common: webpack.Configuration = {
@@ -89,7 +89,7 @@ const common: webpack.Configuration = {
   // 開発時には watch モードでファイルの変化を監視する
   watch: isDev,
   stats: 'errors-only',
-  performance: {hints: false},
+  performance: { hints: false },
   /**
    * development モードではソースマップを付ける
    *
@@ -98,7 +98,7 @@ const common: webpack.Configuration = {
    * 表示されてしまうことに注意
    */
   devtool: isDev ? 'inline-source-map' : undefined,
-};
+}
 
 // メインプロセス向け設定
 const main: webpack.Configuration = {
@@ -109,7 +109,7 @@ const main: webpack.Configuration = {
   entry: {
     main: './src/main.ts',
   },
-};
+}
 
 // プリロード・スクリプト向け設定
 const preload: webpack.Configuration = {
@@ -118,13 +118,13 @@ const preload: webpack.Configuration = {
   entry: {
     preload: './src/preload.ts',
   },
-};
+}
 
 // レンダラープロセス向け設定
 const renderer: webpack.Configuration = {
   ...common,
   // セキュリティ対策として 'electron-renderer' ターゲットは使用しない
-  target: 'web',
+  target: 'electron-renderer',
   entry: {
     renderer: './src/renderer.tsx',
   },
@@ -143,8 +143,8 @@ const renderer: webpack.Configuration = {
       template: './src/index.html',
     }),
   ],
-};
+}
 
 // 開発時にはレンダラープロセスのみを処理する（メインプロセスは tsc で処理）
-const config = isDev ? [renderer] : [main, preload, renderer];
-export default config;
+const config = isDev ? [renderer] : [main, preload, renderer]
+export default config
