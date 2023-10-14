@@ -14,35 +14,54 @@ import FileInfo from './@types/fileInfo'
 import { Box } from '@mui/system'
 import { CssBaseline, Toolbar, AppBar } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
-import RequestValue from './@types/sideMenuClickRequestValue'
+import StateListRequest from './@types/sideMenuClickRequestValue'
 import { basePath } from './const/const'
 
 /**
- * レンダラープロセス
+ * レンダラー
+ *
+ * @returns  jsx
  */
 const App = (): JSX.Element => {
-  const [lastPath, setLastPath] = useState('c:/Users/user/')
+  // 最後のパス
+  const [lastPath, setLastPath] = useState(basePath)
+  // 現在のパス
   const [nowPath, setNowPath] = useState('')
+  // folderList
   const [folderList, setFolderList] = useState<Array<FileInfo>>([])
+  //サイドメニューfolderList
   const [sideMenuFolderList, setSideMenuFolderList] = useState<
     Map<string, Map<string, Map<number, Array<FileInfo>>>>
   >(new Map())
+  // filterFolderList
   const [filteredFolderList, setFilteredFolderList] =
     useState<Array<FileInfo> | null>(null)
+  // flag
   const [flag, setFlag] = useState()
+  // programList
   const [programNameList, setProgramNameList] = useState([])
+  // programIcon
   const [iconList, setIconList] = useState<Array<string>>([])
+  // ソートタイプ
   const [isSortTypeAsc, setSortType] = useState(true)
+  // ボリュームラベル
   const [volumeLabelList, setVolumeLabelList] = useState<Array<string>>([])
+  // clickFolder
   const [clickedFolder, setClickedFolder] = useState<Array<string>>([])
+  // 同一フォルダクリックフラグ
   const sameFolderDeletedFlag = useRef(true)
+  //row
   const row = useRef(-1)
+  // サイドメニューパス
   const sideMenuFolderPath = useRef('')
+  // colCOuntList
   const [colCountList, setColCountList] = useState<Array<string>>([])
+  // rowCOuntList
   const [rowCountList, setRowCountList] = useState<Array<number>>([])
 
   const drawerWidth = 240
 
+  // データ受信
   ipcRenderer.once('sendDataMain', (err, data) => {
     const tmpMap = new Map<number, Array<FileInfo>>([[0, data.folderList]])
 
@@ -58,6 +77,7 @@ const App = (): JSX.Element => {
     setVolumeLabelList(data.volumeLabelList)
   })
 
+  // データ受信
   ipcRenderer.once('sendDataNormal', (err, data) => {
     setProgramNameList(data.programNameList)
     setLastPath(data.path)
@@ -65,9 +85,10 @@ const App = (): JSX.Element => {
     setIconList(data.iconList)
   })
 
-  const requestValue: RequestValue = {
+  // requestValue
+  const requestValue: StateListRequest = {
     sideMenuFolderList,
-    clickedFolder,
+    clickedFolderList: clickedFolder,
     sameFolderDeletedFlag,
     row,
     sideMenuFolderPath,
@@ -76,7 +97,7 @@ const App = (): JSX.Element => {
     setLastPath,
     setNowPath,
     setSideMenuFolderList,
-    setClickedFolder,
+    setClickedFolderList: setClickedFolder,
     setColCountList,
     setRowCountList,
     setFolderList,
@@ -193,6 +214,21 @@ const App = (): JSX.Element => {
   )
 }
 
+/**
+ * clickEvent処理
+ *
+ * @param event -event
+ *
+ * @param nowPath -nowPath
+ *
+ * @param lastPath -lastPath
+ *
+ * @param setFolderList -setFolderList
+ *
+ * @param setLastPath -setLastPath
+ *
+ * @param setNowPath -setNowPath
+ */
 const handleClick = (
   event: React.MouseEvent,
   nowPath: string,
@@ -217,9 +253,16 @@ const handleClick = (
   })
 }
 
+/**
+ *svgクリック処理
+ *
+ * @param event -event
+ *
+ * @param requestValue -requestValue
+ */
 const handleSideMenuSvgClick = (
   event: React.MouseEvent,
-  requestValue: RequestValue
+  requestValue: StateListRequest
 ) => {
   const targetTagName = event.currentTarget.children[0].tagName
   const targetValue = event.currentTarget.textContent ?? ''
@@ -227,13 +270,10 @@ const handleSideMenuSvgClick = (
     event.currentTarget.nextElementSibling?.children[0].textContent ?? ''
   const clickedContentValue =
     targetValue === '' ? targetChildValue : targetValue
-
   const firstFolderList =
     requestValue.sideMenuFolderList.get('firstKey')?.get('0')?.get(0) ?? []
-
   const filePath =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
-
   const rowCount =
     Number(
       event.currentTarget.parentNode?.children[2].getAttribute('data-row')
@@ -262,7 +302,9 @@ const handleSideMenuSvgClick = (
   })
   if (
     clickedContentValue ===
-      requestValue.clickedFolder[requestValue.clickedFolder.length - 1] ||
+      requestValue.clickedFolderList[
+        requestValue.clickedFolderList.length - 1
+      ] ||
     firstFolderFlag
   ) {
     if (requestValue.sameFolderDeletedFlag.current === true) {
@@ -284,66 +326,19 @@ const handleSideMenuSvgClick = (
     requestValue.sameFolderDeletedFlag.current =
       !requestValue.sameFolderDeletedFlag.current
   }
+
+  // フォルダList検索
   const result = ipcRenderer.sendSync('onClick', {
     path: path,
   })
 
   if (result.folderList === null || result.isFile) {
-    console.log('ifdjapjf')
     return
   }
 
-  if (requestValue.rowCountList.length > 1) {
-    requestValue.setColCountList(() => {
-      // TODO folderParentNameごとの並べ替えが必須
-      const cloneMap = new Map(requestValue.sideMenuFolderList)
-      console.log(cloneMap)
-      const tmpMap = new Map<number, Array<FileInfo>>([
-        [rowCount + 1, result.folderList],
-      ])
-      const map = new Map<string, Map<number, Array<FileInfo>>>([
-        [colCount, tmpMap],
-      ])
-
-      cloneMap.get(folderParentName)
-        ? cloneMap.get(folderParentName)?.set(colCount, tmpMap)
-        : cloneMap.set(folderParentName, map)
-      console.log(cloneMap)
-      const keyList = Array.from(cloneMap.keys())
-      const colCountMap = new Map<number, Array<string>>()
-      const tmpArray: Array<string> = []
-      keyList.map((key, index) => {
-        const array = Array.from(cloneMap.get(key)?.keys() ?? '')
-        console.log(array)
-        console.log(key)
-        array.sort()
-        tmpArray.push(array[array.length - 1])
-        colCountMap.set(index, array)
-      })
-      const a = tmpArray
-        .map((val, ind) => {
-          return { ind, val }
-        })
-        .sort((a, b) => {
-          return a.val > b.val ? 1 : a.val == b.val ? 0 : -1
-        })
-        .map((obj) => obj.ind)
-      const tmp: Array<string> = []
-      a.map((data) => {
-        tmp.push(...(colCountMap.get(data) ?? []))
-      })
-      tmp.flat()
-      tmp.shift()
-      return tmp
-    })
-  } else {
-    console.log('qqqq')
-    requestValue.setColCountList(
-      requestValue.colCountList.concat(colCount ?? '')
-    )
-  }
-  requestValue.setClickedFolder(() => {
-    return requestValue.clickedFolder.concat(clickedContentValue)
+  requestValue.setColCountList(requestValue.colCountList.concat(colCount ?? ''))
+  requestValue.setClickedFolderList(() => {
+    return requestValue.clickedFolderList.concat(clickedContentValue)
   })
   if (targetTagName === 'svg') {
     // TODO ここから下の分岐の見直し
@@ -355,7 +350,6 @@ const handleSideMenuSvgClick = (
       }
       const count = splitSideMenuPath.length + 1 - splitFilePathLength
       if (count > 1) {
-        console.log()
         // for (let i = 0; i < count; i++) {
         //   requestValue.sideMenuFolderList
         //     .get(folderParentName ?? clickedContentValue)
@@ -398,7 +392,6 @@ const handleSideMenuSvgClick = (
           const tmpMap = updateMap.get(folderParentName ?? clickedContentValue)
 
           if (tmpMap) {
-            console.log('aaaa')
             const map = new Map<number, Array<FileInfo>>([
               [rowCount + 1, result.folderList],
             ])
@@ -406,7 +399,6 @@ const handleSideMenuSvgClick = (
               .get(folderParentName ?? clickedContentValue)
               ?.set(colCount ?? '', map)
           } else {
-            console.log('bbb')
             const tmpMap = new Map<string, Map<number, Array<FileInfo>>>()
             const map = new Map<number, Array<FileInfo>>([
               [rowCount + 1, result.folderList],
@@ -421,7 +413,6 @@ const handleSideMenuSvgClick = (
             )
           })
         } else {
-          console.log('ccc')
           const tmpMap = new Map<number, Array<FileInfo>>([
             [rowCount + 1, result.folderList],
           ])
@@ -439,7 +430,6 @@ const handleSideMenuSvgClick = (
       requestValue.row.current = rowCount
       return
     }
-    console.log('ddd')
     const updateMap = requestValue.sideMenuFolderList
     const map = new Map<number, Array<FileInfo>>([
       [rowCount + 1, result.folderList],
@@ -456,20 +446,24 @@ const handleSideMenuSvgClick = (
     requestValue.row.current = rowCount
     requestValue.sideMenuFolderPath.current = path
   } else {
-    console.log('eee')
     requestValue.setNowPath(`${basePath}${clickedContentValue}`)
     requestValue.setLastPath(`${basePath}${clickedContentValue}`)
   }
 }
 
+/**
+ *サイドメニュークリック処理
+ *
+ * @param event -event
+ *
+ * @param requestValue -requestValue
+ */
 const handleSideMenuClick = (
   event: React.MouseEvent,
-  requestValue: RequestValue
+  requestValue: StateListRequest
 ) => {
   const filePath =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
-  console.log(event.currentTarget)
-  console.log(event.currentTarget.parentNode)
   const result = ipcRenderer.sendSync('onClick', {
     path: filePath,
   })
@@ -480,6 +474,17 @@ const handleSideMenuClick = (
   })
 }
 
+/**
+ *戻る処理
+ *
+ * @param nowPath -nowPath
+ *
+ * @param lastPath -lastPath
+ *
+ * @param setFolderList -setFolderList
+ *
+ * @param setNowPath -setNowPath
+ */
 const undoFunction = (
   nowPath: string,
   lastPath: string,
@@ -499,6 +504,18 @@ const undoFunction = (
     return result.folderList
   })
 }
+
+/**
+ *やり直し処理処理
+ *
+ * @param nowPath -nowPath
+ *
+ * @param lastPath -lastPath
+ *
+ * @param setFolderList -setFolderList
+ *
+ * @param setNowPath -setNowPath
+ */
 const redoFunction = (
   nowPath: string,
   lastPath: string,
@@ -522,6 +539,19 @@ const redoFunction = (
   }
 }
 
+/**
+ *blurEvent処理
+ *
+ * @param event -event
+ *
+ * @param nowPath -nowPath
+ *
+ * @param setLastPath -setLastPath
+ *
+ * @param setNowPath -setNowPath
+ *
+ * @param setFolderList -setFolderList
+ */
 const handleBlur = (
   event: React.ChangeEvent<HTMLInputElement>,
   nowPath: string,
@@ -546,6 +576,15 @@ const handleBlur = (
   }
 }
 
+/**
+ * changeEvent処理
+ *
+ * @param event -event
+ *
+ * @param setLastPath -setLastPath
+ *
+ * @param setNowPath -setNowPath
+ */
 const handleChange = (
   event: React.ChangeEvent<HTMLInputElement>,
   setLastPath: React.Dispatch<React.SetStateAction<string>>,
@@ -556,6 +595,15 @@ const handleChange = (
   setLastPath(path)
 }
 
+/**
+ *絞り込み機能
+ *
+ * @param event -event
+ *
+ * @param folderList -folderList
+ *
+ * @param setFilteredFolderList -setFilteredFolderList
+ */
 const handleBlurFilter = (
   event: React.ChangeEvent<HTMLInputElement>,
   folderList: Array<FileInfo>,
@@ -576,6 +624,17 @@ const handleBlurFilter = (
   setFilteredFolderList(filteredFolderList)
 }
 
+/**
+ *sort処理
+ *
+ * @param event -event
+ *
+ * @param folderList -folderList
+ *
+ * @param isSortTypeAsc -isSortTypeAsc
+ *
+ * @param setSortType -setSortType
+ */
 const sort = (
   event: React.MouseEvent,
   folderList: Array<FileInfo>,
@@ -600,6 +659,13 @@ const sort = (
   setSortType(!isSortTypeAsc)
 }
 
+/**
+ *folderListを名前でソート
+ *
+ * @param folderList -folderList
+ *
+ * @param isSortTypeAsc -isSortTypeAsc
+ */
 const sortByName = (folderList: Array<FileInfo>, isSortTypeAsc: boolean) => {
   folderList.sort((a, b) => {
     if (a.fileName === undefined || b.fileName === undefined) {
@@ -613,6 +679,13 @@ const sortByName = (folderList: Array<FileInfo>, isSortTypeAsc: boolean) => {
   })
 }
 
+/**
+ *folderListをサイズでソート
+ *
+ * @param folderList -folderList
+ *
+ * @param isSortTypeAsc -isSortTypeAsc
+ */
 const sortByFileSize = (
   folderList: Array<FileInfo>,
   isSortTypeAsc: boolean
@@ -629,6 +702,13 @@ const sortByFileSize = (
   })
 }
 
+/**
+ *folderListを種類でソート
+ *
+ * @param folderList -folderList
+ *
+ * @param isSortTypeAsc -isSortTypeAsc
+ */
 const sortByFileType = (
   folderList: Array<FileInfo>,
   isSortTypeAsc: boolean
@@ -645,6 +725,13 @@ const sortByFileType = (
   })
 }
 
+/**
+ *folderListを更新時間でソート
+ *
+ * @param folderList -folderList
+ *
+ * @param isSortTypeAsc -isSortTypeAsc
+ */
 const sortByUpdateTime = (
   folderList: Array<FileInfo>,
   isSortTypeAsc: boolean
@@ -661,6 +748,15 @@ const sortByUpdateTime = (
   })
 }
 
+/**
+ *同じファイルをクリックした場合閉じる
+ *
+ * @param folderParentName -最上位のフォルダ名
+ *
+ * @param folderList -folderList
+ *
+ * @returns folderList
+ */
 const deleteWhenCClickedFolderIsSame = (
   folderParentName: string,
   folderList: Map<string, Map<string, Map<number, Array<FileInfo>>>>
@@ -673,6 +769,21 @@ const deleteWhenCClickedFolderIsSame = (
   return sideMenuFolderList
 }
 
+/**
+ *初期化処理
+ *
+ * @param path -path
+ *
+ * @param rowCount -rowCount
+ *
+ * @param sideMenuFolderList -sideMenuFolderList
+ *
+ * @param row -row
+ *
+ * @param sideMenuFolderPath -sideMenuFolderPath
+ *
+ * @param setSideMenuFolderList -setSideMenuFolderList
+ */
 const setInitValue = (
   path: string,
   rowCount: number,

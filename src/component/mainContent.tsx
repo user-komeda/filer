@@ -2,15 +2,17 @@ import React from 'react'
 import FileInfo from '../@types/fileInfo'
 
 /**
- * メインコンテンツ部view
+ *mainContent部コンポーネント
  *
- * @param props props
+ * @param props - props
+ *
+ * @returns jsx
  */
 const MainContent: React.FC<{
   folderList: null | Array<FileInfo>
   handleClick: (e: React.MouseEvent) => void
   sortFunction: (e: React.MouseEvent) => void
-}> = (props) => {
+}> = props => {
   const folderList: Array<FileInfo> =
     props.folderList !== null ? props.folderList : []
 
@@ -18,16 +20,16 @@ const MainContent: React.FC<{
     <table style={{ width: '100%' }}>
       <thead>
         <tr>
-          <th id="fileName" onClick={props.sortFunction}>
+          <th id='fileName' onClick={props.sortFunction}>
             名前
           </th>
-          <th id="fileUpdateTime" onClick={props.sortFunction}>
+          <th id='fileUpdateTime' onClick={props.sortFunction}>
             更新日時
           </th>
-          <th id="fileType" onClick={props.sortFunction}>
+          <th id='fileType' onClick={props.sortFunction}>
             種類
           </th>
-          <th id="fileSize" onClick={props.sortFunction}>
+          <th id='fileSize' onClick={props.sortFunction}>
             サイズ
           </th>
         </tr>
@@ -36,7 +38,7 @@ const MainContent: React.FC<{
         {folderList.map((folder, index) => {
           return (
             <tr key={index}>
-              <td className="folder" onClick={props.handleClick}>
+              <td className='folder' onClick={props.handleClick}>
                 {'string' === typeof folder ? folder : folder.fileName}
               </td>
               <td>{'string' === typeof folder ? '' : folder.updateFileTime}</td>

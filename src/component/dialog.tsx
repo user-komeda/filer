@@ -3,14 +3,17 @@ import React from 'react'
 import { ipcRenderer } from '../@types/ipcRender'
 
 /**
+ *ダイアログ表示コンポーネント
  *
- * @param props props
+ * @param props - props
+ *
+ * @returns jsx
  */
 const Dialog: React.FC<{
   programNameList: Array<string>
   path: string
   iconList: Array<string>
-}> = (props) => {
+}> = props => {
   const programNameList = props.programNameList
   const iconFolderPath = 'c:/Users/user/Desktop/learning/electron/filer/icon/'
   const iconList = props.iconList

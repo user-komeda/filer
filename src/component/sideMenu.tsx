@@ -13,9 +13,11 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import FileInfo from '../@types/fileInfo'
 
 /**
+ *sideMenu表示コンポーネント
  *
- * @param props props
- * @returns {JSX.Element} jsx
+ * @param props - props
+ *
+ * @returns jsx
  */
 const SideMenu: React.FC<{
   folderList: Map<string, Map<string, Map<number, Array<FileInfo>>>>
@@ -25,32 +27,31 @@ const SideMenu: React.FC<{
   handleSideMenuSvgClick: (e: React.MouseEvent) => void
   handleSideMenuClick: (e: React.MouseEvent) => void
 }> = (props): JSX.Element => {
+  console.log(props.folderList)
   const basePath = 'c://Users/user/'
   const loopCount = useRef(0)
   loopCount.current = 0
-  let number = 0
   const mapFolderList =
     props.folderList ?? new Map<string, Map<number, Array<FileInfo>>>()
   const folderList =
     mapFolderList.get('firstKey')?.get('0')?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.volumeLabelList
-  console.log(mapFolderList)
   const handleSideMenuSvgClick = props.handleSideMenuSvgClick
   const handleSideMenuClick = props.handleSideMenuClick
   return (
     <>
       <List
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
-        component='nav'
-        aria-labelledby='nested-list-subheader'
+        component="nav"
+        aria-labelledby="nested-list-subheader"
         subheader={
-          <ListSubheader component='div' id='nested-list-subheader'>
+          <ListSubheader component="div" id="nested-list-subheader">
             Nested List Items
           </ListSubheader>
         }
       >
         {folderList.map((folder, index) => {
-          number = props.clickedFolder.findIndex(x => x === folder.fileName)
+          const isExist = props.clickedFolder.find((x) => x === folder.fileName)
           return (
             <ListItem
               sx={{
@@ -73,7 +74,7 @@ const SideMenu: React.FC<{
                   data-col={index}
                 ></span>
               </ListItemButton>
-              {number !== -1
+              {isExist
                 ? createColList(
                     mapFolderList.get(folder.fileName ?? '') ??
                       new Map<string, Map<number, Array<FileInfo>>>(),
@@ -108,31 +109,43 @@ const SideMenu: React.FC<{
   )
 }
 
+/**
+ *folderListの描画
+ *
+ * @param folderList -folderList
+ *
+ * @param parentFolderName -最上位のフォルダーネーム
+ *
+ * @param clickedFolderList -clickFolderList
+ *
+ * @param loopCount -loopCOunt
+ *
+ * @param colCountList -colCountList
+ *
+ * @param handleSideMenuSvgClick -svgClickEvent
+ *
+ * @param handleSideMenuClick -sideMenuClickEvent
+ *
+ * @returns jsx
+ */
 const createColList = (
-  mapFolderList: Map<string, Map<number, Array<FileInfo>>>,
-  folder: string,
-  clickedFolder: Array<string>,
+  folderList: Map<string, Map<number, Array<FileInfo>>>,
+  parentFolderName: string,
+  clickedFolderList: Array<string>,
   loopCount: React.MutableRefObject<number>,
   colCountList: Array<string>,
   handleSideMenuSvgClick: React.MouseEventHandler,
   handleSideMenuClick: React.MouseEventHandler
 ) => {
-  console.log(colCountList)
   const colCount = colCountList[loopCount.current]
   const tmpFileNameList =
-    mapFolderList.get(colCount) ?? new Map<number, Array<FileInfo>>()
-
+    folderList.get(colCount) ?? new Map<number, Array<FileInfo>>()
   const keyList = Array.from(tmpFileNameList.keys())
   const fileNameList = tmpFileNameList?.get(keyList[0])
-  console.log(tmpFileNameList)
   loopCount.current += 1
-
   return (
-    <List component='nav' disablePadding>
+    <List component="nav" disablePadding>
       {fileNameList?.map((fileName, index) => {
-        // document,kindleContent,mygame
-        // console.log(fileName)
-
         return (
           <div key={index}>
             <ListItem
@@ -154,14 +167,14 @@ const createColList = (
                   data-path={fileName.filePath + '/' + fileName.fileName}
                   data-row={loopCount.current}
                   data-col={index}
-                  data-parent-folder={folder}
+                  data-parent-folder={parentFolderName}
                 ></span>
               </ListItemButton>
-              {clickedFolder.includes(fileName.fileName ?? '')
+              {clickedFolderList.includes(fileName.fileName ?? '')
                 ? createColList(
-                    mapFolderList ?? new Map(),
-                    folder,
-                    clickedFolder,
+                    folderList ?? new Map(),
+                    parentFolderName,
+                    clickedFolderList,
                     loopCount,
                     colCountList,
                     handleSideMenuSvgClick,

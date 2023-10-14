@@ -1,4 +1,4 @@
-import { IpcRenderer } from 'electron'
+import {IpcRenderer} from 'electron';
 
 // 名前定義
 declare global {
@@ -8,4 +8,7 @@ declare global {
     }
   }
 }
-export const { ipcRenderer } = window.require('electron')
+/**
+ * aa
+ */
+export const {ipcRenderer} = window.require('electron');

@@ -93,4 +93,5 @@ const template: MenuItemConstructorOptions[] = [
 
 if (process.platform === 'darwin') template.unshift({ role: 'appMenu' })
 
+/** menulist生成 */
 export const menu = Menu.buildFromTemplate(template)

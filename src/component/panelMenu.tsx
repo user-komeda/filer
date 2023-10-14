@@ -1,14 +1,16 @@
 import React from 'react'
 
 /**
- *ボタン部view
+ *panel部表示コンポーネント
  *
- * @param props props
+ * @param props - props
+ *
+ * @returns jsx
  */
 const PanelMenu: React.FC<{
   undoFunction: (e: React.MouseEvent) => void
   redoFunction: (e: React.MouseEvent) => void
-}> = (props) => {
+}> = props => {
   return (
     <div style={{ width: '15%' }}>
       <button style={{ width: '25%' }} onClick={props.undoFunction}>
