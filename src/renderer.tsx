@@ -23,28 +23,45 @@ import { basePath } from './const/const'
  * @returns  jsx
  */
 const App = (): JSX.Element => {
+  // 最後のパス
   const [lastPath, setLastPath] = useState(basePath)
+  // 現在のパス
   const [nowPath, setNowPath] = useState('')
+  // folderList
   const [folderList, setFolderList] = useState<Array<FileInfo>>([])
+  //サイドメニューfolderList
   const [sideMenuFolderList, setSideMenuFolderList] = useState<
     Map<string, Map<string, Map<number, Array<FileInfo>>>>
   >(new Map())
+  // filterFolderList
   const [filteredFolderList, setFilteredFolderList] =
     useState<Array<FileInfo> | null>(null)
+  // flag
   const [flag, setFlag] = useState()
+  // programList
   const [programNameList, setProgramNameList] = useState([])
+  // programIcon
   const [iconList, setIconList] = useState<Array<string>>([])
+  // ソートタイプ
   const [isSortTypeAsc, setSortType] = useState(true)
+  // ボリュームラベル
   const [volumeLabelList, setVolumeLabelList] = useState<Array<string>>([])
+  // clickFolder
   const [clickedFolder, setClickedFolder] = useState<Array<string>>([])
+  // 同一フォルダクリックフラグ
   const sameFolderDeletedFlag = useRef(true)
+  //row
   const row = useRef(-1)
+  // サイドメニューパス
   const sideMenuFolderPath = useRef('')
+  // colCOuntList
   const [colCountList, setColCountList] = useState<Array<string>>([])
+  // rowCOuntList
   const [rowCountList, setRowCountList] = useState<Array<number>>([])
 
   const drawerWidth = 240
 
+  // データ受信
   ipcRenderer.once('sendDataMain', (err, data) => {
     const tmpMap = new Map<number, Array<FileInfo>>([[0, data.folderList]])
 
@@ -60,6 +77,7 @@ const App = (): JSX.Element => {
     setVolumeLabelList(data.volumeLabelList)
   })
 
+  // データ受信
   ipcRenderer.once('sendDataNormal', (err, data) => {
     setProgramNameList(data.programNameList)
     setLastPath(data.path)
@@ -67,6 +85,7 @@ const App = (): JSX.Element => {
     setIconList(data.iconList)
   })
 
+  // requestValue
   const requestValue: StateListRequest = {
     sideMenuFolderList,
     clickedFolderList: clickedFolder,
@@ -90,12 +109,12 @@ const App = (): JSX.Element => {
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
           <AppBar
-            position='fixed'
-            sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
+            position="fixed"
+            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
           >
             <div style={{ backgroundColor: '#F0F0F0', color: 'black' }}>
               <div>
-                <div className='test'>
+                <div className="test">
                   <PanelMenu
                     undoFunction={() => {
                       undoFunction(nowPath, lastPath, setFolderList, setNowPath)
@@ -106,7 +125,7 @@ const App = (): JSX.Element => {
                   ></PanelMenu>
                   <PathTextMenu
                     path={nowPath ? nowPath : lastPath}
-                    handleBlur={event => {
+                    handleBlur={(event) => {
                       handleBlur(
                         event,
                         nowPath,
@@ -115,7 +134,7 @@ const App = (): JSX.Element => {
                         setFolderList
                       )
                     }}
-                    handleChange={event => {
+                    handleChange={(event) => {
                       handleChange(event, setLastPath, setNowPath)
                     }}
                   ></PathTextMenu>
@@ -134,7 +153,7 @@ const App = (): JSX.Element => {
             </div>
           </AppBar>
           <Drawer
-            variant='permanent'
+            variant="permanent"
             sx={{
               width: drawerWidth,
               flexShrink: 0,
@@ -160,10 +179,10 @@ const App = (): JSX.Element => {
               ></SideMenu>
             </Box>
           </Drawer>
-          <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
+          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
             <Toolbar />
             <MainContent
-              handleClick={event => {
+              handleClick={(event) => {
                 handleClick(
                   event,
                   nowPath,
@@ -195,6 +214,21 @@ const App = (): JSX.Element => {
   )
 }
 
+/**
+ * clickEvent処理
+ *
+ * @param event -event
+ *
+ * @param nowPath -nowPath
+ *
+ * @param lastPath -lastPath
+ *
+ * @param setFolderList -setFolderList
+ *
+ * @param setLastPath -setLastPath
+ *
+ * @param setNowPath -setNowPath
+ */
 const handleClick = (
   event: React.MouseEvent,
   nowPath: string,
@@ -219,6 +253,13 @@ const handleClick = (
   })
 }
 
+/**
+ *svgクリック処理
+ *
+ * @param event -event
+ *
+ * @param requestValue -requestValue
+ */
 const handleSideMenuSvgClick = (
   event: React.MouseEvent,
   requestValue: StateListRequest
@@ -229,13 +270,10 @@ const handleSideMenuSvgClick = (
     event.currentTarget.nextElementSibling?.children[0].textContent ?? ''
   const clickedContentValue =
     targetValue === '' ? targetChildValue : targetValue
-
   const firstFolderList =
     requestValue.sideMenuFolderList.get('firstKey')?.get('0')?.get(0) ?? []
-
   const filePath =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
-
   const rowCount =
     Number(
       event.currentTarget.parentNode?.children[2].getAttribute('data-row')
@@ -258,7 +296,7 @@ const handleSideMenuSvgClick = (
   const path =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
 
-  const firstFolderFlag = firstFolderList.some(folder => {
+  const firstFolderFlag = firstFolderList.some((folder) => {
     folder.fileName === clickedContentValue &&
       clickedContentValue === folderParentName
   })
@@ -288,6 +326,8 @@ const handleSideMenuSvgClick = (
     requestValue.sameFolderDeletedFlag.current =
       !requestValue.sameFolderDeletedFlag.current
   }
+
+  // フォルダList検索
   const result = ipcRenderer.sendSync('onClick', {
     path: path,
   })
@@ -295,6 +335,7 @@ const handleSideMenuSvgClick = (
   if (result.folderList === null || result.isFile) {
     return
   }
+
   requestValue.setColCountList(requestValue.colCountList.concat(colCount ?? ''))
   requestValue.setClickedFolderList(() => {
     return requestValue.clickedFolderList.concat(clickedContentValue)
@@ -410,6 +451,13 @@ const handleSideMenuSvgClick = (
   }
 }
 
+/**
+ *サイドメニュークリック処理
+ *
+ * @param event -event
+ *
+ * @param requestValue -requestValue
+ */
 const handleSideMenuClick = (
   event: React.MouseEvent,
   requestValue: StateListRequest
@@ -426,6 +474,17 @@ const handleSideMenuClick = (
   })
 }
 
+/**
+ *戻る処理
+ *
+ * @param nowPath -nowPath
+ *
+ * @param lastPath -lastPath
+ *
+ * @param setFolderList -setFolderList
+ *
+ * @param setNowPath -setNowPath
+ */
 const undoFunction = (
   nowPath: string,
   lastPath: string,
@@ -445,6 +504,18 @@ const undoFunction = (
     return result.folderList
   })
 }
+
+/**
+ *やり直し処理処理
+ *
+ * @param nowPath -nowPath
+ *
+ * @param lastPath -lastPath
+ *
+ * @param setFolderList -setFolderList
+ *
+ * @param setNowPath -setNowPath
+ */
 const redoFunction = (
   nowPath: string,
   lastPath: string,
@@ -455,7 +526,7 @@ const redoFunction = (
     const pathArray = nowPath.split('/')
     const lastPathArray = lastPath.split('/')
     const test = lastPathArray.filter(
-      lastPath => pathArray.indexOf(lastPath) === -1
+      (lastPath) => pathArray.indexOf(lastPath) === -1
     )[0]
     const a = pathArray.join('/') + test
     const result = ipcRenderer.sendSync('onClick', {
@@ -468,6 +539,19 @@ const redoFunction = (
   }
 }
 
+/**
+ *blurEvent処理
+ *
+ * @param event -event
+ *
+ * @param nowPath -nowPath
+ *
+ * @param setLastPath -setLastPath
+ *
+ * @param setNowPath -setNowPath
+ *
+ * @param setFolderList -setFolderList
+ */
 const handleBlur = (
   event: React.ChangeEvent<HTMLInputElement>,
   nowPath: string,
@@ -492,6 +576,15 @@ const handleBlur = (
   }
 }
 
+/**
+ * changeEvent処理
+ *
+ * @param event -event
+ *
+ * @param setLastPath -setLastPath
+ *
+ * @param setNowPath -setNowPath
+ */
 const handleChange = (
   event: React.ChangeEvent<HTMLInputElement>,
   setLastPath: React.Dispatch<React.SetStateAction<string>>,
@@ -502,6 +595,15 @@ const handleChange = (
   setLastPath(path)
 }
 
+/**
+ *絞り込み機能
+ *
+ * @param event -event
+ *
+ * @param folderList -folderList
+ *
+ * @param setFilteredFolderList -setFilteredFolderList
+ */
 const handleBlurFilter = (
   event: React.ChangeEvent<HTMLInputElement>,
   folderList: Array<FileInfo>,
@@ -514,7 +616,7 @@ const handleBlurFilter = (
     setFilteredFolderList(null)
     return
   }
-  const filteredFolderList = folderList.filter(folder => {
+  const filteredFolderList = folderList.filter((folder) => {
     if (folder.fileName !== undefined) {
       return folder.fileName.includes(filterText)
     }
@@ -522,6 +624,17 @@ const handleBlurFilter = (
   setFilteredFolderList(filteredFolderList)
 }
 
+/**
+ *sort処理
+ *
+ * @param event -event
+ *
+ * @param folderList -folderList
+ *
+ * @param isSortTypeAsc -isSortTypeAsc
+ *
+ * @param setSortType -setSortType
+ */
 const sort = (
   event: React.MouseEvent,
   folderList: Array<FileInfo>,
@@ -546,6 +659,13 @@ const sort = (
   setSortType(!isSortTypeAsc)
 }
 
+/**
+ *folderListを名前でソート
+ *
+ * @param folderList -folderList
+ *
+ * @param isSortTypeAsc -isSortTypeAsc
+ */
 const sortByName = (folderList: Array<FileInfo>, isSortTypeAsc: boolean) => {
   folderList.sort((a, b) => {
     if (a.fileName === undefined || b.fileName === undefined) {
@@ -559,6 +679,13 @@ const sortByName = (folderList: Array<FileInfo>, isSortTypeAsc: boolean) => {
   })
 }
 
+/**
+ *folderListをサイズでソート
+ *
+ * @param folderList -folderList
+ *
+ * @param isSortTypeAsc -isSortTypeAsc
+ */
 const sortByFileSize = (
   folderList: Array<FileInfo>,
   isSortTypeAsc: boolean
@@ -575,6 +702,13 @@ const sortByFileSize = (
   })
 }
 
+/**
+ *folderListを種類でソート
+ *
+ * @param folderList -folderList
+ *
+ * @param isSortTypeAsc -isSortTypeAsc
+ */
 const sortByFileType = (
   folderList: Array<FileInfo>,
   isSortTypeAsc: boolean
@@ -591,6 +725,13 @@ const sortByFileType = (
   })
 }
 
+/**
+ *folderListを更新時間でソート
+ *
+ * @param folderList -folderList
+ *
+ * @param isSortTypeAsc -isSortTypeAsc
+ */
 const sortByUpdateTime = (
   folderList: Array<FileInfo>,
   isSortTypeAsc: boolean
@@ -607,6 +748,15 @@ const sortByUpdateTime = (
   })
 }
 
+/**
+ *同じファイルをクリックした場合閉じる
+ *
+ * @param folderParentName -最上位のフォルダ名
+ *
+ * @param folderList -folderList
+ *
+ * @returns folderList
+ */
 const deleteWhenCClickedFolderIsSame = (
   folderParentName: string,
   folderList: Map<string, Map<string, Map<number, Array<FileInfo>>>>
@@ -619,6 +769,21 @@ const deleteWhenCClickedFolderIsSame = (
   return sideMenuFolderList
 }
 
+/**
+ *初期化処理
+ *
+ * @param path -path
+ *
+ * @param rowCount -rowCount
+ *
+ * @param sideMenuFolderList -sideMenuFolderList
+ *
+ * @param row -row
+ *
+ * @param sideMenuFolderPath -sideMenuFolderPath
+ *
+ * @param setSideMenuFolderList -setSideMenuFolderList
+ */
 const setInitValue = (
   path: string,
   rowCount: number,

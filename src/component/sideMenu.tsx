@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/no-undefined-types */
-import React, {useRef} from 'react';
+import React, { useRef } from 'react'
 import {
   List,
   ListItem,
@@ -7,12 +7,13 @@ import {
   ListItemIcon,
   ListItemText,
   ListSubheader,
-} from '@mui/material';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+} from '@mui/material'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 
-import FileInfo from '../@types/fileInfo';
+import FileInfo from '../@types/fileInfo'
 
 /**
+ *sideMenu表示コンポーネント
  *
  * @param props - props
  *
@@ -26,32 +27,31 @@ const SideMenu: React.FC<{
   handleSideMenuSvgClick: (e: React.MouseEvent) => void
   handleSideMenuClick: (e: React.MouseEvent) => void
 }> = (props): JSX.Element => {
-  console.log(props.folderList);
-  const basePath = 'c://Users/user/';
-  const loopCount = useRef(0);
-  loopCount.current = 0;
-  let number = 0;
+  console.log(props.folderList)
+  const basePath = 'c://Users/user/'
+  const loopCount = useRef(0)
+  loopCount.current = 0
   const mapFolderList =
-    props.folderList ?? new Map<string, Map<number, Array<FileInfo>>>();
+    props.folderList ?? new Map<string, Map<number, Array<FileInfo>>>()
   const folderList =
-    mapFolderList.get('firstKey')?.get('0')?.get(0) ?? new Array<FileInfo>();
-  const volumeLabelList = props.volumeLabelList;
-  const handleSideMenuSvgClick = props.handleSideMenuSvgClick;
-  const handleSideMenuClick = props.handleSideMenuClick;
+    mapFolderList.get('firstKey')?.get('0')?.get(0) ?? new Array<FileInfo>()
+  const volumeLabelList = props.volumeLabelList
+  const handleSideMenuSvgClick = props.handleSideMenuSvgClick
+  const handleSideMenuClick = props.handleSideMenuClick
   return (
     <>
       <List
-        sx={{width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}
-        component='nav'
-        aria-labelledby='nested-list-subheader'
+        sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+        component="nav"
+        aria-labelledby="nested-list-subheader"
         subheader={
-          <ListSubheader component='div' id='nested-list-subheader'>
+          <ListSubheader component="div" id="nested-list-subheader">
             Nested List Items
           </ListSubheader>
         }
       >
         {folderList.map((folder, index) => {
-          number = props.clickedFolder.findIndex((x) => x === folder.fileName);
+          const isExist = props.clickedFolder.find((x) => x === folder.fileName)
           return (
             <ListItem
               sx={{
@@ -59,7 +59,7 @@ const SideMenu: React.FC<{
               }}
               key={index}
             >
-              <ListItemButton sx={{pl: 1}}>
+              <ListItemButton sx={{ pl: 1 }}>
                 <ListItemIcon onClick={handleSideMenuSvgClick}>
                   <ArrowForwardIosIcon></ArrowForwardIosIcon>
                 </ListItemIcon>
@@ -68,14 +68,14 @@ const SideMenu: React.FC<{
                   onClick={handleSideMenuClick}
                 ></ListItemText>
                 <span
-                  style={{display: 'none'}}
+                  style={{ display: 'none' }}
                   data-path={basePath + folder.fileName}
                   data-row={0}
                   data-col={index}
                 ></span>
               </ListItemButton>
-              {number !== -1 ?
-                createColList(
+              {isExist
+                ? createColList(
                     mapFolderList.get(folder.fileName ?? '') ??
                       new Map<string, Map<number, Array<FileInfo>>>(),
                     folder.fileName ?? '',
@@ -83,11 +83,11 @@ const SideMenu: React.FC<{
                     loopCount,
                     props.colCountList,
                     handleSideMenuSvgClick,
-                    handleSideMenuClick,
-                ) :
-                ''}
+                    handleSideMenuClick
+                  )
+                : ''}
             </ListItem>
-          );
+          )
         })}
         {volumeLabelList.map((volumeLabel, index) => {
           return (
@@ -102,38 +102,50 @@ const SideMenu: React.FC<{
                 ></ListItemText>
               </ListItemButton>
             </ListItem>
-          );
+          )
         })}
       </List>
     </>
-  );
-};
+  )
+}
 
+/**
+ *folderListの描画
+ *
+ * @param folderList -folderList
+ *
+ * @param parentFolderName -最上位のフォルダーネーム
+ *
+ * @param clickedFolderList -clickFolderList
+ *
+ * @param loopCount -loopCOunt
+ *
+ * @param colCountList -colCountList
+ *
+ * @param handleSideMenuSvgClick -svgClickEvent
+ *
+ * @param handleSideMenuClick -sideMenuClickEvent
+ *
+ * @returns jsx
+ */
 const createColList = (
-    mapFolderList: Map<string, Map<number, Array<FileInfo>>>,
-    folder: string,
-    clickedFolder: Array<string>,
-    loopCount: React.MutableRefObject<number>,
-    colCountList: Array<string>,
-    handleSideMenuSvgClick: React.MouseEventHandler,
-    handleSideMenuClick: React.MouseEventHandler,
+  folderList: Map<string, Map<number, Array<FileInfo>>>,
+  parentFolderName: string,
+  clickedFolderList: Array<string>,
+  loopCount: React.MutableRefObject<number>,
+  colCountList: Array<string>,
+  handleSideMenuSvgClick: React.MouseEventHandler,
+  handleSideMenuClick: React.MouseEventHandler
 ) => {
-  const colCount = colCountList[loopCount.current];
-  console.dir(colCountList);
-  console.dir(loopCount.current);
-  console.log(colCount);
+  const colCount = colCountList[loopCount.current]
   const tmpFileNameList =
-    mapFolderList.get(colCount) ?? new Map<number, Array<FileInfo>>();
-  console.log(tmpFileNameList);
-  const keyList = Array.from(tmpFileNameList.keys());
-  const fileNameList = tmpFileNameList?.get(keyList[0]);
-  loopCount.current += 1;
-  console.log('==============================================');
+    folderList.get(colCount) ?? new Map<number, Array<FileInfo>>()
+  const keyList = Array.from(tmpFileNameList.keys())
+  const fileNameList = tmpFileNameList?.get(keyList[0])
+  loopCount.current += 1
   return (
-    <List component='nav' disablePadding>
+    <List component="nav" disablePadding>
       {fileNameList?.map((fileName, index) => {
-        // document,kindleContent,mygame
-
         return (
           <div key={index}>
             <ListItem
@@ -142,7 +154,7 @@ const createColList = (
               }}
               key={index}
             >
-              <ListItemButton sx={{pl: 1}}>
+              <ListItemButton sx={{ pl: 1 }}>
                 <ListItemIcon onClick={handleSideMenuSvgClick}>
                   <ArrowForwardIosIcon></ArrowForwardIosIcon>
                 </ListItemIcon>
@@ -151,30 +163,30 @@ const createColList = (
                   onClick={handleSideMenuClick}
                 ></ListItemText>
                 <span
-                  style={{display: 'none'}}
+                  style={{ display: 'none' }}
                   data-path={fileName.filePath + '/' + fileName.fileName}
                   data-row={loopCount.current}
                   data-col={index}
-                  data-parent-folder={folder}
+                  data-parent-folder={parentFolderName}
                 ></span>
               </ListItemButton>
-              {clickedFolder.includes(fileName.fileName ?? '') ?
-                createColList(
-                    mapFolderList ?? new Map(),
-                    folder,
-                    clickedFolder,
+              {clickedFolderList.includes(fileName.fileName ?? '')
+                ? createColList(
+                    folderList ?? new Map(),
+                    parentFolderName,
+                    clickedFolderList,
                     loopCount,
                     colCountList,
                     handleSideMenuSvgClick,
-                    handleSideMenuClick,
-                ) :
-                ''}
+                    handleSideMenuClick
+                  )
+                : ''}
             </ListItem>
           </div>
-        );
+        )
       })}
     </List>
-  );
-};
+  )
+}
 
-export default SideMenu;
+export default SideMenu
