@@ -13,7 +13,7 @@ const Dialog: React.FC<{
   programNameList: Array<string>
   path: string
   iconList: Array<string>
-}> = props => {
+}> = (props) => {
   const programNameList = props.programNameList
   const iconFolderPath = 'c:/Users/user/Desktop/learning/electron/filer/icon/'
   const iconList = props.iconList
