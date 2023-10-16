@@ -25,13 +25,15 @@ import handleBlur from './event/handleBlur'
 import handleChange from './event/handleChange'
 import handleBlurFilter from './event/handleBlurFilter'
 import sort from './event/sort'
-
+import { initStateList, initRefList } from './stateList'
 /**
  * レンダラー
  *
  * @returns  jsx
  */
 const App = (): JSX.Element => {
+  const stateList = initStateList()
+  const refList = initRefList()
   // 最後のパス
   const [lastPath, setLastPath] = useState(basePath)
   // 現在のパス
@@ -118,12 +120,12 @@ const App = (): JSX.Element => {
         <Box sx={{ display: 'flex' }}>
           <CssBaseline />
           <AppBar
-            position="fixed"
-            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            position='fixed'
+            sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}
           >
             <div style={{ backgroundColor: '#F0F0F0', color: 'black' }}>
               <div>
-                <div className="test">
+                <div className='test'>
                   <PanelMenu
                     undoFunction={() => {
                       undoFunction(nowPath, lastPath, setFolderList, setNowPath)
@@ -134,10 +136,10 @@ const App = (): JSX.Element => {
                   ></PanelMenu>
                   <PathTextMenu
                     path={nowPath ? nowPath : lastPath}
-                    handleBlur={(event) => {
+                    handleBlur={event => {
                       handleBlur(event, setLastPath, setNowPath, setFolderList)
                     }}
-                    handleChange={(event) => {
+                    handleChange={event => {
                       handleChange(event, setLastPath, setNowPath)
                     }}
                   ></PathTextMenu>
@@ -156,7 +158,7 @@ const App = (): JSX.Element => {
             </div>
           </AppBar>
           <Drawer
-            variant="permanent"
+            variant='permanent'
             sx={{
               width: drawerWidth,
               flexShrink: 0,
@@ -182,10 +184,10 @@ const App = (): JSX.Element => {
               ></SideMenu>
             </Box>
           </Drawer>
-          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
             <Toolbar />
             <MainContent
-              handleClick={(event) => {
+              handleClick={event => {
                 handleClick(
                   event,
                   nowPath,

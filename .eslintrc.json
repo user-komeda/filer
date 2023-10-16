@@ -42,6 +42,7 @@
   },
   "plugins": ["react", "@typescript-eslint", "unicorn", "jsdoc"],
   "rules": {
+    "complexity": ["error", 10],
     // Enable
     "jsdoc/check-param-names": [
       "error",
