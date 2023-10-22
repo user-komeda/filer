@@ -2,6 +2,7 @@ import * as React from 'react'
 import { useInput } from '@mui/base'
 import { styled } from '@mui/system'
 import { unstable_useForkRef as useForkRef } from '@mui/utils'
+import PathTextMenuRequest from '../request/pathTextmenuRequest'
 
 // 色定義
 const blue = {
@@ -76,23 +77,19 @@ const PathTextMenu = React.forwardRef(
 
 /**
  *pathText部表示コンポーネント
- *
  * @param props - props
- *
  * @returns jsx
  */
 const _PathTextMenu: React.FC<{
-  path: string
-  handleBlur: (event: React.ChangeEvent<HTMLInputElement>) => void
-  handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-}> = (props) => {
+  pathTextMenuRequest: PathTextMenuRequest
+}> = props => {
   return (
     <PathTextMenu
-      aria-label="Demo input"
-      placeholder="Type something..."
-      onBlur={props.handleBlur}
-      onChange={props.handleChange}
-      value={props.path}
+      aria-label='Demo input'
+      placeholder='Type something...'
+      onBlur={event => props.pathTextMenuRequest.handleBlur(event)}
+      onChange={event => props.pathTextMenuRequest.handleChange(event)}
+      value={props.pathTextMenuRequest.path}
     ></PathTextMenu>
   )
 }

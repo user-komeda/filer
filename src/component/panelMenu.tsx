@@ -1,22 +1,26 @@
 import React from 'react'
+import PanelMenuRequest from '../request/PanelMenuRequest'
 
 /**
  *panel部表示コンポーネント
- *
  * @param props - props
- *
  * @returns jsx
  */
 const PanelMenu: React.FC<{
-  undoFunction: (e: React.MouseEvent) => void
-  redoFunction: (e: React.MouseEvent) => void
-}> = (props) => {
+  panelMenuRequest: PanelMenuRequest
+}> = props => {
   return (
     <div style={{ width: '15%' }}>
-      <button style={{ width: '25%' }} onClick={props.undoFunction}>
+      <button
+        style={{ width: '25%' }}
+        onClick={props.panelMenuRequest.undoFunction}
+      >
         ←
       </button>
-      <button style={{ width: '25%' }} onClick={props.redoFunction}>
+      <button
+        style={{ width: '25%' }}
+        onClick={props.panelMenuRequest.redoFunction}
+      >
         →
       </button>
       <button style={{ width: '25%' }}>↑</button>

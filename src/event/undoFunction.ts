@@ -1,34 +1,27 @@
 import { ipcRenderer } from 'electron'
-import FileInfo from '../@types/fileInfo'
+import StateList from '../@types/stateList'
+import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *戻る処理
- *
- * @param nowPath -nowPath
- *
- * @param lastPath -lastPath
- *
- * @param setFolderList -setFolderList
- *
- * @param setNowPath -setNowPath
+ * @param stateList -stateList
+ * @param exportFunctions -exportFunctions
  */
 const undoFunction = (
-  nowPath: string,
-  lastPath: string,
-  setFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>,
-  setNowPath: React.Dispatch<React.SetStateAction<string>>
+  stateList: StateList,
+  exportFunctions: StateListFunctions
 ) => {
-  const tmpPath = nowPath ? nowPath.split('/') : lastPath.split('/')
+  const tmpPath = stateList.nowPath
+    ? stateList.nowPath.split('/')
+    : stateList.lastPath.split('/')
   tmpPath.unshift()
   tmpPath.length = tmpPath.length - 2
   const path = tmpPath.join('/')
   const result = ipcRenderer.sendSync('onClick', {
     path: path,
   })
-  setNowPath(path + '/')
+  exportFunctions.setNowPath(path + '/')
 
-  setFolderList(() => {
-    return result.folderList
-  })
+  exportFunctions.setFolderList(result.folderList)
 }
 export default undoFunction

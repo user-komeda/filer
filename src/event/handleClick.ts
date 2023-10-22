@@ -1,42 +1,30 @@
 import { ipcRenderer } from 'electron'
-import FileInfo from '../@types/fileInfo'
+import StateList from '../@types/stateList'
+import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  * clickEvent処理
- *
- * @param event -event
- *
- * @param nowPath -nowPath
- *
- * @param lastPath -lastPath
- *
- * @param setFolderList -setFolderList
- *
- * @param setLastPath -setLastPath
- *
- * @param setNowPath -setNowPath
+ * @param event
+ * @param stateList
+ * @param exportFunctions
  */
 const handleClick = (
   event: React.MouseEvent,
-  nowPath: string,
-  lastPath: string,
-  setFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>,
-  setLastPath: React.Dispatch<React.SetStateAction<string>>,
-  setNowPath: React.Dispatch<React.SetStateAction<string>>
+  stateList: StateList,
+  exportFunctions: StateListFunctions
 ) => {
-  const tmpPath = `${nowPath ? nowPath : lastPath}${
-    event.currentTarget.textContent
-  }`
+  console.log('callHandleClick')
+  const tmpPath = `${
+    stateList.nowPath ? stateList.nowPath : stateList.lastPath
+  }${event.currentTarget.textContent}`
 
   const result = ipcRenderer.sendSync('onClick', {
     path: tmpPath,
   })
   if (!result.isFile) {
-    setLastPath(tmpPath + '/')
-    setNowPath(tmpPath + '/')
+    exportFunctions.setLastPath(tmpPath + '/')
+    exportFunctions.setNowPath(tmpPath + '/')
   }
-  setFolderList(() => {
-    return result.folderList
-  })
+  exportFunctions.setFolderList(result.folderList)
 }
 export default handleClick

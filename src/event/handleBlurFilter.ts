@@ -1,31 +1,27 @@
-import FileInfo from '../@types/fileInfo'
+import StateList from '../@types/stateList'
+import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *絞り込み機能
- *
  * @param event -event
- *
- * @param folderList -folderList
- *
- * @param setFilteredFolderList -setFilteredFolderList
+ * @param stateList -stateList
+ * @param exportFunctions -exportFunctions
  */
 const handleBlurFilter = (
   event: React.ChangeEvent<HTMLInputElement>,
-  folderList: Array<FileInfo>,
-  setFilteredFolderList: React.Dispatch<
-    React.SetStateAction<Array<FileInfo> | null>
-  >
+  stateList: StateList,
+  exportFunctions: StateListFunctions
 ) => {
   const filterText = event.currentTarget.value
   if (filterText === '') {
-    setFilteredFolderList(null)
+    exportFunctions.setFilteredFolderList([])
     return
   }
-  const filteredFolderList = folderList.filter((folder) => {
+  const filteredFolderList = stateList.folderList.filter((folder) => {
     if (folder.fileName !== undefined) {
       return folder.fileName.includes(filterText)
     }
   })
-  setFilteredFolderList(filteredFolderList)
+  exportFunctions.setFilteredFolderList(filteredFolderList)
 }
 export default handleBlurFilter

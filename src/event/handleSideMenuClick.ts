@@ -1,26 +1,22 @@
 import { ipcRenderer } from 'electron'
-import StateListRequest from '../@types/sideMenuClickRequestValue'
+import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *サイドメニュークリック処理
- *
  * @param event -event
- *
- * @param requestValue -requestValue
+ * @param exportFunctions -exportFunctions
  */
 const handleSideMenuClick = (
   event: React.MouseEvent,
-  requestValue: StateListRequest
+  exportFunctions: StateListFunctions
 ) => {
   const filePath =
     event.currentTarget.parentNode?.children[2].getAttribute('data-path') ?? ''
   const result = ipcRenderer.sendSync('onClick', {
     path: filePath,
   })
-  requestValue.setNowPath(filePath + '/')
-  requestValue.setLastPath(filePath + '/')
-  requestValue.setFolderList(() => {
-    return result.folderList
-  })
+  exportFunctions.setNowPath(filePath + '/')
+  exportFunctions.setLastPath(filePath + '/')
+  exportFunctions.setFolderList(result.folderList)
 }
 export default handleSideMenuClick

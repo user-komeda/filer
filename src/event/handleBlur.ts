@@ -1,22 +1,14 @@
 import { ipcRenderer } from 'electron'
-import FileInfo from '../@types/fileInfo'
+import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *blurEvent処理
- *
  * @param event -event
- *
- * @param setLastPath -setLastPath
- *
- * @param setNowPath -setNowPath
- *
- * @param setFolderList -setFolderList
+ * @param exportFunctions -exportFunctions
  */
 const handleBlur = (
   event: React.ChangeEvent<HTMLInputElement>,
-  setLastPath: React.Dispatch<React.SetStateAction<string>>,
-  setNowPath: React.Dispatch<React.SetStateAction<string>>,
-  setFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>
+  exportFunctions: StateListFunctions
 ) => {
   const path = event.currentTarget.value
   const pathArray = path.split('/')
@@ -26,12 +18,12 @@ const handleBlur = (
     path: path,
   })
   if (!result.flag) {
-    setNowPath(beforePath + '/')
-    setLastPath(beforePath + '/')
+    exportFunctions.setNowPath(beforePath + '/')
+    exportFunctions.setLastPath(beforePath + '/')
   } else {
-    setNowPath(path + '/')
-    setLastPath(path + '/')
-    setFolderList(result.folderList)
+    exportFunctions.setNowPath(path + '/')
+    exportFunctions.setLastPath(path + '/')
+    exportFunctions.setFolderList(result.folderList)
   }
 }
 export default handleBlur

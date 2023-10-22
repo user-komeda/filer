@@ -1,35 +1,45 @@
 import React from 'react'
 import FileInfo from '../@types/fileInfo'
+import MainContentRequest from '../request/MainContentRequest'
 
 /**
  *mainContent部コンポーネント
- *
  * @param props - props
- *
  * @returns jsx
  */
 const MainContent: React.FC<{
-  folderList: null | Array<FileInfo>
-  handleClick: (e: React.MouseEvent) => void
-  sortFunction: (e: React.MouseEvent) => void
-}> = (props) => {
+  mainContentRequest: MainContentRequest
+}> = props => {
+  const mainContentRequest = props.mainContentRequest
   const folderList: Array<FileInfo> =
-    props.folderList !== null ? props.folderList : []
+    mainContentRequest.folderList !== null ? mainContentRequest.folderList : []
 
   return (
     <table style={{ width: '100%' }}>
       <thead>
         <tr>
-          <th id="fileName" onClick={props.sortFunction}>
+          <th
+            id='fileName'
+            onClick={event => mainContentRequest.sortFunction(event)}
+          >
             名前
           </th>
-          <th id="fileUpdateTime" onClick={props.sortFunction}>
+          <th
+            id='fileUpdateTime'
+            onClick={event => mainContentRequest.sortFunction(event)}
+          >
             更新日時
           </th>
-          <th id="fileType" onClick={props.sortFunction}>
+          <th
+            id='fileType'
+            onClick={event => mainContentRequest.sortFunction(event)}
+          >
             種類
           </th>
-          <th id="fileSize" onClick={props.sortFunction}>
+          <th
+            id='fileSize'
+            onClick={event => mainContentRequest.sortFunction(event)}
+          >
             サイズ
           </th>
         </tr>
@@ -38,7 +48,10 @@ const MainContent: React.FC<{
         {folderList.map((folder, index) => {
           return (
             <tr key={index}>
-              <td className="folder" onClick={props.handleClick}>
+              <td
+                className='folder'
+                onClick={event => mainContentRequest.handleClick(event)}
+              >
                 {'string' === typeof folder ? folder : folder.fileName}
               </td>
               <td>{'string' === typeof folder ? '' : folder.updateFileTime}</td>

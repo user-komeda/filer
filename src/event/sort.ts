@@ -1,23 +1,22 @@
 import FileInfo from '../@types/fileInfo'
+import StateList from '../@types/stateList'
+import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *sort処理
- *
- * @param event -event
- *
- * @param folderList -folderList
- *
- * @param isSortTypeAsc -isSortTypeAsc
- *
- * @param setSortType -setSortType
+ * @param event
+ * @param stateList
+ * @param exportFunctions
  */
 const sort = (
   event: React.MouseEvent,
-  folderList: Array<FileInfo>,
-  isSortTypeAsc: boolean,
-  setSortType: React.Dispatch<React.SetStateAction<boolean>>
+  stateList: StateList,
+  exportFunctions: StateListFunctions
 ) => {
   const sortTarget = event.currentTarget.id
+  const folderList = stateList.folderList
+  const isSortTypeAsc = stateList.isSortTypeAsc
+
   switch (sortTarget) {
     case 'fileName':
       sortByName(folderList, isSortTypeAsc)
@@ -32,14 +31,12 @@ const sort = (
       sortByFileSize(folderList, isSortTypeAsc)
       break
   }
-  setSortType(!isSortTypeAsc)
+  exportFunctions.setIsSortTypeAsc(!isSortTypeAsc)
 }
 
 /**
  *folderListを名前でソート
- *
  * @param folderList -folderList
- *
  * @param isSortTypeAsc -isSortTypeAsc
  */
 const sortByName = (folderList: Array<FileInfo>, isSortTypeAsc: boolean) => {
@@ -57,9 +54,7 @@ const sortByName = (folderList: Array<FileInfo>, isSortTypeAsc: boolean) => {
 
 /**
  *folderListをサイズでソート
- *
  * @param folderList -folderList
- *
  * @param isSortTypeAsc -isSortTypeAsc
  */
 const sortByFileSize = (
@@ -80,9 +75,7 @@ const sortByFileSize = (
 
 /**
  *folderListを種類でソート
- *
  * @param folderList -folderList
- *
  * @param isSortTypeAsc -isSortTypeAsc
  */
 const sortByFileType = (
@@ -103,9 +96,7 @@ const sortByFileType = (
 
 /**
  *folderListを更新時間でソート
- *
  * @param folderList -folderList
- *
  * @param isSortTypeAsc -isSortTypeAsc
  */
 const sortByUpdateTime = (

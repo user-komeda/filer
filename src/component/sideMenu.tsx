@@ -11,47 +11,43 @@ import {
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 
 import FileInfo from '../@types/fileInfo'
+import SideMenuRequest from '../request/SideMenuRequest'
 
 /**
  *sideMenu表示コンポーネント
- *
  * @param props - props
- *
  * @returns jsx
  */
 const SideMenu: React.FC<{
-  folderList: Map<string, Map<string, Map<number, Array<FileInfo>>>>
-  volumeLabelList: Array<string>
-  clickedFolder: Array<string>
-  colCountList: Array<string>
-  handleSideMenuSvgClick: (e: React.MouseEvent) => void
-  handleSideMenuClick: (e: React.MouseEvent) => void
+  sideMenuRequest: SideMenuRequest
 }> = (props): JSX.Element => {
-  console.log(props.folderList)
   const basePath = 'c://Users/user/'
   const loopCount = useRef(0)
   loopCount.current = 0
   const mapFolderList =
-    props.folderList ?? new Map<string, Map<number, Array<FileInfo>>>()
+    props.sideMenuRequest.folderList ??
+    new Map<string, Map<number, Array<FileInfo>>>()
   const folderList =
     mapFolderList.get('firstKey')?.get('0')?.get(0) ?? new Array<FileInfo>()
-  const volumeLabelList = props.volumeLabelList
-  const handleSideMenuSvgClick = props.handleSideMenuSvgClick
-  const handleSideMenuClick = props.handleSideMenuClick
+  const volumeLabelList = props.sideMenuRequest.volumeLabelList
+  const handleSideMenuSvgClick = props.sideMenuRequest.handleSideMenuSvgClick
+  const handleSideMenuClick = props.sideMenuRequest.handleSideMenuClick
   return (
     <>
       <List
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
-        component="nav"
-        aria-labelledby="nested-list-subheader"
+        component='nav'
+        aria-labelledby='nested-list-subheader'
         subheader={
-          <ListSubheader component="div" id="nested-list-subheader">
+          <ListSubheader component='div' id='nested-list-subheader'>
             Nested List Items
           </ListSubheader>
         }
       >
         {folderList.map((folder, index) => {
-          const isExist = props.clickedFolder.find((x) => x === folder.fileName)
+          const isExist = props.sideMenuRequest.clickFolderList.find(
+            x => x === folder.fileName
+          )
           return (
             <ListItem
               sx={{
@@ -79,9 +75,9 @@ const SideMenu: React.FC<{
                     mapFolderList.get(folder.fileName ?? '') ??
                       new Map<string, Map<number, Array<FileInfo>>>(),
                     folder.fileName ?? '',
-                    props.clickedFolder,
+                    props.sideMenuRequest.clickFolderList,
                     loopCount,
-                    props.colCountList,
+                    props.sideMenuRequest.colCountList,
                     handleSideMenuSvgClick,
                     handleSideMenuClick
                   )
@@ -111,21 +107,13 @@ const SideMenu: React.FC<{
 
 /**
  *folderListの描画
- *
  * @param folderList -folderList
- *
  * @param parentFolderName -最上位のフォルダーネーム
- *
  * @param clickedFolderList -clickFolderList
- *
  * @param loopCount -loopCOunt
- *
  * @param colCountList -colCountList
- *
  * @param handleSideMenuSvgClick -svgClickEvent
- *
  * @param handleSideMenuClick -sideMenuClickEvent
- *
  * @returns jsx
  */
 const createColList = (
@@ -144,7 +132,7 @@ const createColList = (
   const fileNameList = tmpFileNameList?.get(keyList[0])
   loopCount.current += 1
   return (
-    <List component="nav" disablePadding>
+    <List component='nav' disablePadding>
       {fileNameList?.map((fileName, index) => {
         return (
           <div key={index}>

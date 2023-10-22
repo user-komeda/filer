@@ -1,23 +1,19 @@
 import { ipcRenderer } from 'electron'
 import FileInfo from '../@types/fileInfo'
+import StateList from '../@types/stateList'
+import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *やり直し処理処理
- *
- * @param nowPath -nowPath
- *
- * @param lastPath -lastPath
- *
- * @param setFolderList -setFolderList
- *
- * @param setNowPath -setNowPath
+ * @param stateList -stateList
+ * @param exportFunctions -exportFunctions
  */
 const redoFunction = (
-  nowPath: string,
-  lastPath: string,
-  setFolderList: React.Dispatch<React.SetStateAction<Array<FileInfo>>>,
-  setNowPath: React.Dispatch<React.SetStateAction<string>>
+  stateList: StateList,
+  exportFunctions: StateListFunctions
 ) => {
+  const nowPath = stateList.nowPath
+  const lastPath = stateList.lastPath
   if (nowPath !== '' && nowPath !== lastPath) {
     const pathArray = nowPath.split('/')
     const lastPathArray = lastPath.split('/')
@@ -28,10 +24,8 @@ const redoFunction = (
     const result = ipcRenderer.sendSync('onClick', {
       path: a,
     })
-    setFolderList(() => {
-      return result.folderList
-    })
-    setNowPath(a + '/')
+    exportFunctions.setFolderList(result.folderList)
+    exportFunctions.setNowPath(a + '/')
   }
 }
 export default redoFunction

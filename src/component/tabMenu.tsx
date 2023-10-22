@@ -6,7 +6,6 @@ import TabUnstyled from '@mui/base/TabUnstyled'
 
 /**
  *tab表示用コンポーネント
- *
  * @returns jsx
  */
 const TabMenu = (): JSX.Element => {
