@@ -1,6 +1,8 @@
 import React from 'react'
 
 import { ipcRenderer } from '../@types/ipcRender'
+import DiaLogMenuRequest from '../request/DiaLogmenuRequest'
+import { iconFolderPath } from '../const/const'
 
 /**
  *ダイアログ表示コンポーネント
@@ -10,31 +12,32 @@ import { ipcRenderer } from '../@types/ipcRender'
  * @returns jsx
  */
 const Dialog: React.FC<{
-  programNameList: Array<string>
-  path: string
-  iconList: Array<string>
-}> = (props) => {
-  const programNameList = props.programNameList
-  const iconFolderPath = 'c:/Users/user/Desktop/learning/electron/filer/icon/'
-  const iconList = props.iconList
-
+  diaLogMenuRequest: DiaLogMenuRequest
+}> = props => {
+  const diaLogMenuRequest = props.diaLogMenuRequest
   return (
     <div>
       <ul>
-        {programNameList.map((programName, key) => {
-          if (programName) {
-            return (
-              <li key={key}>
-                <div onClick={handleClick}>
-                  <img src={`${iconFolderPath}${iconList[key]}`} />
-                  <span>{programName}</span>
-                </div>
-              </li>
-            )
-          }
+        {diaLogMenuRequest.programNameList.map((programName, key) => {
+          view(programName, key, diaLogMenuRequest)
         })}
       </ul>
     </div>
+  )
+}
+
+const view = (
+  programName: string,
+  key: number,
+  diaLogMenuRequest: DiaLogMenuRequest
+) => {
+  return (
+    <li key={key}>
+      <div onClick={handleClick}>
+        <img src={`${iconFolderPath}${diaLogMenuRequest.iconList[key]}`} />
+        <span>{programName}</span>
+      </div>
+    </li>
   )
 }
 

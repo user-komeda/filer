@@ -2,6 +2,7 @@ import * as React from 'react'
 import { useInput } from '@mui/base'
 import { styled } from '@mui/system'
 import { unstable_useForkRef as useForkRef } from '@mui/utils'
+import TextFilterMenuRequest from '../request/TextFilterMenuRequest'
 
 // 色定義
 const blue = {
@@ -50,7 +51,7 @@ const StyledInputElement = styled('input')(
 )
 
 // view定義
-const TextFilterMenu = React.forwardRef(function CustomInput(
+const TextFilterMenu = React.forwardRef(function CustomInput (
   props: React.InputHTMLAttributes<HTMLInputElement>,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
@@ -74,13 +75,13 @@ const TextFilterMenu = React.forwardRef(function CustomInput(
  * @returns jsx
  */
 const _TextFilterMenu: React.FC<{
-  handleBlurFilter: (event: React.ChangeEvent<HTMLInputElement>) => void
-}> = (props) => {
+  textFilterMenuRequest: TextFilterMenuRequest
+}> = props => {
   return (
     <TextFilterMenu
-      aria-label="Demo input"
-      placeholder="Type something..."
-      onBlur={props.handleBlurFilter}
+      aria-label='Demo input'
+      placeholder='Type something...'
+      onBlur={event => props.textFilterMenuRequest.handleBlurFilter(event)}
     />
   )
 }
