@@ -4,9 +4,13 @@ import handleBlur from '../event/handleBlur'
 import handleChange from '../event/handleChange'
 
 /**
+ *PathTextMenuComponent引数
  *
- * @param stateList
- * @param exportFunctions
+ * @param stateList -stateList
+ *
+ * @param exportFunctions -exportFunctions
+ *
+ * @returns PathTextMenuRequest
  */
 const PathTextMenuRequest = (
   stateList: StateList,

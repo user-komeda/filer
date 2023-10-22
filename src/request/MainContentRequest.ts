@@ -6,9 +6,13 @@ import handleClick from '../event/handleClick'
 import sort from '../event/sort'
 
 /**
+ *mainContentComponent引数
  *
- * @param stateList
- * @param exportFunctions
+ * @param stateList -stateList
+ *
+ * @param exportFunctions -exportFunctions
+ *
+ * @returns MainContentRequest
  */
 const MainContentRequest = (
   stateList: StateList,

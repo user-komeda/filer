@@ -2,7 +2,9 @@ import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  * changeEvent処理
+ *
  * @param event -event
+ *
  * @param exportFunctions -exportFunctions
  */
 const handleChange = (

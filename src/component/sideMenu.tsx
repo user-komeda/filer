@@ -15,7 +15,9 @@ import SideMenuRequest from '../request/SideMenuRequest'
 
 /**
  *sideMenu表示コンポーネント
+ *
  * @param props - props
+ *
  * @returns jsx
  */
 const SideMenu: React.FC<{
@@ -107,13 +109,21 @@ const SideMenu: React.FC<{
 
 /**
  *folderListの描画
+ *
  * @param folderList -folderList
+ *
  * @param parentFolderName -最上位のフォルダーネーム
+ *
  * @param clickedFolderList -clickFolderList
+ *
  * @param loopCount -loopCOunt
+ *
  * @param colCountList -colCountList
+ *
  * @param handleSideMenuSvgClick -svgClickEvent
+ *
  * @param handleSideMenuClick -sideMenuClickEvent
+ *
  * @returns jsx
  */
 const createColList = (

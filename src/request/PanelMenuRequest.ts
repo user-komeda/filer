@@ -4,9 +4,13 @@ import redoFunction from '../event/redoFunction'
 import undoFunction from '../event/undoFunction'
 
 /**
+ *PanelMenuComponent引数
  *
- * @param stateList
- * @param exportFunctions
+ * @param stateList -stateList
+ *
+ * @param exportFunctions -exportFunctions
+ *
+ * @returns PanelMenuRequest
  */
 const PanelMenuRequest = (
   stateList: StateList,

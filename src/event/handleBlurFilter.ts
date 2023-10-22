@@ -3,8 +3,11 @@ import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *絞り込み機能
+ *
  * @param event -event
+ *
  * @param stateList -stateList
+ *
  * @param exportFunctions -exportFunctions
  */
 const handleBlurFilter = (

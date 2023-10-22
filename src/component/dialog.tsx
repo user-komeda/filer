@@ -6,7 +6,9 @@ import { iconFolderPath } from '../const/const'
 
 /**
  *ダイアログ表示コンポーネント
+ *
  * @param props - props
+ *
  * @returns jsx
  */
 const Dialog: React.FC<{

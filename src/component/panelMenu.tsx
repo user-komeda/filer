@@ -3,7 +3,9 @@ import PanelMenuRequest from '../request/PanelMenuRequest'
 
 /**
  *panel部表示コンポーネント
+ *
  * @param props - props
+ *
  * @returns jsx
  */
 const PanelMenu: React.FC<{

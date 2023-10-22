@@ -8,11 +8,14 @@ import RefList from '../@types/refList'
 
 /**
  *svgクリック処理
- * @param event -event
- * @param requestValue -requestValue
- * @param stateList
- * @param refList
- * @param exportFunctions
+ *
+ * @param event - event
+ *
+ * @param stateList - stateList
+ *
+ * @param refList - refList
+ *
+ * @param exportFunctions - exportFunctions
  */
 const handleSideMenuSvgClick = (
   event: React.MouseEvent,

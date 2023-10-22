@@ -6,10 +6,15 @@ import handleSideMenuClick from '../event/handleSideMenuClick'
 import handleSideMenuSvgClick from '../event/handleSideMenuSvgClick'
 
 /**
+ *SideMenuComponent引数
  *
- * @param stateList
- * @param refList
- * @param exportFunctions
+ * @param stateList -stateList
+ *
+ * @param refList -refList
+ *
+ * @param exportFunctions -exportFunctions
+ *
+ * @returns SideMenuRequest
  */
 const SideMenuRequest = (
   stateList: StateList,

@@ -21,12 +21,13 @@ const STATE_LIST: StateList = {
 }
 
 /**
+ *stateList
  *
- * @returns
+ * @returns [StateList, StateListFunctions]
  */
-export const initStateList = (): [StateList, StateListFunctions] => {
+export const useInitStateList = (): [StateList, StateListFunctions] => {
   /**
-   *
+   *stateList
    */
   const [stateList, setStateList] = useState(STATE_LIST)
 
@@ -129,7 +130,7 @@ export const initStateList = (): [StateList, StateListFunctions] => {
   }
 
   const setRowCountList = (value: Array<string>) => {
-    setStateList((prev: any) => {
+    setStateList((prev: StateList) => {
       const updateValue = Object.assign({}, prev)
       updateValue.clickedFolderList = value
       return updateValue
@@ -156,17 +157,19 @@ export const initStateList = (): [StateList, StateListFunctions] => {
 }
 
 /**
+ *initRefList
  *
+ *@returns RefList
  */
-export const initRefList = (): RefList => {
+export const useInitRefList = (): RefList => {
   /**
-   *
+   *  useRefList
    */
-  const refList = {
+  const useRefList = {
     row: useRef(-1),
     sideMenuFolderPath: useRef(''),
     sameFolderDeletedFlag: useRef(true),
   }
 
-  return refList
+  return useRefList
 }

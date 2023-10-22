@@ -16,7 +16,7 @@ import FileInfo from './@types/fileInfo'
 import { Box } from '@mui/system'
 import { CssBaseline, Toolbar, AppBar } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
-import { initStateList, initRefList } from './util/stateList'
+import { useInitStateList, useInitRefList } from './util/stateList'
 import DiaLogMenuRequest from './request/DiaLogmenuRequest'
 import MainContentRequest from './request/MainContentRequest'
 import TextFilterMenuRequest from './request/TextFilterMenuRequest'
@@ -25,11 +25,12 @@ import SideMenuRequest from './request/SideMenuRequest'
 import PanelMenuRequest from './request/PanelMenuRequest'
 /**
  * レンダラー
+ *
  * @returns  jsx
  */
 const App = (): JSX.Element => {
-  const [stateList, exportFunctions] = initStateList()
-  const refList = initRefList()
+  const [stateList, exportFunctions] = useInitStateList()
+  const refList = useInitRefList()
 
   const drawerWidth = 240
   // データ受信

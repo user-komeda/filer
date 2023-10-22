@@ -1,7 +1,7 @@
 // import FileInfo from '../@types/fileInfo'
 
 /**
- *
+ *clickSvg
  */
 const clickSvg = () => {
   //   if (

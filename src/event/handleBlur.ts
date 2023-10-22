@@ -3,7 +3,9 @@ import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *blurEvent処理
+ *
  * @param event -event
+ *
  * @param exportFunctions -exportFunctions
  */
 const handleBlur = (

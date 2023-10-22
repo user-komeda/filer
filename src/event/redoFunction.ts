@@ -1,11 +1,12 @@
 import { ipcRenderer } from 'electron'
-import FileInfo from '../@types/fileInfo'
 import StateList from '../@types/stateList'
 import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *やり直し処理処理
+ *
  * @param stateList -stateList
+ *
  * @param exportFunctions -exportFunctions
  */
 const redoFunction = (

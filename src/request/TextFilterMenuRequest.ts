@@ -3,9 +3,13 @@ import StateListFunctions from '../@types/stateListFunctions'
 import handleBlurFilter from '../event/handleBlurFilter'
 
 /**
+ *TextFilterMenuComponent 引数
  *
- * @param stateList
- * @param exportFunctions
+ * @param stateList -stateList
+ *
+ * @param exportFunctions -exportFunctions
+ *
+ * @returns  TextFilterMenuRequest
  */
 const TextFilterMenuRequest = (
   stateList: StateList,

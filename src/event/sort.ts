@@ -4,9 +4,12 @@ import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *sort処理
- * @param event
- * @param stateList
- * @param exportFunctions
+ *
+ * @param event - event
+ *
+ * @param stateList - stateList
+ *
+ * @param exportFunctions - exportFunctions
  */
 const sort = (
   event: React.MouseEvent,
@@ -36,7 +39,9 @@ const sort = (
 
 /**
  *folderListを名前でソート
+ *
  * @param folderList -folderList
+ *
  * @param isSortTypeAsc -isSortTypeAsc
  */
 const sortByName = (folderList: Array<FileInfo>, isSortTypeAsc: boolean) => {
@@ -54,7 +59,9 @@ const sortByName = (folderList: Array<FileInfo>, isSortTypeAsc: boolean) => {
 
 /**
  *folderListをサイズでソート
+ *
  * @param folderList -folderList
+ *
  * @param isSortTypeAsc -isSortTypeAsc
  */
 const sortByFileSize = (
@@ -75,7 +82,9 @@ const sortByFileSize = (
 
 /**
  *folderListを種類でソート
+ *
  * @param folderList -folderList
+ *
  * @param isSortTypeAsc -isSortTypeAsc
  */
 const sortByFileType = (
@@ -96,7 +105,9 @@ const sortByFileType = (
 
 /**
  *folderListを更新時間でソート
+ *
  * @param folderList -folderList
+ *
  * @param isSortTypeAsc -isSortTypeAsc
  */
 const sortByUpdateTime = (

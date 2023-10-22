@@ -206,7 +206,9 @@ app.once('window-all-closed', () => app.quit())
 
 /**
  *ファイルの拡張子を取得
+ *
  * @param path - パス
+ *
  * @returns ファイル拡張子
  */
 const getExtensionName = (path: string): string => {
@@ -220,7 +222,9 @@ const getExtensionName = (path: string): string => {
 
 /**
  *渡された拡張子を関連付けられたソフトで実行
+ *
  * @param extensionName - 拡張子
+ *
  * @param path - path
  */
 const execProgram = (extensionName: string, path: string) => {
@@ -237,6 +241,7 @@ const execProgram = (extensionName: string, path: string) => {
 
 /**
  * 関連付けられた拡張子以外のファイルをクリックした場合どのプログラムで開くかダイアログを表示
+ *
  * @param path - path
  */
 const openDialog = (path: string) => {
@@ -250,7 +255,9 @@ const openDialog = (path: string) => {
 
 /**
  * プログラム一覧表示用ダイアログ表示
+ *
  * @param programNameList - プログラム一覧
+ *
  * @param clickedPath - パス
  */
 const createChildWindow = (

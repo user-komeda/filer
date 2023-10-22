@@ -4,7 +4,9 @@ import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  *戻る処理
+ *
  * @param stateList -stateList
+ *
  * @param exportFunctions -exportFunctions
  */
 const undoFunction = (

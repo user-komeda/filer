@@ -77,7 +77,9 @@ const PathTextMenu = React.forwardRef(
 
 /**
  *pathText部表示コンポーネント
+ *
  * @param props - props
+ *
  * @returns jsx
  */
 const _PathTextMenu: React.FC<{

@@ -4,7 +4,9 @@ import MainContentRequest from '../request/MainContentRequest'
 
 /**
  *mainContent部コンポーネント
+ *
  * @param props - props
+ *
  * @returns jsx
  */
 const MainContent: React.FC<{

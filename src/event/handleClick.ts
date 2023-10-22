@@ -4,9 +4,12 @@ import StateListFunctions from '../@types/stateListFunctions'
 
 /**
  * clickEvent処理
- * @param event
- * @param stateList
- * @param exportFunctions
+ *
+ * @param event -event
+ *
+ * @param stateList -stateList
+ *
+ * @param exportFunctions -exportFunctions
  */
 const handleClick = (
   event: React.MouseEvent,

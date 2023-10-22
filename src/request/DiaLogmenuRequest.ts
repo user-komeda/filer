@@ -1,8 +1,11 @@
 import StateList from '../@types/stateList'
 
 /**
+ *DiaLogMenuComponent引数
  *
- * @param stateList
+ * @param stateList - stateList
+ *
+ * @returns DiaLogMenuRequest
  */
 const DiaLogMenuRequest = (stateList: StateList): DiaLogMenuRequest => {
   return {
