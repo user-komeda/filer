@@ -16,7 +16,6 @@ const handleClick = (
   stateList: StateList,
   exportFunctions: StateListFunctions
 ) => {
-  console.log('callHandleClick')
   const tmpPath = `${
     stateList.nowPath ? stateList.nowPath : stateList.lastPath
   }${event.currentTarget.textContent}`

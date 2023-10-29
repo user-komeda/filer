@@ -38,18 +38,18 @@ const SideMenu: React.FC<{
     <>
       <List
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
-        component='nav'
-        aria-labelledby='nested-list-subheader'
+        component="nav"
+        aria-labelledby="nested-list-subheader"
         subheader={
-          <ListSubheader component='div' id='nested-list-subheader'>
+          <ListSubheader component="div" id="nested-list-subheader">
             Nested List Items
           </ListSubheader>
         }
       >
         {folderList.map((folder, index) => {
-          const isExist = props.sideMenuRequest.clickFolderList.find(
-            x => x === folder.fileName
-          )
+          const isExist = props.sideMenuRequest.clickFolderList.find((x) => {
+            return x === folder.fileName
+          })
           return (
             <ListItem
               sx={{
@@ -141,8 +141,9 @@ const createColList = (
   const keyList = Array.from(tmpFileNameList.keys())
   const fileNameList = tmpFileNameList?.get(keyList[0])
   loopCount.current += 1
+  console.log(fileNameList)
   return (
-    <List component='nav' disablePadding>
+    <List component="nav" disablePadding>
       {fileNameList?.map((fileName, index) => {
         return (
           <div key={index}>
