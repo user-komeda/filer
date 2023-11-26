@@ -3,9 +3,10 @@ import FileInfo from '../@types/fileInfo'
 import StateList from '../@types/stateList'
 import StateListFunctions from '../@types/stateListFunctions'
 import RefList from '../@types/refList'
+import { basePath } from '../const/const'
 
 const STATE_LIST: StateList = {
-  lastPath: '',
+  lastPath: basePath,
   nowPath: '',
   folderList: [],
   sideMenuFolderList: new Map(),
@@ -42,7 +43,7 @@ export const useInitStateList = (): [StateList, StateListFunctions] => {
   const setNowPath = (value: string) => {
     setStateList((prev: StateList) => {
       const updateValue = Object.assign({}, prev)
-      updateValue.lastPath = value
+      updateValue.nowPath = value
       return updateValue
     })
   }
@@ -132,7 +133,7 @@ export const useInitStateList = (): [StateList, StateListFunctions] => {
   const setRowCountList = (value: Array<string>) => {
     setStateList((prev: StateList) => {
       const updateValue = Object.assign({}, prev)
-      updateValue.clickedFolderList = value
+      updateValue.rowCountList = value
       return updateValue
     })
   }

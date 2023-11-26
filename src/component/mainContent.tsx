@@ -11,7 +11,7 @@ import MainContentRequest from '../request/MainContentRequest'
  */
 const MainContent: React.FC<{
   mainContentRequest: MainContentRequest
-}> = props => {
+}> = (props) => {
   const mainContentRequest = props.mainContentRequest
   const folderList: Array<FileInfo> =
     mainContentRequest.folderList !== null ? mainContentRequest.folderList : []
@@ -21,26 +21,26 @@ const MainContent: React.FC<{
       <thead>
         <tr>
           <th
-            id='fileName'
-            onClick={event => mainContentRequest.sortFunction(event)}
+            id="fileName"
+            onClick={(event) => mainContentRequest.sortFunction(event)}
           >
             名前
           </th>
           <th
-            id='fileUpdateTime'
-            onClick={event => mainContentRequest.sortFunction(event)}
+            id="fileUpdateTime"
+            onClick={(event) => mainContentRequest.sortFunction(event)}
           >
             更新日時
           </th>
           <th
-            id='fileType'
-            onClick={event => mainContentRequest.sortFunction(event)}
+            id="fileType"
+            onClick={(event) => mainContentRequest.sortFunction(event)}
           >
             種類
           </th>
           <th
-            id='fileSize'
-            onClick={event => mainContentRequest.sortFunction(event)}
+            id="fileSize"
+            onClick={(event) => mainContentRequest.sortFunction(event)}
           >
             サイズ
           </th>
@@ -51,8 +51,8 @@ const MainContent: React.FC<{
           return (
             <tr key={index}>
               <td
-                className='folder'
-                onClick={event => mainContentRequest.handleClick(event)}
+                className="folder"
+                onClick={(event) => mainContentRequest.handleClick(event)}
               >
                 {'string' === typeof folder ? folder : folder.fileName}
               </td>

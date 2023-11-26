@@ -51,7 +51,7 @@ const StyledInputElement = styled('input')(
 )
 
 // view定義
-const TextFilterMenu = React.forwardRef(function CustomInput (
+const TextFilterMenu = React.forwardRef(function CustomInput(
   props: React.InputHTMLAttributes<HTMLInputElement>,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
@@ -76,12 +76,12 @@ const TextFilterMenu = React.forwardRef(function CustomInput (
  */
 const _TextFilterMenu: React.FC<{
   textFilterMenuRequest: TextFilterMenuRequest
-}> = props => {
+}> = (props) => {
   return (
     <TextFilterMenu
-      aria-label='Demo input'
-      placeholder='Type something...'
-      onBlur={event => props.textFilterMenuRequest.handleBlurFilter(event)}
+      aria-label="Demo input"
+      placeholder="Type something..."
+      onBlur={(event) => props.textFilterMenuRequest.handleBlurFilter(event)}
     />
   )
 }

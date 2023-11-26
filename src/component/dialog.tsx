@@ -13,7 +13,7 @@ import { iconFolderPath } from '../const/const'
  */
 const Dialog: React.FC<{
   diaLogMenuRequest: DiaLogMenuRequest
-}> = props => {
+}> = (props) => {
   const diaLogMenuRequest = props.diaLogMenuRequest
   return (
     <div>
