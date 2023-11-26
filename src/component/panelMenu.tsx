@@ -10,7 +10,7 @@ import PanelMenuRequest from '../request/PanelMenuRequest'
  */
 const PanelMenu: React.FC<{
   panelMenuRequest: PanelMenuRequest
-}> = props => {
+}> = (props) => {
   return (
     <div style={{ width: '15%' }}>
       <button

@@ -84,13 +84,13 @@ const PathTextMenu = React.forwardRef(
  */
 const _PathTextMenu: React.FC<{
   pathTextMenuRequest: PathTextMenuRequest
-}> = props => {
+}> = (props) => {
   return (
     <PathTextMenu
-      aria-label='Demo input'
-      placeholder='Type something...'
-      onBlur={event => props.pathTextMenuRequest.handleBlur(event)}
-      onChange={event => props.pathTextMenuRequest.handleChange(event)}
+      aria-label="Demo input"
+      placeholder="Type something..."
+      onBlur={(event) => props.pathTextMenuRequest.handleBlur(event)}
+      onChange={(event) => props.pathTextMenuRequest.handleChange(event)}
       value={props.pathTextMenuRequest.path}
     ></PathTextMenu>
   )

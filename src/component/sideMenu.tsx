@@ -23,12 +23,13 @@ import SideMenuRequest from '../request/SideMenuRequest'
 const SideMenu: React.FC<{
   sideMenuRequest: SideMenuRequest
 }> = (props): JSX.Element => {
+  console.dir(props.sideMenuRequest.folderList)
   const basePath = 'c://Users/user/'
   const loopCount = useRef(0)
   loopCount.current = 0
   const mapFolderList =
     props.sideMenuRequest.folderList ??
-    new Map<string, Map<number, Array<FileInfo>>>()
+    new Map<string, Map<string, Map<number, FileInfo[]>>>()
   const folderList =
     mapFolderList.get('firstKey')?.get('0')?.get(0) ?? new Array<FileInfo>()
   const volumeLabelList = props.sideMenuRequest.volumeLabelList
